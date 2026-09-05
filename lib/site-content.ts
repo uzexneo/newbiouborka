@@ -8,6 +8,8 @@ export const DEFAULT_BACKGROUND = "/assets/hero-cleaning.png";
 
 export const DEFAULT_LOGO = "";
 
+export const DEFAULT_LOGO_SIZE = 44;
+
 export interface SiteService {
   id: string;
   categoryId: string;
@@ -57,6 +59,7 @@ export interface PublicContent {
   gallery: GalleryItem[] | null;
   background: string | null;
   logo: string | null;
+  logoSize?: number | null;
 }
 
 export const DEFAULT_CONTACTS: SiteContacts = {

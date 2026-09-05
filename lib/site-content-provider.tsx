@@ -16,6 +16,7 @@ import {
   DEFAULT_BACKGROUND,
   DEFAULT_CONTACTS,
   DEFAULT_LOGO,
+  DEFAULT_LOGO_SIZE,
   groupServicesByCategory,
 } from "@/lib/site-content";
 import type {
@@ -37,6 +38,7 @@ interface SiteContentValue {
   gallery: GalleryItem[];
   background: string;
   logo: string;
+  logoSize: number;
   isDynamic: boolean;
 }
 
@@ -142,6 +144,11 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
 
   const logo: string = dynamic?.logo ?? DEFAULT_LOGO;
 
+  const logoSize: number =
+    dynamic?.logoSize && dynamic.logoSize > 0
+      ? dynamic.logoSize
+      : DEFAULT_LOGO_SIZE;
+
   const hasDynamicData =
     loaded &&
     (!!dynamic?.services?.length ||
@@ -164,6 +171,7 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
         gallery,
         background,
         logo,
+        logoSize,
         isDynamic: hasDynamicData,
       }}
     >

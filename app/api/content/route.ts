@@ -80,8 +80,13 @@ export async function GET() {
       parseContent<{ src?: string }>("background", (p) =>
         p && typeof p.src === "string" && p.src ? { src: p.src } : null
       ),
-      parseContent<{ src?: string }>("logo", (p) =>
-        p && typeof p.src === "string" && p.src ? { src: p.src } : null
+      parseContent<{ src?: string; size?: number }>("logo", (p) =>
+        p && (typeof p.src === "string" || typeof p.size === "number")
+          ? {
+              src: typeof p.src === "string" && p.src ? p.src : undefined,
+              size: typeof p.size === "number" ? p.size : undefined,
+            }
+          : null
       ),
     ]);
 
@@ -105,6 +110,7 @@ export async function GET() {
       gallery,
       background: background?.src ?? DEFAULT_BACKGROUND,
       logo: logo?.src ?? null,
+      logoSize: logo?.size ?? null,
     };
 
     return NextResponse.json(content);

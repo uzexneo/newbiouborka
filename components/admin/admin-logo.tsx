@@ -9,9 +9,12 @@ import { Label } from "@/components/ui/label";
 
 export function AdminLogo() {
   const [src, setSrc] = useState<string | null>(null);
+  const [size, setSize] = useState<number>(44);
+  const [sizeDraft, setSizeDraft] = useState<string>("44");
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [savingSize, setSavingSize] = useState(false);
   const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
@@ -19,8 +22,13 @@ export function AdminLogo() {
       try {
         const response = await fetch("/api/admin/logo");
         if (!response.ok) throw new Error("load failed");
-        const data = (await response.json()) as { src: string | null };
+        const data = (await response.json()) as {
+          src: string | null;
+          size: number | null;
+        };
         setSrc(data.src);
+        setSize(data.size ?? 44);
+        setSizeDraft(String(data.size ?? 44));
       } catch {
         toast.error("Не удалось загрузить логотип");
       } finally {
@@ -55,6 +63,32 @@ export function AdminLogo() {
       toast.error("Не удалось загрузить логотип");
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleSaveSize = async () => {
+    const parsed = Number.parseInt(sizeDraft, 10);
+    if (Number.isNaN(parsed) || parsed < 20 || parsed > 200) {
+      toast.error("Введите размер от 20 до 200 пикселей");
+      return;
+    }
+
+    setSavingSize(true);
+    try {
+      const response = await fetch("/api/admin/logo", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ size: parsed }),
+      });
+      if (!response.ok) throw new Error("save failed");
+
+      setSize(parsed);
+      setSizeDraft(String(parsed));
+      toast.success("Размер логотипа сохранён");
+    } catch {
+      toast.error("Не удалось сохранить размер логотипа");
+    } finally {
+      setSavingSize(false);
     }
   };
 
@@ -118,11 +152,41 @@ export function AdminLogo() {
         </Button>
       </form>
 
+      <div className="space-y-2">
+        <Label>Размер логотипа (px)</Label>
+        <div className="flex items-end gap-3">
+          <div className="w-32">
+            <Input
+              type="number"
+              min={20}
+              max={200}
+              value={sizeDraft}
+              onChange={(e) => setSizeDraft(e.target.value)}
+            />
+          </div>
+          <Button
+            type="button"
+            onClick={handleSaveSize}
+            disabled={savingSize || sizeDraft === String(size)}
+          >
+            {savingSize && <Loader2 className="h-4 w-4 animate-spin" />}
+            Сохранить размер
+          </Button>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Ширина и высота логотипа в шапке сайта (по умолчанию 44 px). Если
+          размер не задан — используется значение по умолчанию.
+        </p>
+      </div>
+
       <div className="space-y-3">
         <p className="text-sm text-muted-foreground">Текущий логотип</p>
         {src ? (
           <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-lg border bg-card ring-1 ring-border">
+            <div
+              className="flex items-center justify-center overflow-hidden rounded-lg border bg-card ring-1 ring-border"
+              style={{ width: size, height: size }}
+            >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={src}
