@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/language-provider";
 import { SERVICE_CATEGORIES } from "@/lib/i18n/content";
-import { useSiteContent } from "@/lib/site-content-provider";
 
 const iconMap: Record<
   string,
@@ -37,7 +36,6 @@ const categoryMeta = new Map(SERVICE_CATEGORIES.map((c) => [c.id, c]));
 
 export function ServiceCardsSection() {
   const { t } = useLanguage();
-  const { services } = useSiteContent();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<string | undefined>(
     undefined
@@ -62,7 +60,7 @@ export function ServiceCardsSection() {
           </div>
 
           <div className="space-y-12">
-            {services.map((category) => {
+            {SERVICE_CATEGORIES.map((category) => {
               const meta = categoryMeta.get(category.id);
               const Icon = iconMap[meta?.icon ?? ""] ?? Sparkles;
               const note = meta ? t(meta.noteKey) : undefined;
@@ -77,7 +75,7 @@ export function ServiceCardsSection() {
                     </div>
                     <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                       <h3 className="text-xl font-semibold tracking-tight sm:text-2xl">
-                        {category.title}
+                        {t(category.titleKey)}
                       </h3>
                       {note && (
                         <span className="text-sm font-medium text-primary">
@@ -94,10 +92,10 @@ export function ServiceCardsSection() {
                         style={{ animationDelay: `${i * 60}ms` }}
                       >
                         <h4 className="font-medium leading-snug flex-1">
-                          {service.name}
+                          {t(service.titleKey)}
                         </h4>
                         <div className="text-base font-bold text-primary">
-                          {service.price}
+                          {t(service.priceKey)}
                         </div>
                         <button
                           type="button"
