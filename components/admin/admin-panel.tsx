@@ -30,6 +30,7 @@ import { AdminTexts } from "@/components/admin/admin-texts";
 import { AdminGallery } from "@/components/admin/admin-gallery";
 import { AdminMedia } from "@/components/admin/admin-media";
 import { AdminApplications } from "@/components/admin/admin-applications";
+import { AdminLogo } from "@/components/admin/admin-logo";
 
 const sections = [
   { id: "overview", label: "Обзор", icon: LayoutDashboard },
@@ -38,6 +39,7 @@ const sections = [
   { id: "texts", label: "Тексты сайта", icon: FileText },
   { id: "gallery", label: "Галерея", icon: Images },
   { id: "media", label: "Фон сайта", icon: ImageIcon },
+  { id: "logo", label: "Логотип", icon: ImageIcon },
   { id: "applications", label: "Заявки клиентов", icon: Inbox },
 ] as const;
 
@@ -144,6 +146,8 @@ export function AdminPanel() {
               <AdminGallery />
             ) : active === "media" ? (
               <AdminMedia />
+            ) : active === "logo" ? (
+              <AdminLogo />
             ) : active === "applications" ? (
               <AdminApplications />
             ) : (

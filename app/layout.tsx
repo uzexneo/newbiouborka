@@ -3,7 +3,6 @@ import Link from "next/link";
 import "./globals.css";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
-import { Leaf } from "lucide-react";
 import { BridgeProvider } from "@/components/bridge-provider";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { HeaderNav } from "@/components/header-nav";
@@ -11,6 +10,7 @@ import { LanguageProvider } from "@/lib/i18n/language-provider";
 import { SiteContentProvider } from "@/lib/site-content-provider";
 import { SeoMetaUpdater } from "@/components/seo-meta-updater";
 import { SiteFooter } from "@/components/site-footer";
+import { SiteLogo } from "@/components/site-logo";
 import { Toaster } from "@/components/ui/sonner";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
@@ -75,9 +75,7 @@ export default function RootLayout({
                   href="/"
                   className="flex items-center gap-2 text-lg font-semibold tracking-tight"
                 >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                    <Leaf className="h-4 w-4" />
-                  </div>
+                  <SiteLogo />
                   {appName}
                 </Link>
                 <div className="flex items-center gap-4">

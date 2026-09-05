@@ -499,94 +499,304 @@ tasks:
       uzKrill, uzLatin); карточки услуг и форма заказа используют эти данные
       через lib/i18n/content.ts. Кожаная мебель, уход за полами и прочие услуги
       не изменялись.
-  - title: "Панель управления: авторизация администратора"
+  - id: task-2814
+    title: "Панель управления: авторизация администратора"
     description:
       Создать скрытый раздел /admin с входом по паролю администратора.
       Страница входа с полем пароля. После успешного входа открывается интерфейс
       панели управления. Пароль хранится в переменной окружения и сравнивается
       безопасно.
+    status: completed
     acceptance_criteria:
       - Панель доступна по адресу /admin
       - Вход защищён паролем администратора
       - Без пароля контент недоступен для редактирования
-    id: task-2814
-    status: completed
-    summary:
-      "Создана скрытая панель управления /admin с входом по паролю администратора.
-      Пароль хранится в переменной окружения ADMIN_PASSWORD (.env.docker) и
-      сравнивается безопасно (crypto.timingSafeEqual по sha256). После успешного
-      входа выдаётся httpOnly-signed сессионная куки admin_session, и открывается
-      интерфейс панели (навигация по разделам и кнопка выхода). Основные файлы:
-      app/admin/page.tsx (серверная проверка куки), lib/admin-auth.ts (проверка
-      пароля и токенов), app/api/admin/login|logout|session/route.ts,
-      components/admin/admin-login.tsx и admin-panel.tsx. typecheck, lint и build
-      проходят без ошибок."
-  - title: "Панель управления: редактирование услуг, цен, контактов и текстов"
+    summary: "Создана скрытая панель управления /admin с входом по паролю
+      администратора. Пароль хранится в переменной окружения ADMIN_PASSWORD
+      (.env.docker) и сравнивается безопасно (crypto.timingSafeEqual по sha256).
+      После успешного входа выдаётся httpOnly-signed сессионная куки
+      admin_session, и открывается интерфейс панели (навигация по разделам и
+      кнопка выхода). Основные файлы: app/admin/page.tsx (серверная проверка
+      куки), lib/admin-auth.ts (проверка пароля и токенов),
+      app/api/admin/login|logout|session/route.ts,
+      components/admin/admin-login.tsx и admin-panel.tsx. typecheck, lint и
+      build проходят без ошибок."
+  - id: task-0155
+    title: "Панель управления: редактирование услуг, цен, контактов и текстов"
     description:
       "Реализовать в панели управления редактирование контента: услуги и
       цены (добавление/изменение/удаление по категориям), контактные данные
       (телефон, соцсети, email), тексты (о компании, преимущества, отзывы).
       Данные сохраняются в DynamoDB и мгновенно отражаются на сайте."
+    status: completed
     acceptance_criteria:
       - Можно добавлять, изменять и удалять услуги и цены
       - Можно изменять контакты (телефон, Instagram, Telegram, email)
       - Можно редактировать тексты (о компании, преимущества, отзывы)
       - Изменения сохраняются в базу данных
-    id: task-0155
-    status: completed
     summary:
-      "В панели управления /admin реализовано редактирование контента сайта с
-      сохранением в DynamoDB. Раздел «Услуги и цены» (components/admin/admin-services.tsx)
-      позволяет добавлять, изменять и удалять услуги по категориям; «Контакты»
-      (admin-contacts.tsx) — менять телефон, Instagram, Telegram, email; «Тексты сайта»
-      (admin-texts.tsx) — редактировать блок «О компании», преимущества и отзывы. Данные
-      хранятся в таблицах site_services и site_content (lib/schema.ts, lib/models.ts),
+      В панели управления /admin реализовано редактирование контента сайта с
+      сохранением в DynamoDB. Раздел «Услуги и цены»
+      (components/admin/admin-services.tsx) позволяет добавлять, изменять и
+      удалять услуги по категориям; «Контакты» (admin-contacts.tsx) — менять
+      телефон, Instagram, Telegram, email; «Тексты сайта» (admin-texts.tsx) —
+      редактировать блок «О компании», преимущества и отзывы. Данные хранятся в
+      таблицах site_services и site_content (lib/schema.ts, lib/models.ts),
       админ-API в app/api/admin/services и app/api/admin/content, публичный API
       app/api/content отражает изменения на сайте через SiteContentProvider
-      (lib/site-content-provider.tsx), который подмешивает БД-данные к статическим
-      переводам. Исправлен путь куки сессии на «/», чтобы API-маршруты админки
-      авторизовывались. typecheck, lint, build проходят без ошибок."
-  - title: "Панель управления: загрузка фото галереи и фоновых изображений"
+      (lib/site-content-provider.tsx), который подмешивает БД-данные к
+      статическим переводам. Исправлен путь куки сессии на «/», чтобы
+      API-маршруты админки авторизовывались. typecheck, lint, build проходят без
+      ошибок.
+  - id: task-3125
+    title: "Панель управления: загрузка фото галереи и фоновых изображений"
     description:
       Реализовать в панели управления загрузку и удаление фото галереи
       портфолио (загрузка файлов) и изменение фоновых изображений сайта.
       Загруженные фото должны корректно отображаться в галерее на сайте.
+    status: completed
     acceptance_criteria:
       - Можно загружать фото в галерею
       - Можно удалять фото из галереи
       - Загруженные фото появляются на сайте
       - Можно менять фоновое изображение
-    id: task-3125
-    status: completed
-    summary: >-
-      В панели управления /admin реализованы разделы «Галерея» (загрузка и
-      удаление фото портфолио) и «Фон сайта» (смена фонового изображения).
-      Фото загружаются через /api/admin/gallery, сжимаются sharp и хранятся
-      base64 в новой таблице site_gallery; фон сохраняется в site_content
-      (id=background) через /api/admin/media. Публичный /api/content отдаёт
-      gallery+background, SiteContentProvider подмешивает их к статическим
-      данным, поэтому фото появляются на сайте без пересборки (home-content.tsx,
-      portfolio-gallery.tsx). Основная реализация: components/admin/admin-gallery.tsx
-      и admin-media.tsx, app/api/admin/gallery и app/api/admin/media, lib/models.ts,
-      lib/media.ts, lib/site-content-provider.tsx. typecheck, lint, build проходят.
-  - title: "Панель управления: просмотр заявок клиентов"
+    summary:
+      "В панели управления /admin реализованы разделы «Галерея» (загрузка и
+      удаление фото портфолио) и «Фон сайта» (смена фонового изображения). Фото
+      загружаются через /api/admin/gallery, сжимаются sharp и хранятся base64 в
+      новой таблице site_gallery; фон сохраняется в site_content (id=background)
+      через /api/admin/media. Публичный /api/content отдаёт gallery+background,
+      SiteContentProvider подмешивает их к статическим данным, поэтому фото
+      появляются на сайте без пересборки (home-content.tsx,
+      portfolio-gallery.tsx). Основная реализация:
+      components/admin/admin-gallery.tsx и admin-media.tsx,
+      app/api/admin/gallery и app/api/admin/media, lib/models.ts, lib/media.ts,
+      lib/site-content-provider.tsx. typecheck, lint, build проходят."
+  - id: task-5316
+    title: "Панель управления: просмотр заявок клиентов"
     description: "Реализовать сохранение заявок клиентов из формы заказа в базу
       данных (DynamoDB) и просмотр их в панели управления. Администратор видит
       список заявок с деталями: имя, телефон, выбранная услуга, дата, адрес,
       комментарий."
+    status: completed
     acceptance_criteria:
       - Заявки клиентов сохраняются в базу
       - Администратор видит список заявок в панели
       - Заявки отображаются с деталями (имя, телефон, услуга, дата, адрес)
-    id: task-5316
-    status: completed
-    summary: >-
-      Реализовано сохранение заявок клиентов в DynamoDB и просмотр их в панели
-      управления. Форма заказа (components/order-form-modal.tsx) отправляет
-      POST на /api/orders (zod-валидация через lib/validation.ts), заявка
-      сохраняется в таблицу site_orders (добавлена в lib/schema.ts, функции
-      createOrder/getAllOrders/deleteOrder в lib/models.ts). В панели /admin
-      раздел «Заявки клиентов» (components/admin/admin-applications.tsx,
+    summary: "Реализовано сохранение заявок клиентов в DynamoDB и просмотр их в
+      панели управления. Форма заказа (components/order-form-modal.tsx)
+      отправляет POST на /api/orders (zod-валидация через lib/validation.ts),
+      заявка сохраняется в таблицу site_orders (добавлена в lib/schema.ts,
+      функции createOrder/getAllOrders/deleteOrder в lib/models.ts). В панели
+      /admin раздел «Заявки клиентов» (components/admin/admin-applications.tsx,
       подключён в admin-panel.tsx) показывает список заявок с деталями: имя,
       телефон, услуга, дата, время, адрес, комментарий; GET /api/admin/orders
-      при недоступной БД возвращает mockOrders. typecheck, lint, build проходят.
+      при недоступной БД возвращает mockOrders. typecheck, lint, build
+      проходят."
+  - id: task-8936
+    title: Исправить функцию isDatabaseAvailable() в lib/db.ts, чтобы она не
+      вызывала ListTablesCommand (который падает на Yande...
+    description: >-
+      Исправить функцию isDatabaseAvailable() в lib/db.ts, чтобы она не вызывала
+      ListTablesCommand (который падает на Yandex Cloud Document API и приводит
+      к ошибке 503 «Database is unavailable in static mode» при сохранении
+      контента в админ-панели).
+
+
+      Текущая проблема: чтение из базы работает, но сохранение
+      контактов/услуг/текстов через /api/admin/content возвращает 503, потому
+      что isDatabaseAvailable() вызывает ListTablesCommand, который на Yandex
+      Cloud Document API завершается ошибкой и функция возвращает false.
+
+
+      Нужно: изменить isDatabaseAvailable() так, чтобы при USE_DATABASE !=
+      "false" она считала базу доступной (возвращала true) на основе наличия
+      переменных окружения (DOCUMENT_API_ENDPOINT, AWS_ACCESS_KEY_ID и т.д.), не
+      выполняя реальный запрос ListTablesCommand. Использование DynamoDB клиента
+      должно остаться прежним для остальных операций (чтение/запись таблиц уже
+      работает). Убедиться, что /api/admin/content PUT (сохранение контактов)
+      перестаёт возвращать 503 и успешно сохраняет данные в site_content.
+    status: completed
+    acceptance_criteria:
+      - Запрос пользователя выполнен полностью
+    meta:
+      quick_implement_marker: quick_implement:call_c0dbefd487024accb4127a90
+    summary:
+      isDatabaseAvailable() в lib/db.ts больше не вызывает ListTablesCommand
+      (который падал на Yandex Cloud Document API). Теперь при USE_DATABASE !=
+      "false" функция возвращает true на основе наличия переменных окружения
+      (DOCUMENT_API_ENDPOINT, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY), без
+      реального запроса к БД. Основная реализация — lib/db.ts. Сохранение
+      контента через /api/admin/content PUT больше не возвращает 503. typecheck,
+      lint, build проходят.
+  - id: task-0120
+    title:
+      Убрать с сайта текст «Безопасно для Вас и природы». Найти этот текст на
+      сайте (в коде, в текстах сайта, в дефолтных з...
+    description: Убрать с сайта текст «Безопасно для Вас и природы». Найти этот
+      текст на сайте (в коде, в текстах сайта, в дефолтных значениях контента, в
+      переводах на всех языках) и удалить его или заменить нейтральным текстом.
+      Проверить, что текст больше не отображается на сайте ни на одном языке.
+    status: completed
+    acceptance_criteria:
+      - Запрос пользователя выполнен полностью
+    meta:
+      quick_implement_marker: quick_implement:call_acd6aafa22bf4b78bc6688ab
+    summary:
+      Текст «Безопасно для Вас и природы» удалён из подзаголовка hero-блока в
+      lib/i18n/translations.ts на всех трёх языках (ru, uzKrill, uzLatin) —
+      заменён нейтральным описанием без этой фразы. Основная реализация —
+      lib/i18n/translations.ts. Фраза на сайте больше не отображается ни на
+      одном языке; typecheck, lint, build проходят.
+  - id: task-6705
+    title:
+      "На всём сайте заменить цену «25 000» на «70 000». Конкретно: где указана
+      цена «от 25 000 сум» (например «от 25 000–10..."
+    description:
+      "На всём сайте заменить цену «25 000» на «70 000». Конкретно: где
+      указана цена «от 25 000 сум» (например «от 25 000–100 000 сум»), изменить
+      её на «от 70 000 сум» (то есть «от 70 000–100 000 сум»). Обновить эту цену
+      во всех местах на сайте (карточки услуг, форма заказа) и на всех трёх
+      языках (русский, узбекский кириллица, узбекский латиница). Другие цены не
+      менять."
+    status: completed
+    acceptance_criteria:
+      - Запрос пользователя выполнен полностью
+    meta:
+      quick_implement_marker: quick_implement:call_4b92f425542840a097148321
+    summary: Цена «от 25 000» (стартовые/диапазонные) заменена на «от 70 000» во
+      всех карточках услуг и форме заказа на всех трёх языках (русский,
+      узбекская кириллица, узбекская латиница). Основная реализация —
+      lib/i18n/translations.ts (услуги c0/c3/c5) и lib/site-content.ts
+      (DEFAULT_CATEGORIES). Точные цены «25 000» без «от» не менялись.
+      typecheck, lint, build проходят.
+  - id: task-4482
+    title:
+      Исправить замену цены. Пользователь хотел изменить ТОЛЬКО одну цену «от
+      25 000–100 000 сум» на «от 70 000–100 000 сум...
+    description: >-
+      Исправить замену цены. Пользователь хотел изменить ТОЛЬКО одну цену «от 25
+      000–100 000 сум» на «от 70 000–100 000 сум» (это подзаголовок категории
+      «Химчистка мягкой мебели» — ключ services.c3.note, уже верно = «от 70
+      000–100 000 сум»). Однако предыдущая правка заменила слишком много мест,
+      изменив «от 25 000» на «от 70 000» и в других категориях, которые менять
+      не нужно. Откатить эти лишние изменения обратно на «от 25 000»:
+
+
+      В lib/i18n/translations.ts (для всех трёх языков ru, uzKrill, uzLatin):
+
+      - services.c0.note: вернуть с «от 70 000–35 000» на «от 25 000–35 000»
+
+      - services.c0.i2.price (Уборка после ремонта): вернуть с «от 70 000» на
+      «от 25 000»
+
+      - services.c5.note: вернуть с «от 70 000–400 000» на «от 25 000–400 000»
+
+      - services.c5.i2.price (Химчистка кожаных стульев): вернуть с «от 70 000»
+      на «от 25 000»
+
+
+      В lib/site-content.ts (DEFAULT_CATEGORIES):
+
+      - cleaning-renovation price: вернуть с «от 70 000 сум/м²» на «от 25 000
+      сум/м²»
+
+      - leather-chairs price: вернуть с «от 70 000 сум» на «от 25 000 сум»
+
+
+      НЕ трогать services.c3.note — она должна остаться «от 70 000–100 000 сум».
+      Только эта цена должна быть изменена на 70 000, остальные вернуть на 25
+      000.
+    status: completed
+    acceptance_criteria:
+      - Запрос пользователя выполнен полностью
+    meta:
+      quick_implement_marker: quick_implement:call_54cde4b269b54d5c9a813be9
+    summary: Откатил лишние замены цены «от 70 000» на «от 25 000» в категориях
+      «Уборка» (c0.note, c0.i2.price) и «Химчистка кожаной мебели» (c5.note,
+      c5.i2.price) во всех трёх языках в lib/i18n/translations.ts, а также в
+      DEFAULT_CATEGORIES (cleaning-renovation, leather-chairs) в
+      lib/site-content.ts. services.c3.note оставлен как «от 70 000–100 000
+      сум».
+  - id: task-3010
+    title:
+      Исправить блок «Преимущества» (benefits) на главной странице, чтобы он
+      переводился на три языка. Сейчас преимущества ...
+    description:
+      Исправить блок «Преимущества» (benefits) на главной странице, чтобы
+      он переводился на три языка. Сейчас преимущества берутся из базы данных
+      через useSiteContent() и поэтому при переключении языка не переводятся (в
+      базе только русские тексты). Нужно, чтобы преимущества читались из
+      многоязычного файла переводов lib/i18n/translations.ts (ключи
+      benefits.0.title/desc, benefits.1.title/desc, benefits.2.title/desc), как
+      это было раньше, и корректно переводились при смене языка. Для этого в
+      components/home-content.tsx заменить получение benefits из
+      useSiteContent() на использование BENEFITS из lib/i18n/content.ts с
+      переводом через t(benefit.titleKey) и t(benefit.descKey). Сохранить
+      остальные данные (about, testimonials, gallery, background) из
+      useSiteContent() без изменений.
+    status: completed
+    acceptance_criteria:
+      - Запрос пользователя выполнен полностью
+    meta:
+      quick_implement_marker: quick_implement:call_34ba5bcf2e134867ae0d1eed
+    summary: Блок «Преимущества» на главной странице переведён на три языка. В
+      components/home-content.tsx преимущества теперь читаются из BENEFITS
+      (lib/i18n/content.ts) и выводятся через t(benefit.titleKey) и
+      t(benefit.descKey), поэтому корректно переключаются при смене языка.
+      Остальные данные (about, testimonials, gallery, background) по-прежнему
+      берутся из useSiteContent(). typecheck, lint и build проходят без ошибок.
+  - id: task-9237
+    title:
+      Добавить в панель управления (/admin) возможность менять логотип сайта.
+      Сейчас логотип — это иконка Leaf в шапке (app...
+    description:
+      Добавить в панель управления (/admin) возможность менять логотип
+      сайта. Сейчас логотип — это иконка Leaf в шапке (app/layout.tsx). Нужно,
+      чтобы администратор мог загрузить своё изображение логотипа через панель,
+      оно сохранялось (например, в DynamoDB как загруженное изображение) и
+      отображалось в шапке сайта вместо иконки. Если логотип не загружен —
+      показывать текущую иконку Leaf. Добавить раздел/поле для загрузки логотипа
+      в админ-панель.
+    status: completed
+    acceptance_criteria:
+      - Запрос пользователя выполнен полностью
+    meta:
+      quick_implement_marker: quick_implement:call_60c63362eaa645d3b5762be6
+    summary: Добавлена возможность менять логотип сайта через панель управления.
+      Логотип загружается через новый раздел «Логотип» в /admin
+      (components/admin/admin-logo.tsx), API /api/admin/logo (GET/POST/DELETE)
+      сохраняет изображение (сжатое через sharp, base64) в site_content с
+      id=logo; при DELETE логотип сбрасывается на иконку по умолчанию. Публичный
+      /api/content отдаёт logo, SiteContentProvider подмешивает его, а новый
+      клиентский компонент components/site-logo.tsx в шапке (app/layout.tsx)
+      показывает загруженное изображение вместо иконки Leaf, либо стандартную
+      иконку, если логотип не загружен. typecheck, lint, build проходят без
+      ошибок.
+  - title: Исправить блоки «Цены» (услуги) и «Отзывы» (testimonials) на главной
+      странице, чтобы они переводились на три языка. С...
+    description: "Исправить блоки «Цены» (услуги) и «Отзывы» (testimonials) на
+      главной странице, чтобы они переводились на три языка. Сейчас цены услуг и
+      отзывы клиентов берутся из базы данных через useSiteContent() и поэтому
+      при переключении языка не переводятся (в базе только русские тексты).
+      Нужно, чтобы услуги/цены и отзывы читались из многоязычного файла
+      переводов lib/i18n/translations.ts (ключи services.c0..c8,
+      testimonials.0..3) через компоненты service-cards-section.tsx и
+      home-content.tsx, используя t(...) для перевода. Сохранить остальные
+      данные (о компании, галерея, фон) из useSiteContent() без изменений, если
+      они там используются. Убедиться, что при переключении языка переключаются:
+      категории услуг, названия услуг, цены, и отзывы клиентов."
+    acceptance_criteria:
+      - Запрос пользователя выполнен полностью
+    meta:
+      quick_implement_marker: quick_implement:call_aba12ced479b406499f0b9a0
+    id: task-0473
+    status: completed
+    summary: >-
+      Блоки «Цены» (услуги) и «Отзывы» теперь читаются из многоязычных
+      переводов через t(...). В service-cards-section.tsx данные берутся из
+      SERVICE_CATEGORIES (titleKey/noteKey/priceKey), в home-content.tsx —
+      из TESTIMONIALS (nameKey/locationKey/textKey); остальные данные
+      (о компании, галерея, фон) по-прежнему из useSiteContent(). При
+      переключении языка переключаются категории, названия услуг, цены и
+      отзывы клиентов.

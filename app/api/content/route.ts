@@ -52,6 +52,7 @@ export async function GET() {
       testimonials,
       galleryDoc,
       background,
+      logo,
     ] = await Promise.all([
       getAllSiteServices(),
       parseContent<SiteContacts>("contacts", (p) =>
@@ -79,6 +80,9 @@ export async function GET() {
       parseContent<{ src?: string }>("background", (p) =>
         p && typeof p.src === "string" && p.src ? { src: p.src } : null
       ),
+      parseContent<{ src?: string }>("logo", (p) =>
+        p && typeof p.src === "string" && p.src ? { src: p.src } : null
+      ),
     ]);
 
     const gallery =
@@ -100,6 +104,7 @@ export async function GET() {
         testimonials && testimonials.length > 0 ? testimonials : null,
       gallery,
       background: background?.src ?? DEFAULT_BACKGROUND,
+      logo: logo?.src ?? null,
     };
 
     return NextResponse.json(content);

@@ -6,6 +6,8 @@ import type { GalleryItem } from "./gallery-data";
 
 export const DEFAULT_BACKGROUND = "/assets/hero-cleaning.png";
 
+export const DEFAULT_LOGO = "";
+
 export interface SiteService {
   id: string;
   categoryId: string;
@@ -54,6 +56,7 @@ export interface PublicContent {
   testimonials: SiteTestimonial[] | null;
   gallery: GalleryItem[] | null;
   background: string | null;
+  logo: string | null;
 }
 
 export const DEFAULT_CONTACTS: SiteContacts = {
@@ -206,7 +209,7 @@ const DEFAULT_CATEGORIES: DefaultCategoryInput[] = [
       {
         id: "furniture-office-chair",
         name: "Химчистка офисного стула",
-        price: "70 000 сум",
+        price: "25 000 сум",
       },
     ],
   },

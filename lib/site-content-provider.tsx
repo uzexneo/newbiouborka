@@ -15,6 +15,7 @@ import type { GalleryItem } from "@/lib/gallery-data";
 import {
   DEFAULT_BACKGROUND,
   DEFAULT_CONTACTS,
+  DEFAULT_LOGO,
   groupServicesByCategory,
 } from "@/lib/site-content";
 import type {
@@ -35,6 +36,7 @@ interface SiteContentValue {
   testimonials: SiteTestimonial[];
   gallery: GalleryItem[];
   background: string;
+  logo: string;
   isDynamic: boolean;
 }
 
@@ -138,6 +140,8 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
 
   const background: string = dynamic?.background ?? DEFAULT_BACKGROUND;
 
+  const logo: string = dynamic?.logo ?? DEFAULT_LOGO;
+
   const hasDynamicData =
     loaded &&
     (!!dynamic?.services?.length ||
@@ -146,7 +150,8 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
       !!dynamic?.benefits?.length ||
       !!dynamic?.testimonials?.length ||
       !!dynamic?.gallery?.length ||
-      !!dynamic?.background);
+      !!dynamic?.background ||
+      !!dynamic?.logo);
 
   return (
     <SiteContentContext.Provider
@@ -158,6 +163,7 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
         testimonials,
         gallery,
         background,
+        logo,
         isDynamic: hasDynamicData,
       }}
     >

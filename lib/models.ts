@@ -253,6 +253,15 @@ export async function putSiteContent(
   return doc;
 }
 
+export async function deleteSiteContent(id: string): Promise<void> {
+  await docClient.send(
+    new DeleteCommand({
+      TableName: TableName.SITE_CONTENT,
+      Key: { id },
+    })
+  );
+}
+
 // --- Галерея портфолио (загруженные фото) ---
 
 export interface GalleryPhoto {

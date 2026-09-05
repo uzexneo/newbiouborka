@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Leaf, ArrowRight, Star, Quote } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/language-provider";
-import { BENEFITS, VALUES } from "@/lib/i18n/content";
+import { VALUES, BENEFITS, TESTIMONIALS } from "@/lib/i18n/content";
 import { useSiteContent } from "@/lib/site-content-provider";
 import { ServiceCardsSection } from "@/components/service-cards-section";
 import { PortfolioGallery } from "@/components/portfolio-gallery";
@@ -11,7 +11,7 @@ import { ContactsSection } from "@/components/contacts-section";
 
 export function HomeContent() {
   const { t } = useLanguage();
-  const { about, testimonials, gallery, background } = useSiteContent();
+  const { about, gallery, background } = useSiteContent();
 
   return (
     <>
@@ -142,9 +142,9 @@ export function HomeContent() {
               </p>
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {testimonials.map((review, i) => (
+              {TESTIMONIALS.map((review, i) => (
                 <article
-                  key={review.name}
+                  key={review.nameKey}
                   className="card-hover rounded-xl border bg-card p-6 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500"
                   style={{ animationDelay: `${i * 100}ms` }}
                 >
@@ -166,18 +166,20 @@ export function HomeContent() {
                   <div className="relative flex-1">
                     <Quote className="h-6 w-6 text-primary/20 absolute -top-1 -left-1" />
                     <p className="text-sm text-muted-foreground leading-relaxed pl-4 relative z-10">
-                      {review.text}
+                      {t(review.textKey)}
                     </p>
                   </div>
                   <div className="mt-4 pt-4 border-t">
                     <div className="flex items-center gap-3">
                       <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold text-xs">
-                        {review.name.charAt(0)}
+                        {t(review.nameKey).charAt(0)}
                       </div>
                       <div>
-                        <p className="text-sm font-medium">{review.name}</p>
+                        <p className="text-sm font-medium">
+                          {t(review.nameKey)}
+                        </p>
                         <p className="text-xs text-muted-foreground">
-                          {review.location}
+                          {t(review.locationKey)}
                         </p>
                       </div>
                     </div>
