@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Leaf, ArrowRight, Star, Quote } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/language-provider";
-import { VALUES } from "@/lib/i18n/content";
+import { BENEFITS, VALUES } from "@/lib/i18n/content";
 import { useSiteContent } from "@/lib/site-content-provider";
 import { ServiceCardsSection } from "@/components/service-cards-section";
 import { PortfolioGallery } from "@/components/portfolio-gallery";
@@ -11,8 +11,7 @@ import { ContactsSection } from "@/components/contacts-section";
 
 export function HomeContent() {
   const { t } = useLanguage();
-  const { about, benefits, testimonials, gallery, background } =
-    useSiteContent();
+  const { about, testimonials, gallery, background } = useSiteContent();
 
   return (
     <>
@@ -68,19 +67,20 @@ export function HomeContent() {
             </p>
           </div>
           <div className="grid gap-6 sm:grid-cols-3">
-            {benefits.map((benefit, i) => {
+            {BENEFITS.map((benefit, i) => {
+              const Icon = benefit.icon;
               return (
                 <article
-                  key={benefit.title}
+                  key={benefit.titleKey}
                   className="card-hover rounded-xl border bg-card p-6 space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-500"
                   style={{ animationDelay: `${i * 100}ms` }}
                 >
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                    <Leaf className="h-5 w-5 text-primary" />
+                    <Icon className="h-5 w-5 text-primary" />
                   </div>
-                  <h3 className="font-semibold">{benefit.title}</h3>
+                  <h3 className="font-semibold">{t(benefit.titleKey)}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    {benefit.desc}
+                    {t(benefit.descKey)}
                   </p>
                 </article>
               );
