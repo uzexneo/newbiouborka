@@ -15,7 +15,7 @@ const ru = {
   "hero.title1": "Чистота, которая",
   "hero.title2": "заботится о вас",
   "hero.subtitle":
-    "BIOUBORKA.UZ — профессиональная экологичная уборка квартир и домов в Ташкенте. Безопасно для вас и природы.",
+    "BIOUBORKA.UZ — профессиональная экологичная уборка квартир и домов в Ташкенте.",
   "hero.ctaServices": "Наши услуги",
   "hero.ctaContact": "Связаться с нами",
   "benefits.heading": "Почему биоуборка?",
@@ -239,7 +239,7 @@ const uzKrill = {
   "hero.title1": "Сизга ғамхўрлик қиладиган",
   "hero.title2": "тозалик",
   "hero.subtitle":
-    "BIOUBORKA.UZ — Тошкентда квартира ва уйларни профессионал экологик тозалаш. Сиз ва табиат учун хавфсиз.",
+    "BIOUBORKA.UZ — Тошкентда квартира ва уйларни профессионал экологик тозалаш.",
   "hero.ctaServices": "Бизнинг хизматларимиз",
   "hero.ctaContact": "Биз билан боғланиш",
   "benefits.heading": "Нима учун био тозалаш?",
@@ -462,7 +462,7 @@ const uzLatin = {
   "hero.title1": "Sizga g'amxo'rlik qiladigan",
   "hero.title2": "tozalik",
   "hero.subtitle":
-    "BIOUBORKA.UZ — Toshkentda kvartira va uylarni professional ekologik tozalash. Siz va tabiat uchun xavfsiz.",
+    "BIOUBORKA.UZ — Toshkentda kvartira va uylarni professional ekologik tozalash.",
   "hero.ctaServices": "Bizning xizmatlarimiz",
   "hero.ctaContact": "Biz bilan bog'lanish",
   "benefits.heading": "Nima uchun bio tozalash?",
