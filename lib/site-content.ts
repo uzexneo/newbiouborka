@@ -206,7 +206,7 @@ const DEFAULT_CATEGORIES: DefaultCategoryInput[] = [
       {
         id: "furniture-office-chair",
         name: "Химчистка офисного стула",
-        price: "25 000 сум",
+        price: "70 000 сум",
       },
     ],
   },
