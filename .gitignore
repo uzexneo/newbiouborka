@@ -36,3 +36,6 @@ next-env.d.ts
 # playwright cli
 .playwright-cli
 .playwright-mcp
+
+коды.txt
+*.zip
