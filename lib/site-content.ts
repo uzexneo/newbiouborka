@@ -6,7 +6,7 @@ import type { GalleryItem } from "./gallery-data";
 
 export const DEFAULT_BACKGROUND = "/assets/hero-cleaning.png";
 
-export const DEFAULT_LOGO = "";
+export const DEFAULT_LOGO = "/assets/logo.jpg";
 
 export const DEFAULT_LOGO_SIZE = 44;
 

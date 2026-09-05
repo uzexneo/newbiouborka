@@ -71,12 +71,8 @@ export default function RootLayout({
           <SiteContentProvider>
             <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
               <div className="container mx-auto px-4 h-14 flex items-center justify-between gap-4">
-                <Link
-                  href="/"
-                  className="flex items-center gap-2 text-lg font-semibold tracking-tight"
-                >
-                  <SiteLogo />
-                  {appName}
+                <Link href="/" className="flex items-center">
+                  <SiteLogo showName={appName} />
                 </Link>
                 <div className="flex items-center gap-4">
                   <HeaderNav />
