@@ -11,7 +11,7 @@ import { ContactsSection } from "@/components/contacts-section";
 
 export function HomeContent() {
   const { t } = useLanguage();
-  const { about, gallery, background } = useSiteContent();
+  const { gallery, background } = useSiteContent();
 
   return (
     <>
@@ -99,9 +99,9 @@ export function HomeContent() {
                 {t("about.heading")}
               </h2>
               <div className="space-y-4 text-muted-foreground leading-relaxed">
-                <p>{about.p1}</p>
-                <p>{about.p2}</p>
-                <p>{about.p3}</p>
+                <p>{t("about.p1")}</p>
+                <p>{t("about.p2")}</p>
+                <p>{t("about.p3")}</p>
               </div>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
