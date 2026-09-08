@@ -19,6 +19,7 @@ const contactsSchema = z.object({
   instagram: z.string().min(1, "Введите ссылку на Instagram").max(500),
   telegram: z.string().min(1, "Введите ссылку на Telegram").max(500),
   email: z.string().email("Введите корректный email").max(200),
+  address: z.string().min(1, "Введите адрес").max(300),
 });
 
 type ContactsFormData = z.infer<typeof contactsSchema>;
@@ -140,6 +141,17 @@ export function AdminContacts() {
             aria-invalid={!!errors.email}
           />
           {errors.email && <FieldError>{errors.email}</FieldError>}
+        </Field>
+
+        <Field>
+          <FieldLabel>Адрес (город)</FieldLabel>
+          <Input
+            value={formData.address}
+            onChange={(e) => handleChange("address", e.target.value)}
+            placeholder="Ташкент, Узбекистан"
+            aria-invalid={!!errors.address}
+          />
+          {errors.address && <FieldError>{errors.address}</FieldError>}
         </Field>
 
         <Button type="submit" disabled={saving}>

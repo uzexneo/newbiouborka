@@ -10,6 +10,13 @@ import {
   getDefaultServices,
 } from "./site-content";
 
+function daysFromTodayUTC(days: number): string {
+  const today = new Date().toISOString().split("T")[0];
+  const d = new Date(today + "T00:00:00Z");
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().split("T")[0];
+}
+
 export const mockServices: Service[] = [
   {
     id: "mock-service-1",
@@ -55,24 +62,24 @@ export const mockOrders: Order[] = [
     name: "Азиза Каримова",
     phone: "+998 90 123-45-67",
     service: "Генеральная уборка квартиры",
-    date: "2026-09-10",
+    date: daysFromTodayUTC(2),
     time: "10:00",
     address: "Ташкент, ул. Амира Темура, 15, кв. 12",
     comment: "Желательно два сотрудника, есть маленькие дети.",
     orderStatus: "order",
-    createdAt: new Date("2026-09-01T08:30:00Z").toISOString(),
+    createdAt: `${daysFromTodayUTC(-7)}T08:30:00Z`,
   },
   {
     id: "mock-order-2",
     name: "Игорь Смирнов",
     phone: "+998 93 375-27-02",
     service: "Химчистка дивана",
-    date: "2026-09-12",
+    date: daysFromTodayUTC(4),
     time: "14:00",
     address: "Ташкент, Юнусабадский р-н, ул. Богишамол, 8",
     comment: "",
     orderStatus: "application",
-    createdAt: new Date("2026-09-02T12:10:00Z").toISOString(),
+    createdAt: `${daysFromTodayUTC(-6)}T12:10:00Z`,
   },
 ];
 
@@ -83,8 +90,8 @@ export const mockVisits: Visit[] = [
     path: "/",
     referrer: "",
     isNewVisitor: true,
-    date: "2026-09-01",
-    createdAt: new Date("2026-09-01T08:00:00Z").toISOString(),
+    date: daysFromTodayUTC(-7),
+    createdAt: `${daysFromTodayUTC(-7)}T08:00:00Z`,
   },
   {
     id: "mock-visit-2",
@@ -92,8 +99,8 @@ export const mockVisits: Visit[] = [
     path: "/#services",
     referrer: "https://www.instagram.com/biouborka.uz",
     isNewVisitor: false,
-    date: "2026-09-02",
-    createdAt: new Date("2026-09-02T09:15:00Z").toISOString(),
+    date: daysFromTodayUTC(-6),
+    createdAt: `${daysFromTodayUTC(-6)}T09:15:00Z`,
   },
   {
     id: "mock-visit-3",
@@ -101,7 +108,7 @@ export const mockVisits: Visit[] = [
     path: "/",
     referrer: "https://t.me/biouborka_uz",
     isNewVisitor: true,
-    date: "2026-09-03",
-    createdAt: new Date("2026-09-03T14:45:00Z").toISOString(),
+    date: daysFromTodayUTC(-5),
+    createdAt: `${daysFromTodayUTC(-5)}T14:45:00Z`,
   },
 ];

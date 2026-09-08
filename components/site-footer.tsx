@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Leaf, Phone, Mail, Camera, Send } from "lucide-react";
+import { Leaf, Phone, Mail, Camera, Send, MapPin } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/language-provider";
 import { useSiteContent } from "@/lib/site-content-provider";
 
@@ -45,6 +45,10 @@ export function SiteFooter() {
               <Mail className="h-3.5 w-3.5" />
               {contacts.email}
             </a>
+            <span className="flex items-center gap-2 text-xs text-muted-foreground">
+              <MapPin className="h-3.5 w-3.5" />
+              {contacts.address}
+            </span>
           </div>
         </div>
         <div className="space-y-2">

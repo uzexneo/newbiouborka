@@ -12,13 +12,13 @@ const ru = {
   "footer.contacts": "Контакты",
   "footer.social": "Мы в соцсетях",
   "footer.rights": "Все права защищены.",
-  "hero.title1": "Чистота, которая",
-  "hero.title2": "заботится о вас",
+  "hero.title1": "Уборка квартир в Ташкенте",
+  "hero.title2": "и химчистка мебели",
   "hero.subtitle":
-    "BIOUBORKA.UZ — профессиональная экологичная уборка квартир и домов в Ташкенте.",
+    "BIOUBORKA.UZ — профессиональная биоуборка в Ташкенте: экологичный клининг квартир и домов, химчистка мебели и ковров безопасными средствами.",
   "hero.ctaServices": "Наши услуги",
   "hero.ctaContact": "Связаться с нами",
-  "benefits.heading": "Почему биоуборка?",
+  "benefits.heading": "Почему биоуборка в Ташкенте?",
   "benefits.subheading":
     "Мы используем экологичные средства, которые эффективно очищают и полностью безопасны для здоровья.",
   "benefits.0.title": "Безопасные средства",
@@ -30,7 +30,7 @@ const ru = {
   "benefits.2.title": "Глубокое очищение",
   "benefits.2.desc":
     "Профессиональный подход к чистоте каждого уголка вашего дома",
-  "services.heading": "Наши услуги и цены",
+  "services.heading": "Услуги уборки и химчистки в Ташкенте",
   "services.subheading":
     "Полный прайс-лист биоуборки по категориям. Прозрачные цены без скрытых доплат.",
   "services.orderButton": "Заказать",
@@ -119,7 +119,7 @@ const ru = {
   "services.c8.i3.price": "по договору",
   "services.c8.i4.title": "Доплата за сильную загрязнённость",
   "services.c8.i4.price": "по договору",
-  "about.heading": "О компании",
+  "about.heading": "О компании BIOUBORKA.UZ",
   "about.p1":
     "BIOUBORKA.UZ — профессиональный сервис экологичной уборки в Ташкенте. Мы объединили многолетний опыт клининга с современными био-технологиями, чтобы предложить вам чистоту без компромиссов для здоровья.",
   "about.p2":
@@ -135,7 +135,7 @@ const ru = {
   "values.2.title": "Гарантия качества",
   "values.2.desc":
     "Если вам что-то не понравится — переделаем бесплатно. Наша репутация — главный актив.",
-  "testimonials.heading": "Отзывы клиентов",
+  "testimonials.heading": "Отзывы о уборке квартир в Ташкенте",
   "testimonials.subheading":
     "Более 500 довольных клиентов в Ташкенте. Вот что говорят о нас те, кто уже попробовал биоуборку.",
   "testimonials.0.name": "Анна",
@@ -154,7 +154,7 @@ const ru = {
   "testimonials.3.location": "Шайхантахурский район",
   "testimonials.3.text":
     "Пользуюсь услугами уже три месяца — поддерживающая уборка раз в неделю. Всегда чисто, аккуратно, без напоминаний. Отличный сервис за разумные деньги.",
-  "portfolio.heading": "Наши работы",
+  "portfolio.heading": "Наши работы по уборке и химчистке",
   "portfolio.subheading":
     "Фотографии выполненных работ — убедитесь в качестве сами",
   "gallery.all": "Все",
@@ -187,8 +187,30 @@ const ru = {
   "contacts.infoHeading": "Контактная информация",
   "contacts.callHours": "Звоните с 9:00 до 21:00",
   "contacts.emailHint": "Напишите нам на почту",
+  "contacts.addressHint": "Работаем по всему Ташкенту",
   "contacts.socialsHeading": "Мы в соцсетях",
   "contacts.feedbackHeading": "Обратная связь",
+  "faq.heading": "Частые вопросы по уборке и химчистке",
+  "faq.subheading":
+    "Собрали ответы на частые вопросы клиентов о биоуборке, химчистке мебели и записи на уборку.",
+  "faq.q0": "Что такое биоуборка и чем она отличается от обычной уборки?",
+  "faq.a0":
+    "Биоуборка — это профессиональная уборка с использованием экологичных, сертифицированных и полностью биоразлагаемых средств. Мы не используем хлор, агрессивные щёлочи и синтетические отдушки, поэтому уборка безопасна для здоровья людей и домашних питомцев.",
+  "faq.q1": "Сколько стоит уборка квартиры в Ташкенте?",
+  "faq.a1":
+    "Генеральная уборка — от 25 000 сум за квадратный метр. Итоговая стоимость зависит от площади, степени загрязнения и набора услуг. Точную цену менеджер назовёт после короткого описания ваших задач.",
+  "faq.q2": "Какие услуги вы предоставляете?",
+  "faq.a2":
+    "Мы выполняем уборку квартир и офисов, уборку после ремонта, мойку окон и фасадов, химчистку ковров, мягкой и кожаной мебели, матрацев, уход за полами, а также дезинфекцию, устранение запахов и плесени.",
+  "faq.q3": "Безопасна ли уборка для детей и аллергиков?",
+  "faq.a3":
+    "Да. Мы используем только био-средства без агрессивной химии, поэтому уборка безопасна для детей, аллергиков и домашних животных.",
+  "faq.q4": "Как быстро вы приедете на уборку?",
+  "faq.a4":
+    "В большинстве случаев мы можем приехать в день обращения или на следующий день. Позвоните нам или оставьте заявку, и мы подберём удобное время.",
+  "faq.q5": "Как записаться на уборку в Ташкенте?",
+  "faq.a5":
+    "Оставьте заявку через форму на сайте, позвоните по телефону или напишите нам в Instagram или Telegram. Мы свяжемся с вами для уточнения деталей и удобного времени визита.",
   "field.name": "Имя",
   "field.namePlaceholder": "Ваше имя",
   "field.phone": "Телефон",
@@ -236,13 +258,13 @@ const uzKrill = {
   "footer.contacts": "Алоқа",
   "footer.social": "Ижтимоий тармоқларда",
   "footer.rights": "Барча ҳуқуқлар ҳимояланган.",
-  "hero.title1": "Сизга ғамхўрлик қиладиган",
-  "hero.title2": "тозалик",
+  "hero.title1": "Тошкентда квартираларни тозалаш",
+  "hero.title2": "ва мебелни кимёвий тозалаш",
   "hero.subtitle":
-    "BIOUBORKA.UZ — Тошкентда квартира ва уйларни профессионал экологик тозалаш.",
+    "BIOUBORKA.UZ — Тошкентда профессионал био тозалаш: квартира ва уйларни экологик тозалаш, мебел ва гиламларни хавфсиз воситалар билан кимёвий тозалаш.",
   "hero.ctaServices": "Бизнинг хизматларимиз",
   "hero.ctaContact": "Биз билан боғланиш",
-  "benefits.heading": "Нима учун био тозалаш?",
+  "benefits.heading": "Нима учун Тошкентда био тозалаш?",
   "benefits.subheading":
     "Биз самарали тозалайдиган ва соғлиқ учун бутунлай хавфсиз экологик воситаларни ишлатамиз.",
   "benefits.0.title": "Хавфсиз воситалар",
@@ -254,7 +276,7 @@ const uzKrill = {
   "benefits.2.title": "Чуқур тозалаш",
   "benefits.2.desc":
     "Уйингизнинг ҳар бир бурчаги тозалигига профессионал ёндашув",
-  "services.heading": "Бизнинг хизматларимиз ва нархларимиз",
+  "services.heading": "Тошкентда тозалаш ва кимёвий тозалаш хизматлари",
   "services.subheading":
     "Категориялар бўйича био тозалашнинг тўлиқ нарх рўйхати. Яширин қўшимча тўловларсиз шаффоф нархлар.",
   "services.orderButton": "Буюртма бериш",
@@ -343,7 +365,7 @@ const uzKrill = {
   "services.c8.i3.price": "шартнома асосида",
   "services.c8.i4.title": "Кучли ифлосланиш учун қўшимча тўлов",
   "services.c8.i4.price": "шартнома асосида",
-  "about.heading": "Компания ҳақида",
+  "about.heading": "BIOUBORKA.UZ компанияси ҳақида",
   "about.p1":
     "BIOUBORKA.UZ — Тошкентдаги профессионал экологик тозалаш хизмати. Соғлиғингизга зиён етказмасдан тозаликни таклиф қилиш учун кўп йиллик клининг тажрибасини замонавий био-технологиялар билан бирлаштирдик.",
   "about.p2":
@@ -359,7 +381,7 @@ const uzKrill = {
   "values.2.title": "Сифат кафолати",
   "values.2.desc":
     "Агар сизга бирор нарса ёқмаса — бепул қайта бажарамиз. Бизнинг обрўйимиз — асосий бойлигимиз.",
-  "testimonials.heading": "Мижозлар фикрлари",
+  "testimonials.heading": "Тошкентда квартира тозалаш ҳақида фикрлар",
   "testimonials.subheading":
     "Тошкентда 500 дан ортиқ мамнун мижоз. Био тозалашни синаб кўрганлар биз ҳақимизда шундай дейишади.",
   "testimonials.0.name": "Анна",
@@ -378,7 +400,7 @@ const uzKrill = {
   "testimonials.3.location": "Шайхонтоҳур тумани",
   "testimonials.3.text":
     "Уч ойдан бери хизматлардан фойдаланаман — ҳафтада бир марта доимий тозалаш. Ҳамиша тоза, озода, эслатмаларсиз. Ақлга мувофиқ нархга аъло сервис.",
-  "portfolio.heading": "Бизнинг ишларимиз",
+  "portfolio.heading": "Тозалаш ва кимёвий тозалаш бўйича ишларимиз",
   "portfolio.subheading":
     "Бажарилган ишларнинг фотосуратлари — сифатга ўзингиз ишонч ҳосил қилинг",
   "gallery.all": "Барчаси",
@@ -411,8 +433,31 @@ const uzKrill = {
   "contacts.infoHeading": "Алоқа маълумотлари",
   "contacts.callHours": "9:00 дан 21:00 гача қўнғироқ қилинг",
   "contacts.emailHint": "Бизга почта орқали ёзинг",
+  "contacts.addressHint": "Бутун Тошкент бўйлаб ишлаймиз",
   "contacts.socialsHeading": "Ижтимоий тармоқларда",
   "contacts.feedbackHeading": "Қайта алоқа",
+  "faq.heading":
+    "Тозалаш ва кимёвий тозалаш бўйича тез-тез сўраладиган саволлар",
+  "faq.subheading":
+    "Мижозларнинг био тозалаш, мебелни кимёвий тозалаш ва тозалашга ёзилиш бўйича кўп учрайдиган саволларига жавоб бердик.",
+  "faq.q0": "Био тозалаш нима ва у оддий тозалашдан нима билан фарқ қилади?",
+  "faq.a0":
+    "Био тозалаш — бу экологик, сертификатланган ва тўлиқ биопарчаланадиган воситалар ёрдамида профессионал тозалаш. Биз хлор, агрессив ишқорлар ва синтетик ҳидларни ишлатмаймиз, шунинг учун тозалаш одамлар ва уй ҳайвонлари саломатлиги учун хавфсиз.",
+  "faq.q1": "Тошкентда квартира тозалаш қанча туради?",
+  "faq.a1":
+    "Генерал тозалаш — квадрат метр учун 25 000 сумдан. Якуний нарх майдон, ифлосланиш даражаси ва хизматлар тўпламига боғлиқ. Аниқ нархни менеджер вазифаларингизни қисқача баён қилганингиздан кейин айтади.",
+  "faq.q2": "Қандай хизматларни кўрсатасиз?",
+  "faq.a2":
+    "Биз квартира ва офисларни тозалаш, таъмирдан кейин тозалаш, ойна ва фасадларни ювиш, гиламлар, юмшоқ ва тери мебеллар, матрасларни кимёвий тозалаш, полларга ғамхўрлик, шунингдек дезинфекция, ҳид ва қўзиқоринларни бартараф этишни бажарамиз.",
+  "faq.q3": "Тозалаш болалар ва аллергиклар учун хавфсизми?",
+  "faq.a3":
+    "Ҳа. Биз фақат агрессив кимёвий моддаларсиз био-воситаларни ишлатамиз, шунинг учун тозалаш болалар, аллергиклар ва уй ҳайвонлари учун хавфсиз.",
+  "faq.q4": "Тозалашга қанча тез келасиз?",
+  "faq.a4":
+    "Кўп ҳолларда биз мурожаат қилган куни ёки эртаси куни кела оламиз. Бизга қўнғироқ қилинг ёки заявка қолдиринг — қулай вақтни танлаймиз.",
+  "faq.q5": "Тошкентда тозалашга қандай ёзилиш мумкин?",
+  "faq.a5":
+    "Сайтдаги форма орқали заявка қолдиринг, телефонга қўнғироқ қилинг ёки Instagram ёки Telegram орқали ёзинг. Тафсилотлар ва қулай ташриф вақтини аниқлаш учун сиз билан боғланамиз.",
   "field.name": "Исм",
   "field.namePlaceholder": "Исмингиз",
   "field.phone": "Телефон",
@@ -459,13 +504,13 @@ const uzLatin = {
   "footer.contacts": "Aloqa",
   "footer.social": "Ijtimoiy tarmoqlarda",
   "footer.rights": "Barcha huquqlar himoyalangan.",
-  "hero.title1": "Sizga g'amxo'rlik qiladigan",
-  "hero.title2": "tozalik",
+  "hero.title1": "Toshkentda kvartiralarni tozalash",
+  "hero.title2": "va mebelni kimyoviy tozalash",
   "hero.subtitle":
-    "BIOUBORKA.UZ — Toshkentda kvartira va uylarni professional ekologik tozalash.",
+    "BIOUBORKA.UZ — Toshkentda professional bio tozalash: kvartira va uylarni ekologik tozalash, mebel va gilamlarni xavfsiz vositalar bilan kimyoviy tozalash.",
   "hero.ctaServices": "Bizning xizmatlarimiz",
   "hero.ctaContact": "Biz bilan bog'lanish",
-  "benefits.heading": "Nima uchun bio tozalash?",
+  "benefits.heading": "Nima uchun Toshkentda bio tozalash?",
   "benefits.subheading":
     "Biz samarali tozalaydigan va salomatlik uchun butunlay xavfsiz ekologik vositalarni ishlatamiz.",
   "benefits.0.title": "Xavfsiz vositalar",
@@ -477,7 +522,7 @@ const uzLatin = {
   "benefits.2.title": "Chuqur tozalash",
   "benefits.2.desc":
     "Uyingizning har bir burchagi tozaligiga professional yondashuv",
-  "services.heading": "Bizning xizmatlarimiz va narxlarimiz",
+  "services.heading": "Toshkentda tozalash va kimyoviy tozalash xizmatlari",
   "services.subheading":
     "Kategoriyalar bo'yicha bio tozalashning to'liq narx ro'yxati. Yashirin qo'shimcha to'lovlarsiz shaffof narxlar.",
   "services.orderButton": "Buyurtma berish",
@@ -566,7 +611,7 @@ const uzLatin = {
   "services.c8.i3.price": "shartnoma asosida",
   "services.c8.i4.title": "Kuchli ifloslanish uchun qo'shimcha to'lov",
   "services.c8.i4.price": "shartnoma asosida",
-  "about.heading": "Kompaniya haqida",
+  "about.heading": "BIOUBORKA.UZ kompaniyasi haqida",
   "about.p1":
     "BIOUBORKA.UZ — Toshkentdagi professional ekologik tozalash xizmati. Sog'lig'ingizga ziyon yetkazmasdan tozalikni taklif qilish uchun ko'p yillik klining tajribasini zamonaviy bio-texnologiyalar bilan birlashtirdik.",
   "about.p2":
@@ -582,7 +627,7 @@ const uzLatin = {
   "values.2.title": "Sifat kafolati",
   "values.2.desc":
     "Agar sizga biror narsa yoqmasa — bepul qayta bajaramiz. Bizning obro'yimiz — asosiy boyligimiz.",
-  "testimonials.heading": "Mijozlar fikrlari",
+  "testimonials.heading": "Toshkentda kvartira tozalash haqida fikrlar",
   "testimonials.subheading":
     "Toshkentda 500 dan ortiq mamnun mijoz. Bio tozalashni sinab ko'rganlar biz haqimizda shunday deyishadi.",
   "testimonials.0.name": "Anna",
@@ -601,7 +646,7 @@ const uzLatin = {
   "testimonials.3.location": "Shayxontohur tumani",
   "testimonials.3.text":
     "Uch oydan beri xizmatlardan foydalanaman — haftada bir marta doimiy tozalash. Hamisha toza, ozoda, eslatmalarsiz. Aqlga muvofiq narxga a'lo servis.",
-  "portfolio.heading": "Bizning ishlarimiz",
+  "portfolio.heading": "Tozalash va kimyoviy tozalash bo'yicha ishlarimiz",
   "portfolio.subheading":
     "Bajarilgan ishlarning fotosuratlari — sifatga o'zingiz ishonch hosil qiling",
   "gallery.all": "Barchasi",
@@ -634,8 +679,32 @@ const uzLatin = {
   "contacts.infoHeading": "Aloqa ma'lumotlari",
   "contacts.callHours": "9:00 dan 21:00 gacha qo'ng'iroq qiling",
   "contacts.emailHint": "Bizga pochta orqali yozing",
+  "contacts.addressHint": "Butun Toshkent bo'ylab ishlaymiz",
   "contacts.socialsHeading": "Ijtimoiy tarmoqlarda",
   "contacts.feedbackHeading": "Qayta aloqa",
+  "faq.heading":
+    "Tozalash va kimyoviy tozalash bo'yicha tez-tez so'raladigan savollar",
+  "faq.subheading":
+    "Mijozlarning bio tozalash, mebelni kimyoviy tozalash va tozalashga yozilish bo'yicha ko'p uchraydigan savollariga javob berdik.",
+  "faq.q0":
+    "Bio tozalash nima va u oddiy tozalashdan nimasi bilan farq qiladi?",
+  "faq.a0":
+    "Bio tozalash — bu ekologik, sertifikatlangan va to'liq bioparchalanadigan vositalar yordamida professional tozalash. Biz xlor, agressiv ishqorlar va sintetik hidlarni ishlatmaymiz, shuning uchun tozalash odamlar va uy hayvonlari salomatligi uchun xavfsiz.",
+  "faq.q1": "Toshkentda kvartira tozalash qancha turadi?",
+  "faq.a1":
+    "General tozalash — kvadrat metr uchun 25 000 so'mdan. Yakuniy narx maydon, ifloslanish darajasi va xizmatlar to'plamiga bog'liq. Aniq narxni menejer vazifalaringizni qisqacha bayon qilganingizdan keyin aytadi.",
+  "faq.q2": "Qanday xizmatlarni ko'rsatasiz?",
+  "faq.a2":
+    "Biz kvartira va ofislarni tozalash, ta'mirdan keyin tozalash, oyna va fasadlarni yuvish, gilamlar, yumshoq va teri mebellar, matraslarni kimyoviy tozalash, pollarga g'amxo'rlik, shuningdek dezinfeksiya, hid va qo'ziqorinlarni bartaraf etishni bajaramiz.",
+  "faq.q3": "Tozalash bolalar va allergiklar uchun xavfsizmi?",
+  "faq.a3":
+    "Ha. Biz faqat agressiv kimyoviy moddalarsiz bio-vositalarni ishlatamiz, shuning uchun tozalash bolalar, allergiklar va uy hayvonlari uchun xavfsiz.",
+  "faq.q4": "Tozalashga qanchalik tez kelasiz?",
+  "faq.a4":
+    "Ko'p hollarda biz murojaat qilgan kunimiz yoki ertasi kuni kela olamiz. Bizga qo'ng'iroq qiling yoki ariza qoldiring — qulay vaqtni tanlaymiz.",
+  "faq.q5": "Toshkentda tozalashga qanday yozilish mumkin?",
+  "faq.a5":
+    "Saytdagi forma orqali ariza qoldiring, telefonga qo'ng'iroq qiling yoki Instagram yoki Telegram orqali yozing. Tafsilotlar va qulay tashrif vaqtini aniqlash uchun siz bilan bog'lanamiz.",
   "field.name": "Ism",
   "field.namePlaceholder": "Ismingiz",
   "field.phone": "Telefon",

@@ -30,6 +30,7 @@ export interface SiteContacts {
   instagram: string;
   telegram: string;
   email: string;
+  address: string;
 }
 
 export interface SiteAbout {
@@ -67,6 +68,7 @@ export const DEFAULT_CONTACTS: SiteContacts = {
   instagram: "https://www.instagram.com/biouborka.uz",
   telegram: "https://t.me/biouborka_uz",
   email: "info@biouborka.uz",
+  address: "Ташкент, Узбекистан",
 };
 
 export const DEFAULT_ABOUT: SiteAbout = {

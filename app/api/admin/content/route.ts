@@ -20,6 +20,7 @@ const contactsSchema = z.object({
   instagram: z.string().max(500).optional(),
   telegram: z.string().max(500).optional(),
   email: z.string().email().optional().or(z.literal("")),
+  address: z.string().max(300).optional(),
 });
 
 const aboutSchema = z.object({

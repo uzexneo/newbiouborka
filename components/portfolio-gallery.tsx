@@ -63,6 +63,8 @@ export function PortfolioGallery({ items }: { items: GalleryItem[] }) {
                     <img
                       src={item.src}
                       alt={title}
+                      loading="lazy"
+                      decoding="async"
                       className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                   ) : (
@@ -97,6 +99,8 @@ export function PortfolioGallery({ items }: { items: GalleryItem[] }) {
                 <img
                   src={selected.src}
                   alt={t(galleryTitleKey(selected.id)) || selected.title}
+                  loading="lazy"
+                  decoding="async"
                   className="h-full w-full object-contain sm:object-cover"
                 />
               ) : (

@@ -8,6 +8,7 @@ import { useSiteContent } from "@/lib/site-content-provider";
 import { ServiceCardsSection } from "@/components/service-cards-section";
 import { PortfolioGallery } from "@/components/portfolio-gallery";
 import { ContactsSection } from "@/components/contacts-section";
+import { FaqSection } from "@/components/faq-section";
 
 export function HomeContent() {
   const { t } = useLanguage();
@@ -206,6 +207,8 @@ export function HomeContent() {
           </div>
         </div>
       </section>
+
+      <FaqSection />
 
       <ContactsSection />
     </>

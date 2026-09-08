@@ -106,7 +106,9 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
       ? groupServicesByCategory(dynamic.services)
       : staticCategories;
 
-  const contacts: SiteContacts = dynamic?.contacts ?? DEFAULT_CONTACTS;
+  const contacts: SiteContacts = dynamic?.contacts
+    ? { ...DEFAULT_CONTACTS, ...dynamic.contacts }
+    : DEFAULT_CONTACTS;
 
   const staticAbout: SiteAbout = {
     p1: t("about.p1"),

@@ -62,6 +62,7 @@ export async function GET() {
               instagram: String(p.instagram ?? ""),
               telegram: String(p.telegram ?? ""),
               email: String(p.email ?? ""),
+              address: String(p.address ?? ""),
             }
           : null
       ),

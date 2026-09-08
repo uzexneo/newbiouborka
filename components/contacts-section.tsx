@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Phone, Mail, Camera, Send, MessageSquare } from "lucide-react";
+import { Phone, Mail, Camera, Send, MessageSquare, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -149,6 +149,20 @@ export function ContactsSection() {
                       </p>
                     </div>
                   </a>
+
+                  <div className="flex items-center gap-3 text-muted-foreground">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                      <MapPin className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">
+                        {contacts.address}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {t("contacts.addressHint")}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
 

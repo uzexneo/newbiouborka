@@ -2,8 +2,14 @@ import { isDatabaseAvailable } from "@/lib/db";
 import { getAllServices } from "@/lib/models";
 import { mockServices } from "@/lib/mock-data";
 import { ServiceCatalog } from "@/components/service-catalog";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Каталог сервисов",
+  robots: { index: false, follow: false },
+};
 
 async function getServices() {
   if (await isDatabaseAvailable()) {

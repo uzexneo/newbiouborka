@@ -18,16 +18,18 @@ const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 const appName = "BIOUBORKA.UZ";
 const appDescription =
-  "Экологичная уборка квартир и домов в Ташкенте. Безопасные средства, гипоаллергенно, забота о вашем здоровье.";
+  "Профессиональная биоуборка квартир и домов в Ташкенте. Химчистка мебели и ковров безопасными средствами. Телефон +998 93 375 27 02.";
 const appUrl = "https://biouborka.uz";
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
+  applicationName: appName,
   title: {
     default: `${appName} — Профессиональная биоуборка в Ташкенте`,
     template: `%s | ${appName}`,
   },
   description: appDescription,
+  robots: { index: true, follow: true },
   keywords: [
     "биоуборка",
     "экологичная уборка",
@@ -47,14 +49,27 @@ export const metadata: Metadata = {
     title: `${appName} — Профессиональная биоуборка в Ташкенте`,
     description: appDescription,
     url: appUrl,
+    images: [
+      {
+        url: `${appUrl}/assets/hero-cleaning.png`,
+        alt: appDescription,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: `${appName} — Профессиональная биоуборка в Ташкенте`,
     description: appDescription,
+    images: [`${appUrl}/assets/hero-cleaning.png`],
   },
   alternates: {
     canonical: appUrl,
+    languages: {
+      ru: appUrl,
+      "uz-Cyrl": `${appUrl}?lang=uzKrill`,
+      "uz-Latn": `${appUrl}?lang=uzLatin`,
+      "x-default": appUrl,
+    },
   },
 };
 
