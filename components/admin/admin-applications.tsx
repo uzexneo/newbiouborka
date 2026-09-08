@@ -11,9 +11,12 @@ import {
   Wrench,
   MessageSquare,
   Trash2,
+  PackageCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+
+type OrderStatus = "application" | "order";
 
 interface Order {
   id: string;
@@ -24,6 +27,7 @@ interface Order {
   time: string;
   address: string;
   comment?: string;
+  orderStatus?: OrderStatus;
   createdAt: string;
 }
 
@@ -86,6 +90,30 @@ export function AdminApplications() {
     });
   };
 
+  const handleStatusToggle = async (order: Order) => {
+    const next: OrderStatus =
+      order.orderStatus === "order" ? "application" : "order";
+    try {
+      const response = await fetch(
+        `/api/admin/orders?id=${encodeURIComponent(order.id)}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderStatus: next }),
+        }
+      );
+      if (!response.ok) throw new Error("update failed");
+      setOrders((prev) =>
+        prev.map((o) => (o.id === order.id ? { ...o, orderStatus: next } : o))
+      );
+      toast.success(
+        next === "order" ? "Заявка переведена в заказ" : "Статус снят"
+      );
+    } catch {
+      toast.error("Не удалось изменить статус");
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center gap-3 py-16 text-muted-foreground">
@@ -141,6 +169,23 @@ export function AdminApplications() {
                 <Wrench className="h-3 w-3" />
                 {order.service}
               </Badge>
+              <Badge
+                variant={order.orderStatus === "order" ? "default" : "outline"}
+                className="inline-flex items-center gap-1"
+              >
+                <PackageCheck className="h-3 w-3" />
+                {order.orderStatus === "order" ? "Заказ" : "Заявка"}
+              </Badge>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-6 px-2 text-xs"
+                onClick={() => handleStatusToggle(order)}
+              >
+                {order.orderStatus === "order"
+                  ? "Вернуть в заявки"
+                  : "Отметить заказом"}
+              </Button>
             </div>
 
             <div className="flex flex-col gap-1.5 text-sm">

@@ -1,7 +1,7 @@
 // Мок-данные для статического режима (без БД)
 // Используются когда USE_DATABASE=false или БД недоступна
 
-import { Order, Service } from "./models";
+import { Order, Service, Visit } from "./models";
 import {
   DEFAULT_ABOUT,
   DEFAULT_BENEFITS,
@@ -59,6 +59,7 @@ export const mockOrders: Order[] = [
     time: "10:00",
     address: "Ташкент, ул. Амира Темура, 15, кв. 12",
     comment: "Желательно два сотрудника, есть маленькие дети.",
+    orderStatus: "order",
     createdAt: new Date("2026-09-01T08:30:00Z").toISOString(),
   },
   {
@@ -70,6 +71,37 @@ export const mockOrders: Order[] = [
     time: "14:00",
     address: "Ташкент, Юнусабадский р-н, ул. Богишамол, 8",
     comment: "",
+    orderStatus: "application",
     createdAt: new Date("2026-09-02T12:10:00Z").toISOString(),
+  },
+];
+
+export const mockVisits: Visit[] = [
+  {
+    id: "mock-visit-1",
+    visitorId: "mock-visitor-1",
+    path: "/",
+    referrer: "",
+    isNewVisitor: true,
+    date: "2026-09-01",
+    createdAt: new Date("2026-09-01T08:00:00Z").toISOString(),
+  },
+  {
+    id: "mock-visit-2",
+    visitorId: "mock-visitor-1",
+    path: "/#services",
+    referrer: "https://www.instagram.com/biouborka.uz",
+    isNewVisitor: false,
+    date: "2026-09-02",
+    createdAt: new Date("2026-09-02T09:15:00Z").toISOString(),
+  },
+  {
+    id: "mock-visit-3",
+    visitorId: "mock-visitor-2",
+    path: "/",
+    referrer: "https://t.me/biouborka_uz",
+    isNewVisitor: true,
+    date: "2026-09-03",
+    createdAt: new Date("2026-09-03T14:45:00Z").toISOString(),
   },
 ];

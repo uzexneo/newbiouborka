@@ -9,3 +9,14 @@ export const orderSchema = z.object({
   address: z.string().min(1, "Укажите адрес").max(500),
   comment: z.string().max(2000).optional(),
 });
+
+export const visitSchema = z.object({
+  visitorId: z.string().min(1).max(100),
+  path: z.string().min(1).max(500),
+  referrer: z.string().max(1000).optional(),
+  isNewVisitor: z.boolean(),
+});
+
+export const orderStatusSchema = z.object({
+  orderStatus: z.enum(["application", "order"]),
+});

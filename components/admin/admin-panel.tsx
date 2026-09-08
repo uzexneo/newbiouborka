@@ -13,6 +13,7 @@ import {
   Inbox,
   LogOut,
   ShieldCheck,
+  BarChart3,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ import { AdminGallery } from "@/components/admin/admin-gallery";
 import { AdminMedia } from "@/components/admin/admin-media";
 import { AdminApplications } from "@/components/admin/admin-applications";
 import { AdminLogo } from "@/components/admin/admin-logo";
+import { AdminAnalytics } from "@/components/admin/admin-analytics";
 
 const sections = [
   { id: "overview", label: "Обзор", icon: LayoutDashboard },
@@ -41,6 +43,7 @@ const sections = [
   { id: "media", label: "Фон сайта", icon: ImageIcon },
   { id: "logo", label: "Логотип", icon: ImageIcon },
   { id: "applications", label: "Заявки клиентов", icon: Inbox },
+  { id: "analytics", label: "Аналитика", icon: BarChart3 },
 ] as const;
 
 type SectionId = (typeof sections)[number]["id"];
@@ -110,7 +113,9 @@ export function AdminPanel() {
             <CardDescription>
               {active === "overview"
                 ? "Разделы панели управления будут доступны по мере реализации."
-                : "Изменения сохраняются в базу данных и мгновенно отражаются на сайте."}
+                : active === "analytics"
+                  ? "Статистика посещаемости сайта за выбранный период."
+                  : "Изменения сохраняются в базу данных и мгновенно отражаются на сайте."}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -150,6 +155,8 @@ export function AdminPanel() {
               <AdminLogo />
             ) : active === "applications" ? (
               <AdminApplications />
+            ) : active === "analytics" ? (
+              <AdminAnalytics />
             ) : (
               <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
                 <Settings className="h-10 w-10 text-muted-foreground" />

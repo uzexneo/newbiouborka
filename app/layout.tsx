@@ -9,6 +9,7 @@ import { HeaderNav } from "@/components/header-nav";
 import { LanguageProvider } from "@/lib/i18n/language-provider";
 import { SiteContentProvider } from "@/lib/site-content-provider";
 import { SeoMetaUpdater } from "@/components/seo-meta-updater";
+import { VisitTracker } from "@/components/visit-tracker";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteLogo } from "@/components/site-logo";
 import { Toaster } from "@/components/ui/sonner";
@@ -66,6 +67,7 @@ export default function RootLayout({
     <html lang="ru" className={cn("font-sans", geist.variable)}>
       <body className="antialiased min-h-screen bg-background flex flex-col">
         <BridgeProvider />
+        <VisitTracker />
         <LanguageProvider>
           <SeoMetaUpdater />
           <SiteContentProvider>

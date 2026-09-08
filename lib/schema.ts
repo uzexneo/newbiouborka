@@ -10,6 +10,7 @@ export const TableName = {
   SITE_CONTENT: "site_content",
   SITE_GALLERY: "site_gallery",
   SITE_ORDERS: "site_orders",
+  SITE_VISITS: "site_visits",
 } as const;
 
 export type TableName = (typeof TableName)[keyof typeof TableName];
@@ -54,6 +55,11 @@ export const TABLE_SCHEMAS: Record<TableName, TableSchema> = {
   },
   [TableName.SITE_ORDERS]: {
     name: TableName.SITE_ORDERS,
+    keySchema: [{ AttributeName: "id", KeyType: "HASH" }],
+    attributeDefinitions: [{ AttributeName: "id", AttributeType: "S" }],
+  },
+  [TableName.SITE_VISITS]: {
+    name: TableName.SITE_VISITS,
     keySchema: [{ AttributeName: "id", KeyType: "HASH" }],
     attributeDefinitions: [{ AttributeName: "id", AttributeType: "S" }],
   },

@@ -300,6 +300,8 @@ export async function deleteGalleryPhoto(id: string): Promise<void> {
 
 // --- Заявки клиентов ---
 
+export type OrderStatus = "application" | "order";
+
 export interface Order {
   id: string;
   name: string;
@@ -309,14 +311,16 @@ export interface Order {
   time: string;
   address: string;
   comment?: string;
+  orderStatus?: OrderStatus;
   createdAt: string;
 }
 
-export type OrderInput = Omit<Order, "id" | "createdAt">;
+export type OrderInput = Omit<Order, "id" | "createdAt" | "orderStatus">;
 
 export async function createOrder(data: OrderInput): Promise<Order> {
   const order: Order = {
     ...data,
+    orderStatus: "application",
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
   };
@@ -333,10 +337,69 @@ export async function getAllOrders(): Promise<Order[]> {
   return (result.Items as Order[]) ?? [];
 }
 
+export async function updateOrderStatus(
+  id: string,
+  orderStatus: OrderStatus
+): Promise<Order> {
+  const result = await docClient.send(
+    new UpdateCommand({
+      TableName: TableName.SITE_ORDERS,
+      Key: { id },
+      UpdateExpression: "set #orderStatus = :orderStatus",
+      ExpressionAttributeNames: { "#orderStatus": "orderStatus" },
+      ExpressionAttributeValues: { ":orderStatus": orderStatus },
+      ReturnValues: "ALL_NEW",
+    })
+  );
+  return result.Attributes as Order;
+}
+
 export async function deleteOrder(id: string): Promise<void> {
   await docClient.send(
     new DeleteCommand({
       TableName: TableName.SITE_ORDERS,
+      Key: { id },
+    })
+  );
+}
+
+// --- Посещения (аналитика) ---
+
+export interface Visit {
+  id: string;
+  visitorId: string;
+  path: string;
+  referrer?: string;
+  isNewVisitor: boolean;
+  date: string;
+  createdAt: string;
+}
+
+export type VisitInput = Omit<Visit, "id" | "createdAt">;
+
+export async function createVisit(data: VisitInput): Promise<Visit> {
+  const visit: Visit = {
+    ...data,
+    id: crypto.randomUUID(),
+    createdAt: new Date().toISOString(),
+  };
+  await docClient.send(
+    new PutCommand({ TableName: TableName.SITE_VISITS, Item: visit })
+  );
+  return visit;
+}
+
+export async function getAllVisits(): Promise<Visit[]> {
+  const result = await docClient.send(
+    new ScanCommand({ TableName: TableName.SITE_VISITS })
+  );
+  return (result.Items as Visit[]) ?? [];
+}
+
+export async function deleteVisit(id: string): Promise<void> {
+  await docClient.send(
+    new DeleteCommand({
+      TableName: TableName.SITE_VISITS,
       Key: { id },
     })
   );
