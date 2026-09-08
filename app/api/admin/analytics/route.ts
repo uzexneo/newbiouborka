@@ -165,10 +165,27 @@ export async function GET(request: NextRequest) {
     Math.max(1, Number.parseInt(rawDays ?? "30", 10) || 30)
   );
 
+  async function safeRead<T>(
+    enabled: boolean,
+    read: () => Promise<T>,
+    fallback: T
+  ): Promise<T> {
+    if (!enabled) return fallback;
+    try {
+      return await read();
+    } catch (error) {
+      console.warn(
+        "Не удалось прочитать данные аналитики из базы, использую моки:",
+        error
+      );
+      return fallback;
+    }
+  }
+
   try {
     const dbAvailable = await isDatabaseAvailable();
-    const visits = dbAvailable ? await getAllVisits() : mockVisits;
-    const orders = dbAvailable ? await getAllOrders() : mockOrders;
+    const visits = await safeRead(dbAvailable, getAllVisits, mockVisits);
+    const orders = await safeRead(dbAvailable, getAllOrders, mockOrders);
 
     const toDate = new Date().toISOString().split("T")[0];
     const start = new Date(toDate + "T00:00:00Z");
