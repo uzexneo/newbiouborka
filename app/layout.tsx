@@ -12,6 +12,7 @@ import { SeoMetaUpdater } from "@/components/seo-meta-updater";
 import { VisitTracker } from "@/components/visit-tracker";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteLogo } from "@/components/site-logo";
+import { FloatingCallButton } from "@/components/floating-call-button";
 import { Toaster } from "@/components/ui/sonner";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
@@ -99,6 +100,7 @@ export default function RootLayout({
             </header>
             <main className="flex-1">{children}</main>
             <SiteFooter />
+            <FloatingCallButton />
             <Toaster richColors position="top-right" />
           </SiteContentProvider>
         </LanguageProvider>

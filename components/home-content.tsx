@@ -1,18 +1,53 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { Leaf, ArrowRight, Star, Quote } from "lucide-react";
+import {
+  Leaf,
+  ArrowRight,
+  Star,
+  Quote,
+  Tag,
+  Clock,
+  ShieldCheck,
+  Users,
+  Zap,
+} from "lucide-react";
 import { useLanguage } from "@/lib/i18n/language-provider";
+import type { TranslationKey } from "@/lib/i18n/translations";
 import { VALUES, BENEFITS, TESTIMONIALS } from "@/lib/i18n/content";
 import { useSiteContent } from "@/lib/site-content-provider";
 import { ServiceCardsSection } from "@/components/service-cards-section";
 import { PortfolioGallery } from "@/components/portfolio-gallery";
 import { ContactsSection } from "@/components/contacts-section";
 import { FaqSection } from "@/components/faq-section";
+import { QuickOrderModal } from "@/components/quick-order-modal";
+
+interface TrustCardMeta {
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  titleKey: TranslationKey;
+  descKey: TranslationKey;
+}
+
+const TRUST_CARDS: TrustCardMeta[] = [
+  { icon: Tag, titleKey: "trust.priceTitle", descKey: "trust.priceDesc" },
+  {
+    icon: Clock,
+    titleKey: "trust.deadlineTitle",
+    descKey: "trust.deadlineDesc",
+  },
+  {
+    icon: ShieldCheck,
+    titleKey: "trust.guaranteeTitle",
+    descKey: "trust.guaranteeDesc",
+  },
+  { icon: Users, titleKey: "trust.teamTitle", descKey: "trust.teamDesc" },
+];
 
 export function HomeContent() {
   const { t } = useLanguage();
   const { gallery, background } = useSiteContent();
+  const [quickOpen, setQuickOpen] = useState(false);
 
   return (
     <>
@@ -39,9 +74,17 @@ export function HomeContent() {
               </p>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-4">
+              <button
+                type="button"
+                onClick={() => setQuickOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground shadow-xs transition-all hover:bg-primary/90"
+              >
+                <Zap className="h-4 w-4" />
+                {t("quick.title")}
+              </button>
               <Link
                 href="#services"
-                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground shadow-xs transition-all hover:bg-primary/90"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-white/40 bg-white/10 px-6 py-2.5 text-sm font-medium text-white transition-all hover:bg-white/20"
               >
                 {t("hero.ctaServices")}
                 <ArrowRight className="h-4 w-4" />
@@ -86,6 +129,51 @@ export function HomeContent() {
                 </article>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t bg-primary/[0.04]">
+        <div className="container mx-auto px-4 py-12 sm:py-16">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center space-y-3 mb-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+                {t("trust.heading")}
+              </h2>
+              <p className="text-muted-foreground max-w-md mx-auto">
+                {t("trust.subheading")}
+              </p>
+            </div>
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {TRUST_CARDS.map((card, i) => {
+                const Icon = card.icon;
+                return (
+                  <article
+                    key={card.titleKey}
+                    className="card-hover rounded-xl border bg-card p-6 text-center space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-500"
+                    style={{ animationDelay: `${i * 100}ms` }}
+                  >
+                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                      <Icon className="h-6 w-6 text-primary" />
+                    </div>
+                    <h3 className="font-semibold">{t(card.titleKey)}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {t(card.descKey)}
+                    </p>
+                  </article>
+                );
+              })}
+            </div>
+            <div className="mt-10 flex justify-center">
+              <button
+                type="button"
+                onClick={() => setQuickOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-8 py-3 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-primary/90"
+              >
+                <Zap className="h-5 w-5" />
+                {t("quick.title")}
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -211,6 +299,8 @@ export function HomeContent() {
       <FaqSection />
 
       <ContactsSection />
+
+      <QuickOrderModal open={quickOpen} onOpenChange={setQuickOpen} />
     </>
   );
 }

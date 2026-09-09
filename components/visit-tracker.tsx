@@ -5,16 +5,26 @@ import { usePathname } from "next/navigation";
 
 const VISITOR_KEY = "biouborka.visitorId";
 
+function createId(): string {
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+  ) {
+    return crypto.randomUUID();
+  }
+  return `v-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+}
+
 function getOrCreateVisitorId(): { id: string; isNew: boolean } {
   if (typeof window === "undefined") return { id: "", isNew: false };
   try {
     const existing = window.localStorage.getItem(VISITOR_KEY);
     if (existing) return { id: existing, isNew: false };
-    const id = crypto.randomUUID();
+    const id = createId();
     window.localStorage.setItem(VISITOR_KEY, id);
     return { id, isNew: true };
   } catch {
-    return { id: crypto.randomUUID(), isNew: true };
+    return { id: createId(), isNew: true };
   }
 }
 

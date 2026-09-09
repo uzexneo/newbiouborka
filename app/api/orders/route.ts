@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isDatabaseAvailable } from "@/lib/db";
 import { createOrder } from "@/lib/models";
+import { sendTelegramNotification } from "@/lib/telegram";
 import { orderSchema } from "@/lib/validation";
 
 export async function POST(request: NextRequest) {
@@ -21,6 +22,14 @@ export async function POST(request: NextRequest) {
 
   try {
     const order = await createOrder(parsed.data);
+
+    // Отправка уведомления в Telegram не должна ломать сохранение заявки.
+    try {
+      await sendTelegramNotification(order);
+    } catch (notifyError) {
+      console.error("Ошибка отправки уведомления в Telegram:", notifyError);
+    }
+
     return NextResponse.json(order, { status: 201 });
   } catch (error) {
     console.error("Ошибка сохранения заявки:", error);

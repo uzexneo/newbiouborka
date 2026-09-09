@@ -315,11 +315,23 @@ export interface Order {
   createdAt: string;
 }
 
-export type OrderInput = Omit<Order, "id" | "createdAt" | "orderStatus">;
+export type OrderInput = Omit<
+  Order,
+  "id" | "createdAt" | "orderStatus" | "date" | "time" | "address" | "comment"
+> & {
+  date?: string;
+  time?: string;
+  address?: string;
+  comment?: string;
+};
 
 export async function createOrder(data: OrderInput): Promise<Order> {
   const order: Order = {
     ...data,
+    date: data.date ?? "",
+    time: data.time ?? "",
+    address: data.address ?? "",
+    comment: data.comment ?? "",
     orderStatus: "application",
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),

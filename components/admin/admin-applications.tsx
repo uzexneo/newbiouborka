@@ -198,16 +198,20 @@ export function AdminApplications() {
                   {order.phone}
                 </a>
               </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <CalendarClock className="h-4 w-4 shrink-0" />
-                <span className="text-foreground">
-                  {order.date}, {order.time}
-                </span>
-              </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <MapPin className="h-4 w-4 shrink-0" />
-                <span>{order.address}</span>
-              </div>
+              {(order.date || order.time) && (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <CalendarClock className="h-4 w-4 shrink-0" />
+                  <span className="text-foreground">
+                    {[order.date, order.time].filter(Boolean).join(", ")}
+                  </span>
+                </div>
+              )}
+              {order.address && (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <MapPin className="h-4 w-4 shrink-0" />
+                  <span>{order.address}</span>
+                </div>
+              )}
               {order.comment && (
                 <div className="flex items-start gap-2 text-muted-foreground">
                   <MessageSquare className="mt-0.5 h-4 w-4 shrink-0" />

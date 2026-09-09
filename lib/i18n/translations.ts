@@ -244,6 +244,22 @@ const ru = {
   "order.validate.date": "Выберите дату",
   "order.validate.time": "Выберите время",
   "order.validate.address": "Введите адрес",
+  "call.title": "Позвонить",
+  "quick.title": "Быстрый заказ",
+  "quick.description":
+    "Оставьте имя и телефон — перезвоним и подберём удобное время",
+  "quick.submit": "Отправить заявку",
+  "trust.heading": "Почему нам доверяют",
+  "trust.subheading":
+    "Прозрачные условия и гарантия качества — уверенно оставляйте заявку",
+  "trust.priceTitle": "Цена от 25 000 сум",
+  "trust.priceDesc": "Прозрачные цены без скрытых доплат",
+  "trust.deadlineTitle": "Выезд в день обращения",
+  "trust.deadlineDesc": "Уборка в удобное для вас время",
+  "trust.guaranteeTitle": "Гарантия качества",
+  "trust.guaranteeDesc": "Переделаем бесплатно, если что-то не устроит",
+  "trust.teamTitle": "Опытная команда",
+  "trust.teamDesc": "Мастера с опытом работы от 2 лет",
 } as const;
 
 const uzKrill = {
@@ -490,6 +506,22 @@ const uzKrill = {
   "order.validate.date": "Сана танланг",
   "order.validate.time": "Вақт танланг",
   "order.validate.address": "Манзил киритинг",
+  "call.title": "Қўнғироқ қилиш",
+  "quick.title": "Тез буюртма",
+  "quick.description":
+    "Исм ва телефон қолдиринг — қайта қўнғироқ қиламиз ва қулай вақтни танлаймиз",
+  "quick.submit": "Аризани юбориш",
+  "trust.heading": "Нима учун бизга ишонадилар",
+  "trust.subheading":
+    "Шаффоф шартлар ва сифат кафолати — аризани ишонч билан қолдиринг",
+  "trust.priceTitle": "Нарх 25 000 сўмдан",
+  "trust.priceDesc": "Яширин қўшимча тўловларсиз шаффоф нархлар",
+  "trust.deadlineTitle": "Мурожаат куни чиқиш",
+  "trust.deadlineDesc": "Сиз учун қулай вақтда тозалаш",
+  "trust.guaranteeTitle": "Сифат кафолати",
+  "trust.guaranteeDesc": "Бирор нарса ёқмаса — бепул қайта бажарамиз",
+  "trust.teamTitle": "Тажрибали жамоа",
+  "trust.teamDesc": "2 йилдан ортиқ тажрибали усталар",
 } as const;
 
 const uzLatin = {
@@ -738,6 +770,22 @@ const uzLatin = {
   "order.validate.date": "Sana tanlang",
   "order.validate.time": "Vaqt tanlang",
   "order.validate.address": "Manzil kiriting",
+  "call.title": "Qo'ng'iroq qilish",
+  "quick.title": "Tez buyurtma",
+  "quick.description":
+    "Ism va telefon qoldiring — qayta qo'ng'iroq qilamiz va qulay vaqtni tanlaymiz",
+  "quick.submit": "Arizani yuborish",
+  "trust.heading": "Nima uchun bizga ishonadilar",
+  "trust.subheading":
+    "Shaffof shartlar va sifat kafolati — arizani ishonch bilan qoldiring",
+  "trust.priceTitle": "Narx 25 000 so'mdan",
+  "trust.priceDesc": "Yashirin qo'shimcha to'lovlarsiz shaffof narxlar",
+  "trust.deadlineTitle": "Murojaat kunida chiqish",
+  "trust.deadlineDesc": "Siz uchun qulay vaqtda tozalash",
+  "trust.guaranteeTitle": "Sifat kafolati",
+  "trust.guaranteeDesc": "Biror narsa yoqmasa — bepul qayta bajaramiz",
+  "trust.teamTitle": "Tajribali jamoa",
+  "trust.teamDesc": "2 yildan ortiq tajribali ustalar",
 } as const;
 
 export type TranslationKey = keyof typeof ru;
