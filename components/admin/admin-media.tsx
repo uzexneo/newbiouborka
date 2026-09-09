@@ -6,6 +6,7 @@ import { Image as ImageIcon, Loader2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { fetchJson } from "@/lib/api-client";
 
 export function AdminMedia() {
   const [src, setSrc] = useState<string | null>(null);
@@ -16,9 +17,7 @@ export function AdminMedia() {
   useEffect(() => {
     (async () => {
       try {
-        const response = await fetch("/api/admin/media");
-        if (!response.ok) throw new Error("load failed");
-        const data = (await response.json()) as { src: string };
+        const data = await fetchJson<{ src: string }>("/api/admin/media");
         setSrc(data.src);
       } catch {
         toast.error("Не удалось загрузить фоновое изображение");

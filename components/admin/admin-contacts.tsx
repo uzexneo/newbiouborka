@@ -13,6 +13,7 @@ import {
   FieldError,
 } from "@/components/ui/field";
 import { DEFAULT_CONTACTS, type SiteContacts } from "@/lib/site-content";
+import { fetchJson } from "@/lib/api-client";
 
 const contactsSchema = z.object({
   phone: z.string().min(1, "Введите телефон").max(40),
@@ -35,11 +36,9 @@ export function AdminContacts() {
   useEffect(() => {
     (async () => {
       try {
-        const response = await fetch("/api/admin/content");
-        if (!response.ok) throw new Error("load failed");
-        const data = (await response.json()) as {
-          contacts?: Partial<SiteContacts>;
-        };
+        const data = await fetchJson<{ contacts?: Partial<SiteContacts> }>(
+          "/api/admin/content"
+        );
         if (data.contacts) {
           setFormData({ ...DEFAULT_CONTACTS, ...data.contacts });
         }

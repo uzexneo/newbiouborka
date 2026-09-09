@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { AnalyticsResponse } from "@/app/api/admin/analytics/route";
+import { fetchJson } from "@/lib/api-client";
 
 const PERIOD_OPTIONS = [
   { value: 7, label: "7 дней" },
@@ -223,9 +224,9 @@ export function AdminAnalytics() {
 
   const load = useCallback(async (period: number) => {
     try {
-      const response = await fetch(`/api/admin/analytics?days=${period}`);
-      if (!response.ok) throw new Error("load failed");
-      const result = (await response.json()) as AnalyticsResponse;
+      const result = await fetchJson<AnalyticsResponse>(
+        `/api/admin/analytics?days=${period}`
+      );
       setData(result);
     } catch {
       toast.error("Не удалось загрузить аналитику");

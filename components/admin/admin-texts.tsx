@@ -37,6 +37,7 @@ import {
   type SiteBenefit,
   type SiteTestimonial,
 } from "@/lib/site-content";
+import { fetchJson } from "@/lib/api-client";
 
 type Tab = "about" | "benefits" | "testimonials";
 
@@ -77,9 +78,8 @@ export function AdminTexts() {
   useEffect(() => {
     (async () => {
       try {
-        const response = await fetch("/api/admin/content");
-        if (!response.ok) throw new Error("load failed");
-        const data = (await response.json()) as AdminContentResponse;
+        const data =
+          await fetchJson<AdminContentResponse>("/api/admin/content");
         if (data.about) setAbout({ ...DEFAULT_ABOUT, ...data.about });
         if (Array.isArray(data.benefits))
           setBenefits(data.benefits.map((b) => ({ ...b })));

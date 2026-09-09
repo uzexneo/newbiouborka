@@ -6,6 +6,7 @@ import { ImageIcon, Loader2, RefreshCw, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { fetchJson } from "@/lib/api-client";
 
 export function AdminLogo() {
   const [src, setSrc] = useState<string | null>(null);
@@ -20,12 +21,10 @@ export function AdminLogo() {
   useEffect(() => {
     (async () => {
       try {
-        const response = await fetch("/api/admin/logo");
-        if (!response.ok) throw new Error("load failed");
-        const data = (await response.json()) as {
+        const data = await fetchJson<{
           src: string | null;
           size: number | null;
-        };
+        }>("/api/admin/logo");
         setSrc(data.src);
         setSize(data.size ?? 44);
         setSizeDraft(String(data.size ?? 44));

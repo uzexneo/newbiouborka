@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { fetchJson } from "@/lib/api-client";
 
 const gallerySchema = z.object({
   title: z.string().min(1, "Введите название фото").max(300),
@@ -47,9 +48,7 @@ export function AdminGallery() {
 
   const load = useCallback(async () => {
     try {
-      const response = await fetch("/api/admin/gallery");
-      if (!response.ok) throw new Error("load failed");
-      const data = (await response.json()) as Photo[];
+      const data = await fetchJson<Photo[]>("/api/admin/gallery");
       setPhotos(data);
     } catch {
       toast.error("Не удалось загрузить галерею");

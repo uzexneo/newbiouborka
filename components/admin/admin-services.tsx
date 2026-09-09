@@ -27,6 +27,7 @@ import {
   FieldError,
 } from "@/components/ui/field";
 import { groupServicesByCategory, type SiteService } from "@/lib/site-content";
+import { fetchJson } from "@/lib/api-client";
 
 const serviceFormSchema = z.object({
   name: z.string().min(1, "Введите название услуги").max(200),
@@ -63,9 +64,7 @@ export function AdminServices() {
 
   const load = useCallback(async () => {
     try {
-      const response = await fetch("/api/admin/services");
-      if (!response.ok) throw new Error("load failed");
-      const data = (await response.json()) as SiteService[];
+      const data = await fetchJson<SiteService[]>("/api/admin/services");
       setServices(data);
     } catch {
       toast.error("Не удалось загрузить услуги");

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { fetchJson } from "@/lib/api-client";
 
 type OrderStatus = "application" | "order";
 
@@ -49,9 +50,7 @@ export function AdminApplications() {
 
   const load = useCallback(async () => {
     try {
-      const response = await fetch("/api/admin/orders");
-      if (!response.ok) throw new Error("load failed");
-      const data = (await response.json()) as Order[];
+      const data = await fetchJson<Order[]>("/api/admin/orders");
       const sorted = [...data].sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
