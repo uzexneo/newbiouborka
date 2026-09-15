@@ -22,6 +22,7 @@ import { PortfolioGallery } from "@/components/portfolio-gallery";
 import { ContactsSection } from "@/components/contacts-section";
 import { FaqSection } from "@/components/faq-section";
 import { QuickOrderModal } from "@/components/quick-order-modal";
+import { trackOrderStart } from "@/lib/telegram-actions";
 
 interface TrustCardMeta {
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
@@ -76,7 +77,10 @@ export function HomeContent() {
             <div className="flex flex-wrap items-center justify-center gap-4">
               <button
                 type="button"
-                onClick={() => setQuickOpen(true)}
+                onClick={() => {
+                  setQuickOpen(true);
+                  trackOrderStart();
+                }}
                 className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground shadow-xs transition-all hover:bg-primary/90"
               >
                 <Zap className="h-4 w-4" />
@@ -167,7 +171,10 @@ export function HomeContent() {
             <div className="mt-10 flex justify-center">
               <button
                 type="button"
-                onClick={() => setQuickOpen(true)}
+                onClick={() => {
+                  setQuickOpen(true);
+                  trackOrderStart();
+                }}
                 className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-8 py-3 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-primary/90"
               >
                 <Zap className="h-5 w-5" />

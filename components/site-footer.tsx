@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Leaf, Phone, Mail, Camera, Send, MapPin } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/language-provider";
 import { useSiteContent } from "@/lib/site-content-provider";
+import { trackCallClick } from "@/lib/telegram-actions";
 
 export function SiteFooter() {
   const { t } = useLanguage();
@@ -33,6 +34,7 @@ export function SiteFooter() {
           <div className="space-y-1.5">
             <a
               href={telHref}
+              onClick={() => trackCallClick(contacts.phone)}
               className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
               <Phone className="h-3.5 w-3.5" />

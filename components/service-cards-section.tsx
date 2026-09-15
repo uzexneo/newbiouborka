@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/language-provider";
 import { SERVICE_CATEGORIES } from "@/lib/i18n/content";
+import { trackOrderStart } from "@/lib/telegram-actions";
 
 const iconMap: Record<
   string,
@@ -41,9 +42,10 @@ export function ServiceCardsSection() {
     undefined
   );
 
-  const handleOrderClick = (serviceId: string) => {
+  const handleOrderClick = (serviceId: string, serviceName: string) => {
     setSelectedService(serviceId);
     setModalOpen(true);
+    trackOrderStart(serviceName);
   };
 
   return (
@@ -67,7 +69,8 @@ export function ServiceCardsSection() {
               return (
                 <div
                   key={category.id}
-                  className="animate-in fade-in slide-in-from-bottom-4 duration-500"
+                  id={category.id}
+                  className="scroll-mt-24 animate-in fade-in slide-in-from-bottom-4 duration-500"
                 >
                   <div className="flex items-center gap-3 mb-5">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
@@ -88,7 +91,8 @@ export function ServiceCardsSection() {
                     {category.services.map((service, i) => (
                       <article
                         key={service.id}
-                        className="card-hover rounded-xl border bg-card p-5 flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-4 duration-500"
+                        id={service.id}
+                        className="card-hover scroll-mt-24 rounded-xl border bg-card p-5 flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-4 duration-500"
                         style={{ animationDelay: `${i * 60}ms` }}
                       >
                         <h4 className="font-medium leading-snug flex-1">
@@ -99,7 +103,9 @@ export function ServiceCardsSection() {
                         </div>
                         <button
                           type="button"
-                          onClick={() => handleOrderClick(service.id)}
+                          onClick={() =>
+                            handleOrderClick(service.id, t(service.titleKey))
+                          }
                           className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-xs transition-all hover:bg-primary/90"
                         >
                           {t("services.orderButton")}

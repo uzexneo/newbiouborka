@@ -20,3 +20,10 @@ export const visitSchema = z.object({
 export const orderStatusSchema = z.object({
   orderStatus: z.enum(["application", "order"]),
 });
+
+export const trackActionSchema = z.object({
+  type: z.enum(["call_click", "order_start"]),
+  phone: z.string().max(30).optional(),
+  service: z.string().max(200).optional(),
+  source: z.string().max(500).optional(),
+});

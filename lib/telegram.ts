@@ -37,7 +37,7 @@ export function buildOrderNotification(order: Order): string {
   return lines.map(escapeMarkdown).join("\n");
 }
 
-export async function sendTelegramNotification(order: Order): Promise<boolean> {
+export async function sendTelegramMessage(text: string): Promise<boolean> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
 
@@ -51,7 +51,7 @@ export async function sendTelegramNotification(order: Order): Promise<boolean> {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         chat_id: chatId,
-        text: buildOrderNotification(order),
+        text,
         parse_mode: "MarkdownV2",
       }),
     });
@@ -68,4 +68,37 @@ export async function sendTelegramNotification(order: Order): Promise<boolean> {
     console.error("Ошибка отправки уведомления в Telegram:", error);
     return false;
   }
+}
+
+export async function sendTelegramNotification(order: Order): Promise<boolean> {
+  return sendTelegramMessage(buildOrderNotification(order));
+}
+
+export function buildCallClickNotification(
+  phone: string,
+  source?: string
+): string {
+  const lines = [
+    "*Клик по кнопке звонка — BIOUBORKA.UZ*",
+    "",
+    `📞 *Телефон:* ${phone}`,
+  ];
+
+  if (source) {
+    lines.push(`🌐 *Страница/источник:* ${source}`);
+  }
+
+  return lines.map(escapeMarkdown).join("\n");
+}
+
+export function buildOrderStartNotification(service?: string): string {
+  const lines = [
+    "*Начало оформления заявки — BIOUBORKA.UZ*",
+    "",
+    service
+      ? `🧹 *Услуга:* ${service}`
+      : "Пользователь начал оформление заявки",
+  ];
+
+  return lines.map(escapeMarkdown).join("\n");
 }
