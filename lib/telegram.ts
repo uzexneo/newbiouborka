@@ -16,25 +16,25 @@ export function buildOrderNotification(order: Order): string {
   const lines = [
     "*Новая заявка с сайта BIOUBORKA.UZ*",
     "",
-    `👤 *Имя:* ${order.name}`,
-    `📞 *Телефон:* ${order.phone}`,
-    `🧹 *Услуга:* ${order.service}`,
+    `👤 *Имя:* ${escapeMarkdown(order.name)}`,
+    `📞 *Телефон:* ${escapeMarkdown(order.phone)}`,
+    `🧹 *Услуга:* ${escapeMarkdown(order.service)}`,
   ];
 
   if (order.date) {
-    lines.push(`📅 *Дата:* ${order.date}`);
+    lines.push(`📅 *Дата:* ${escapeMarkdown(order.date)}`);
   }
   if (order.time) {
-    lines.push(`🕐 *Время:* ${order.time}`);
+    lines.push(`🕐 *Время:* ${escapeMarkdown(order.time)}`);
   }
   if (order.address) {
-    lines.push(`📍 *Адрес:* ${order.address}`);
+    lines.push(`📍 *Адрес:* ${escapeMarkdown(order.address)}`);
   }
   if (order.comment) {
-    lines.push(`💬 *Комментарий:* ${order.comment}`);
+    lines.push(`💬 *Комментарий:* ${escapeMarkdown(order.comment)}`);
   }
 
-  return lines.map(escapeMarkdown).join("\n");
+  return lines.join("\n");
 }
 
 export async function sendTelegramMessage(text: string): Promise<boolean> {
@@ -42,6 +42,9 @@ export async function sendTelegramMessage(text: string): Promise<boolean> {
   const chatId = process.env.TELEGRAM_CHAT_ID;
 
   if (!token || !chatId) {
+    console.warn(
+      "Telegram не настроен: отсутствуют TELEGRAM_BOT_TOKEN или TELEGRAM_CHAT_ID"
+    );
     return false;
   }
 
@@ -81,14 +84,14 @@ export function buildCallClickNotification(
   const lines = [
     "*Клик по кнопке звонка — BIOUBORKA.UZ*",
     "",
-    `📞 *Телефон:* ${phone}`,
+    `📞 *Телефон:* ${escapeMarkdown(phone)}`,
   ];
 
   if (source) {
-    lines.push(`🌐 *Страница/источник:* ${source}`);
+    lines.push(`🌐 *Страница/источник:* ${escapeMarkdown(source)}`);
   }
 
-  return lines.map(escapeMarkdown).join("\n");
+  return lines.join("\n");
 }
 
 export function buildOrderStartNotification(service?: string): string {
@@ -96,9 +99,9 @@ export function buildOrderStartNotification(service?: string): string {
     "*Начало оформления заявки — BIOUBORKA.UZ*",
     "",
     service
-      ? `🧹 *Услуга:* ${service}`
+      ? `🧹 *Услуга:* ${escapeMarkdown(service)}`
       : "Пользователь начал оформление заявки",
   ];
 
-  return lines.map(escapeMarkdown).join("\n");
+  return lines.join("\n");
 }

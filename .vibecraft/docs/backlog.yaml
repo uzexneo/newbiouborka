@@ -1298,7 +1298,8 @@ tasks:
       service-cards-section.tsx; robots.ts корректно ссылается на sitemap.xml.
       Sitemap генерирует валидный XML (48 записей), typecheck/lint/build
       проходят.
-  - title: "Добавить на сайт BIOUBORKA.UZ отправку уведомлений в Telegram о
+  - id: task-6615
+    title: "Добавить на сайт BIOUBORKA.UZ отправку уведомлений в Telegram о
       действиях пользователей: (1) кликах по кнопке «Позвон..."
     description:
       "Добавить на сайт BIOUBORKA.UZ отправку уведомлений в Telegram о
@@ -1314,12 +1315,11 @@ tasks:
       должны приходить владельцу в Telegram @biouborka_uz. Также убедиться, что
       уведомление о новой заявке (имя, телефон, услуга, дата, время, адрес,
       комментарий) приходит корректно при наличии настроек."
+    status: completed
     acceptance_criteria:
       - Запрос пользователя выполнен полностью
     meta:
       quick_implement_marker: quick_implement:call_29ff6f23f12c4918abbe554b
-    id: task-6615
-    status: completed
     summary: "Добавлены Telegram-уведомления о действиях пользователей. Основная
       реализация: lib/telegram.ts (общий отправитель sendTelegramMessage и
       билдеры buildCallClickNotification / buildOrderStartNotification), новый
@@ -1330,3 +1330,48 @@ tasks:
       тихо игнорируются; уведомление о новой заявке уже содержало имя, телефон,
       услугу, дату, время, адрес, комментарий и осталось корректным.
       typecheck/lint/build проходят."
+  - title:
+      Пользователь настроил Telegram-бота для уведомлений о заявках и действиях
+      на сайте BIOUBORKA.UZ (TELEGRAM_BOT_TOKEN =...
+    description:
+      "Пользователь настроил Telegram-бота для уведомлений о заявках и
+      действиях на сайте BIOUBORKA.UZ (TELEGRAM_BOT_TOKEN =
+      8726645890:AAERUePBMxFkPwFSj31Uegyvv_hV06DUr88, TELEGRAM_CHAT_ID =
+      48148128), но в чат бота ничего не приходит. Нужно проверить код отправки
+      уведомлений: lib/telegram.ts (функции isTelegramConfigured,
+      buildOrderNotification, buildCallClickNotification,
+      buildOrderStartNotification,
+      sendTelegramNotification/sendTelegramMessage), app/api/orders/route.ts
+      (вызов отправки после сохранения заявки, обработка ошибок без блокировки
+      сохранения), app/api/track-action/route.ts (обработка кликов «Позвонить» и
+      «Заказать»), lib/telegram-actions.ts и все места вызова
+      (floating-call-button, site-footer, contacts-section,
+      service-cards-section, home-content, order-form-modal). Убедиться, что:
+      (1) уведомление реально вызывается при новой заявке и при кликах; (2)
+      текст уведомления формируется корректно; (3) ошибки отправки не
+      подавляются полностью без логов (чтобы можно было диагностировать); (4)
+      нет багов с чтением переменных окружения, форматированием MarkdownV2 или
+      URL запроса к Telegram Bot API; (5) если есть баг — исправить его. Если
+      код корректен — явно указать в summary, что проблема скорее всего в
+      настройке на Vercel (переменные окружения, redeploy, отсутствие первого
+      сообщения боту) и что именно проверить."
+    acceptance_criteria:
+      - Запрос пользователя выполнен полностью
+    meta:
+      quick_implement_marker: quick_implement:call_86c06d469abb4c32a8470c63
+    id: task-3223
+    status: completed
+    summary: >-
+      Проверены и исправлены уведомления Telegram в lib/telegram.ts: раньше
+      escapeMarkdown экранировал всю строку вместе с разметкой MarkdownV2, из-за
+      чего жирное форматирование (заголовки, подписи) отображалось буквально с
+      символами *. Теперь экранируются только пользовательские значения, а
+      разметка сохраняется. Добавлен console.warn при отсутствии env
+      TELEGRAM_BOT_TOKEN/TELEGRAM_CHAT_ID для диагностики. Вызовы в
+      app/api/orders/route.ts и app/api/track-action/route.ts корректны, ошибки
+      не блокируют сохранение и логируются. Если уведомления всё ещё не приходят,
+      причина скорее всего в настройке на Vercel: проверьте наличие env
+      TELEGRAM_BOT_TOKEN=8726645890:AAERUePBMxFkPwFSj31Uegyvv_hV06DUr88 и
+      TELEGRAM_CHAT_ID=48148128, сделайте redeploy, и убедитесь, что бот был
+      запущен и пользователь 48148128 написал ему /start (без первого сообщения
+      бот не может слать сообщения пользователю).
