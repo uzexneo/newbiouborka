@@ -4,6 +4,8 @@ import { createOrder } from "@/lib/models";
 import { sendTelegramNotification } from "@/lib/telegram";
 import { orderSchema } from "@/lib/validation";
 
+export const runtime = "nodejs";
+
 export async function POST(request: NextRequest) {
   if (!(await isDatabaseAvailable())) {
     return NextResponse.json(
@@ -25,7 +27,10 @@ export async function POST(request: NextRequest) {
 
     // Отправка уведомления в Telegram не должна ломать сохранение заявки.
     try {
-      await sendTelegramNotification(order);
+      const sent = await sendTelegramNotification(order);
+      console.log(
+        `[telegram] Заявка ${order.id} сохранена; отправка уведомления: ${sent ? "успех" : "не удалась"}`
+      );
     } catch (notifyError) {
       console.error("Ошибка отправки уведомления в Telegram:", notifyError);
     }

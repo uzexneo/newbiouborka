@@ -14,13 +14,19 @@ export function currentPath(): string {
 
 async function sendTrackAction(payload: TrackActionPayload): Promise<void> {
   try {
-    await fetch("/api/track-action", {
+    const response = await fetch("/api/track-action", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
-  } catch {
-    // Тихо игнорируем ошибки, чтобы не нарушать работу сайта.
+    if (!response.ok) {
+      console.warn(
+        `[telegram] track-action вернул статус ${response.status}:`,
+        payload
+      );
+    }
+  } catch (error) {
+    console.warn("[telegram] Не удалось отправить действие:", payload, error);
   }
 }
 

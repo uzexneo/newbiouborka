@@ -1330,7 +1330,8 @@ tasks:
       тихо игнорируются; уведомление о новой заявке уже содержало имя, телефон,
       услугу, дату, время, адрес, комментарий и осталось корректным.
       typecheck/lint/build проходят."
-  - title:
+  - id: task-3223
+    title:
       Пользователь настроил Telegram-бота для уведомлений о заявках и действиях
       на сайте BIOUBORKA.UZ (TELEGRAM_BOT_TOKEN =...
     description:
@@ -1355,23 +1356,123 @@ tasks:
       код корректен — явно указать в summary, что проблема скорее всего в
       настройке на Vercel (переменные окружения, redeploy, отсутствие первого
       сообщения боту) и что именно проверить."
+    status: completed
     acceptance_criteria:
       - Запрос пользователя выполнен полностью
     meta:
       quick_implement_marker: quick_implement:call_86c06d469abb4c32a8470c63
-    id: task-3223
-    status: completed
-    summary: >-
-      Проверены и исправлены уведомления Telegram в lib/telegram.ts: раньше
+    summary:
+      "Проверены и исправлены уведомления Telegram в lib/telegram.ts: раньше
       escapeMarkdown экранировал всю строку вместе с разметкой MarkdownV2, из-за
       чего жирное форматирование (заголовки, подписи) отображалось буквально с
       символами *. Теперь экранируются только пользовательские значения, а
       разметка сохраняется. Добавлен console.warn при отсутствии env
       TELEGRAM_BOT_TOKEN/TELEGRAM_CHAT_ID для диагностики. Вызовы в
       app/api/orders/route.ts и app/api/track-action/route.ts корректны, ошибки
-      не блокируют сохранение и логируются. Если уведомления всё ещё не приходят,
-      причина скорее всего в настройке на Vercel: проверьте наличие env
-      TELEGRAM_BOT_TOKEN=8726645890:AAERUePBMxFkPwFSj31Uegyvv_hV06DUr88 и
+      не блокируют сохранение и логируются. Если уведомления всё ещё не
+      приходят, причина скорее всего в настройке на Vercel: проверьте наличие
+      env TELEGRAM_BOT_TOKEN=8726645890:AAERUePBMxFkPwFSj31Uegyvv_hV06DUr88 и
       TELEGRAM_CHAT_ID=48148128, сделайте redeploy, и убедитесь, что бот был
       запущен и пользователь 48148128 написал ему /start (без первого сообщения
-      бот не может слать сообщения пользователю).
+      бот не может слать сообщения пользователю)."
+  - title: Пользователь настроил Telegram-бота (TELEGRAM_BOT_TOKEN =
+      8726645890:AAGy5PmiFU-XbK-f33j6I5d3C1MdqBymlmA, TELEGRAM_CH...
+    description: >-
+      Пользователь настроил Telegram-бота (TELEGRAM_BOT_TOKEN =
+      8726645890:AAGy5PmiFU-XbK-f33j6I5d3C1MdqBymlmA, TELEGRAM_CHAT_ID =
+      48148128). Ручная проверка через
+      https://api.telegram.org/bot<токен>/sendMessage?chat_id=48148128&text=Тест
+      работает (приходит "ok":true, сообщение доставляется). НО уведомления с
+      сайта BIOUBORKA.UZ НЕ приходят вообще: ни о новых заявках, ни о кликах по
+      «Позвонить», ни о кликах по «Заказать»/«Быстрый заказ».
+
+
+      Нужен КОНКРЕТНЫЙ ПОШАГОВЫЙ АНАЛИЗ всей цепочки отправки уведомлений и
+      исправление найденных проблем:
+
+
+      1. Прочитать lib/telegram.ts полностью: как читаются
+      process.env.TELEGRAM_BOT_TOKEN и process.env.TELEGRAM_CHAT_ID; что делает
+      isTelegramConfigured(); как формируются buildOrderNotification,
+      buildCallClickNotification, buildOrderStartNotification; как выполняется
+      fetch к Telegram Bot API (URL, метод, тело, headers); как обрабатываются
+      ошибки и ответы (проверить, что ответ Telegram проверяется на ok:false и
+      логируется, а не молча игнорируется).
+
+
+      2. Прочитать app/api/orders/route.ts: после сохранения заявки реально ли
+      вызывается sendTelegramNotification; не обёрнут ли вызов так, что
+      исключение проглатывается до логирования; возвращает ли API статус, по
+      которому видно, была ли отправка.
+
+
+      3. Прочитать app/api/track-action/route.ts: обрабатывает ли он actions
+      "call" и "order_start"; валидация; вызывается ли sendTelegramMessage;
+      логируются ли ошибки.
+
+
+      4. Прочитать lib/telegram-actions.ts и проверить ВСЕ места вызова:
+      components/floating-call-button.tsx, components/site-footer.tsx,
+      components/contacts-section.tsx, components/service-cards-section.tsx,
+      components/home-content.tsx, components/order-form-modal.tsx,
+      components/quick-order-modal.tsx (если есть). Убедиться, что события
+      реально отправляются (fetch на /api/track-action) при каждом клике, и что
+      нет условий, из-за которых вызов пропускается.
+
+
+      5. Проверить, нет ли проблемы с тем, что приложение собирается как
+      статический экспорт (OUTPUT_MODE=export) — в этом случае API-роуты могут
+      не работать, и fetch на /api/* падает. Если это так — предложить и
+      реализовать решение (например, прямой вызов Telegram API с клиента через
+      серверный прокси, который гарантированно работает, или исключить /api из
+      статического экспорта).
+
+
+      6. Проверить, что runtime Next.js (nodejs) используется для API-роутов, а
+      не edge (edge может блокировать исходящие fetch к telegram.org или иметь
+      другие ограничения). Если нужно — добавить export const runtime =
+      "nodejs".
+
+
+      7. Добавить понятные диагностические console.log/console.warn в ключевые
+      точки (чтение env, isTelegramConfigured, попытка отправки, ответ Telegram,
+      ошибка), чтобы по логам Vercel (Functions) было видно, на каком шаге
+      обрыв.
+
+
+      8. После исправлений убедиться, что typecheck, lint и build проходят.
+
+
+      В summary обязательно перечислить: найденную(ые) причину(ы), что именно
+      исправлено, и как пользователю проверить (включая просмотр логов Vercel
+      Functions, если уведомления всё ещё не придут).
+    acceptance_criteria:
+      - Запрос пользователя выполнен полностью
+    meta:
+      quick_implement_marker: quick_implement:call_559d0bb981c64b7387173220
+    id: task-8010
+    status: completed
+    summary:
+      "Проведён пошаговый анализ цепочки Telegram-уведомлений и устранены причины
+      сбоя. Найденные проблемы: (1) sendTelegramMessage проверял только HTTP-статус
+      ответа и игнорировал ok:false в теле JSON — при ошибке парсинга MarkdownV2
+      доставка молча падала; (2) сайт слал уведомления с parse_mode=MarkdownV2,
+      тогда как рабочая ручная проверка пользователя была без parse_mode, из-за
+      чего любой спецсимвол в данных ломал отправку; (3) на API-роутах не был
+      задан runtime=nodejs; (4) клиентский catch {} в lib/telegram-actions.ts
+      глушил ошибки fetch. Исправлено: в lib/telegram.ts ответ Telegram теперь
+      парсится и логируется (включая ok:false/description), при неудаче с
+      MarkdownV2 выполняется фолбэк обычным текстом без parse_mode (совпадает с
+      рабочей ручной проверкой); в app/api/orders/route.ts и
+      app/api/track-action/route.ts добавлены export const runtime='nodejs' и
+      диагностические console.log результатов отправки; в
+      lib/telegram-actions.ts добавлены console.warn при сбоях fetch.
+      Проверка: typecheck, lint, build проходят (API-роуты собраны как
+      динамические функции ƒ, а не статический экспорт, поэтому fetch на /api/*
+      работает). Пользователю: заново открыть сайт, кликнуть «Позвонить»/
+      «Заказать»/отправить заявку и проверить логи Vercel Functions — при успехе
+      будет строка '[telegram] ... отправка уведомления: успех'; при неудаче —
+      [telegram] с точным статусом/description и текстом 'Первая попытка
+      (MarkdownV2) не удалась'. Если логов нет вовсе — значит переменные
+      TELEGRAM_BOT_TOKEN/TELEGRAM_CHAT_ID не заданы в окружении деплоя
+      (проверить Vercel Environment Variables и сделать redeploy)."

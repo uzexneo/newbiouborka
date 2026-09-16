@@ -6,6 +6,8 @@ import {
 } from "@/lib/telegram";
 import { trackActionSchema } from "@/lib/validation";
 
+export const runtime = "nodejs";
+
 export async function POST(request: NextRequest) {
   const parsed = trackActionSchema.safeParse(await request.json());
   if (!parsed.success) {
@@ -24,10 +26,13 @@ export async function POST(request: NextRequest) {
 
   // Отправка уведомления не должна влиять на работу сайта.
   try {
-    await sendTelegramMessage(text);
+    const sent = await sendTelegramMessage(text);
+    console.log(
+      `[telegram] Действие "${type}": отправка уведомления: ${sent ? "успех" : "не удалась"}`
+    );
+    return NextResponse.json({ ok: true, sent });
   } catch (error) {
     console.error("Ошибка отправки уведомления о действии в Telegram:", error);
+    return NextResponse.json({ ok: true, sent: false });
   }
-
-  return NextResponse.json({ ok: true });
 }
