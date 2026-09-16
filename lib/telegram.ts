@@ -8,30 +8,30 @@ export function isTelegramConfigured(): boolean {
   );
 }
 
-function escapeMarkdown(text: string): string {
-  return text.replace(/([_*[\]()~`>#+\-=|{}.!])/g, "\\$1");
-}
-
+// Сообщения отправляются обычным текстом БЕЗ parse_mode: данные клиента могут
+// содержать спецсимволы (., !, _, и т.п.), из-за которых MarkdownV2 падает с
+// ошибкой "Character '.' is reserved and must be escaped". Plain text
+// гарантированно доставляется без двойной попытки и потерь.
 export function buildOrderNotification(order: Order): string {
   const lines = [
-    "*Новая заявка с сайта BIOUBORKA.UZ*",
+    "Новая заявка с сайта BIOUBORKA.UZ",
     "",
-    `👤 *Имя:* ${escapeMarkdown(order.name)}`,
-    `📞 *Телефон:* ${escapeMarkdown(order.phone)}`,
-    `🧹 *Услуга:* ${escapeMarkdown(order.service)}`,
+    `👤 Имя: ${order.name}`,
+    `📞 Телефон: ${order.phone}`,
+    `🧹 Услуга: ${order.service}`,
   ];
 
   if (order.date) {
-    lines.push(`📅 *Дата:* ${escapeMarkdown(order.date)}`);
+    lines.push(`📅 Дата: ${order.date}`);
   }
   if (order.time) {
-    lines.push(`🕐 *Время:* ${escapeMarkdown(order.time)}`);
+    lines.push(`🕐 Время: ${order.time}`);
   }
   if (order.address) {
-    lines.push(`📍 *Адрес:* ${escapeMarkdown(order.address)}`);
+    lines.push(`📍 Адрес: ${order.address}`);
   }
   if (order.comment) {
-    lines.push(`💬 *Комментарий:* ${escapeMarkdown(order.comment)}`);
+    lines.push(`💬 Комментарий: ${order.comment}`);
   }
 
   return lines.join("\n");
@@ -46,18 +46,12 @@ interface TelegramSendResult {
 async function postToTelegram(
   token: string,
   chatId: string,
-  text: string,
-  parseMode?: string
+  text: string
 ): Promise<TelegramSendResult> {
-  const payload: Record<string, string> = { chat_id: chatId, text };
-  if (parseMode) {
-    payload.parse_mode = parseMode;
-  }
-
   const response = await fetch(`${TELEGRAM_API}/bot${token}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({ chat_id: chatId, text }),
   });
 
   const raw = await response.text();
@@ -92,31 +86,20 @@ export async function sendTelegramMessage(text: string): Promise<boolean> {
   }
 
   try {
-    // Первая попытка — с MarkdownV2 для красивого форматирования.
-    const first = await postToTelegram(token, chatId, text, "MarkdownV2");
+    // Одна попытка обычным текстом без parse_mode.
+    const result = await postToTelegram(token, chatId, text);
 
-    if (isOk(first)) {
-      console.log("[telegram] Уведомление отправлено успешно (MarkdownV2)");
-      return true;
-    }
-
-    const firstDetail = first.json?.description ?? first.raw;
-    console.error(
-      `[telegram] Первая попытка (MarkdownV2) не удалась: status=${first.response.status}, ` +
-        `detail="${firstDetail}". Повторяю без parse_mode (как в ручной проверке)...`
-    );
-
-    // Фолбэк — обычный текст без parse_mode, совпадает с рабочей ручной проверкой.
-    const second = await postToTelegram(token, chatId, text);
-
-    if (isOk(second)) {
-      console.log("[telegram] Уведомление отправлено успешно (plain text)");
+    if (isOk(result)) {
+      console.log(
+        `[telegram] Уведомление отправлено успешно: status=${result.response.status}, ` +
+          `response="${result.json?.description ?? result.raw}"`
+      );
       return true;
     }
 
     console.error(
-      `[telegram] Обе попытки отправки не удались: status=${second.response.status}, ` +
-        `body="${second.json?.description ?? second.raw}"`
+      `[telegram] Ошибка отправки уведомления: status=${result.response.status}, ` +
+        `response="${result.json?.description ?? result.raw}"`
     );
     return false;
   } catch (error) {
@@ -134,13 +117,13 @@ export function buildCallClickNotification(
   source?: string
 ): string {
   const lines = [
-    "*Клик по кнопке звонка — BIOUBORKA.UZ*",
+    "Клик по кнопке звонка — BIOUBORKA.UZ",
     "",
-    `📞 *Телефон:* ${escapeMarkdown(phone)}`,
+    `📞 Телефон: ${phone}`,
   ];
 
   if (source) {
-    lines.push(`🌐 *Страница/источник:* ${escapeMarkdown(source)}`);
+    lines.push(`🌐 Страница/источник: ${source}`);
   }
 
   return lines.join("\n");
@@ -148,11 +131,9 @@ export function buildCallClickNotification(
 
 export function buildOrderStartNotification(service?: string): string {
   const lines = [
-    "*Начало оформления заявки — BIOUBORKA.UZ*",
+    "Начало оформления заявки — BIOUBORKA.UZ",
     "",
-    service
-      ? `🧹 *Услуга:* ${escapeMarkdown(service)}`
-      : "Пользователь начал оформление заявки",
+    service ? `🧹 Услуга: ${service}` : "Пользователь начал оформление заявки",
   ];
 
   return lines.join("\n");

@@ -1375,7 +1375,8 @@ tasks:
       TELEGRAM_CHAT_ID=48148128, сделайте redeploy, и убедитесь, что бот был
       запущен и пользователь 48148128 написал ему /start (без первого сообщения
       бот не может слать сообщения пользователю)."
-  - title: Пользователь настроил Telegram-бота (TELEGRAM_BOT_TOKEN =
+  - id: task-8010
+    title: Пользователь настроил Telegram-бота (TELEGRAM_BOT_TOKEN =
       8726645890:AAGy5PmiFU-XbK-f33j6I5d3C1MdqBymlmA, TELEGRAM_CH...
     description: >-
       Пользователь настроил Telegram-бота (TELEGRAM_BOT_TOKEN =
@@ -1446,27 +1447,25 @@ tasks:
       В summary обязательно перечислить: найденную(ые) причину(ы), что именно
       исправлено, и как пользователю проверить (включая просмотр логов Vercel
       Functions, если уведомления всё ещё не придут).
+    status: completed
     acceptance_criteria:
       - Запрос пользователя выполнен полностью
     meta:
       quick_implement_marker: quick_implement:call_559d0bb981c64b7387173220
-    id: task-8010
-    status: completed
-    summary:
-      "Проведён пошаговый анализ цепочки Telegram-уведомлений и устранены причины
-      сбоя. Найденные проблемы: (1) sendTelegramMessage проверял только HTTP-статус
-      ответа и игнорировал ok:false в теле JSON — при ошибке парсинга MarkdownV2
-      доставка молча падала; (2) сайт слал уведомления с parse_mode=MarkdownV2,
-      тогда как рабочая ручная проверка пользователя была без parse_mode, из-за
-      чего любой спецсимвол в данных ломал отправку; (3) на API-роутах не был
-      задан runtime=nodejs; (4) клиентский catch {} в lib/telegram-actions.ts
-      глушил ошибки fetch. Исправлено: в lib/telegram.ts ответ Telegram теперь
-      парсится и логируется (включая ok:false/description), при неудаче с
-      MarkdownV2 выполняется фолбэк обычным текстом без parse_mode (совпадает с
-      рабочей ручной проверкой); в app/api/orders/route.ts и
-      app/api/track-action/route.ts добавлены export const runtime='nodejs' и
-      диагностические console.log результатов отправки; в
-      lib/telegram-actions.ts добавлены console.warn при сбоях fetch.
+    summary: "Проведён пошаговый анализ цепочки Telegram-уведомлений и устранены
+      причины сбоя. Найденные проблемы: (1) sendTelegramMessage проверял только
+      HTTP-статус ответа и игнорировал ok:false в теле JSON — при ошибке
+      парсинга MarkdownV2 доставка молча падала; (2) сайт слал уведомления с
+      parse_mode=MarkdownV2, тогда как рабочая ручная проверка пользователя была
+      без parse_mode, из-за чего любой спецсимвол в данных ломал отправку; (3)
+      на API-роутах не был задан runtime=nodejs; (4) клиентский catch {} в
+      lib/telegram-actions.ts глушил ошибки fetch. Исправлено: в lib/telegram.ts
+      ответ Telegram теперь парсится и логируется (включая
+      ok:false/description), при неудаче с MarkdownV2 выполняется фолбэк обычным
+      текстом без parse_mode (совпадает с рабочей ручной проверкой); в
+      app/api/orders/route.ts и app/api/track-action/route.ts добавлены export
+      const runtime='nodejs' и диагностические console.log результатов отправки;
+      в lib/telegram-actions.ts добавлены console.warn при сбоях fetch.
       Проверка: typecheck, lint, build проходят (API-роуты собраны как
       динамические функции ƒ, а не статический экспорт, поэтому fetch на /api/*
       работает). Пользователю: заново открыть сайт, кликнуть «Позвонить»/
@@ -1476,3 +1475,94 @@ tasks:
       (MarkdownV2) не удалась'. Если логов нет вовсе — значит переменные
       TELEGRAM_BOT_TOKEN/TELEGRAM_CHAT_ID не заданы в окружении деплоя
       (проверить Vercel Environment Variables и сделать redeploy)."
+  - id: task-6266
+    title: >-
+      Исправить две проблемы на сайте BIOUBORKA.UZ, найденные по логам Vercel
+      Functions.
+
+
+      ПРОБЛЕМА 1 — Telegram-уведомления...
+    description: >-
+      Исправить две проблемы на сайте BIOUBORKA.UZ, найденные по логам Vercel
+      Functions.
+
+
+      ПРОБЛЕМА 1 — Telegram-уведомления: в логах видно, что при отправке
+      уведомлений первая попытка с parse_mode=MarkdownV2 всегда падает с ошибкой
+      "Bad Request: can't parse entities: Character '.' is reserved and must be
+      escaped" (из-за спецсимволов в данных клиента), затем срабатывает фолбэк
+      без parse_mode. Нужно сделать отправку надёжной: проще всего слать
+      сообщения сразу обычным текстом БЕЗ parse_mode (как в ручной проверке
+      пользователя, которая гарантированно работает), чтобы не было двойной
+      попытки и потерь. Также добавить явные логи результата отправки
+      (успех/ошибка с текстом ответа Telegram), чтобы по логам было видно
+      доставку. Убедиться, что уведомления приходят по всем событиям: новая
+      заявка (app/api/orders), клик «Позвонить» и «Заказать»/«Быстрый заказ»
+      (app/api/track-action).
+
+
+      ПРОБЛЕМА 2 — Аналитика посещений: POST /api/visits возвращает 500 с
+      ошибкой ResourceNotFoundException "Cannot do operations on a non-existent
+      table" — таблица site_visits отсутствует в базе Yandex Cloud Document API,
+      из-за чего визиты не сохраняются и дашборд «Аналитика» в /admin не
+      показывает данные. Нужно: (1) проверить, что таблица site_visits корректно
+      описана в lib/schema.ts (TABLE_SCHEMAS и TableName) и создаётся миграцией
+      scripts/migrate.ts; (2) сделать запись визита устойчивой — если таблица
+      недоступна/отсутствует, API не должен возвращать 500: логировать ошибку в
+      консоль (пометка [visits]) и возвращать корректный ответ (например
+      202/200), чтобы сайт и аналитика не падали; (3) убедиться, что при
+      отсутствии таблицы дашборд аналитики использует fallback (моки) и не
+      пустой. Если таблицу можно создать автоматически при старте/миграции —
+      сделать это штатным способом, иначе описать в summary, как пользователю
+      выполнить миграцию (npm run db:migrate против нужного endpoint) или
+      создать таблицу вручную.
+
+
+      После исправлений убедиться, что typecheck, lint и build проходят. В
+      summary перечислить найденные причины, что исправлено и как пользователю
+      проверить.
+    status: completed
+    acceptance_criteria:
+      - Запрос пользователя выполнен полностью
+    meta:
+      quick_implement_marker: quick_implement:call_fc9033f96e0f4e6d8130ef18
+    summary: "Проблема 1: уведомления в Telegram слались сначала с
+      parse_mode=MarkdownV2 и падали на спецсимволах клиента ('.'), требуя
+      фолбэка. В lib/telegram.ts отправка переведена на один вызов обычным
+      текстом без parse_mode с явными логами результата (status + текст ответа
+      Telegram) по всем событиям (app/api/orders, app/api/track-action).
+      Проблема 2: таблица site_visits корректно описана в lib/schema.ts и
+      создаётся scripts/migrate.ts; POST /api/visits больше не возвращает 500
+      при её отсутствии — ошибка логируется с пометкой [visits] и возвращается
+      202, а дашборд /api/admin/analytics уже использует моки при недоступной
+      базе. Для создания таблицы выполнить: docker compose exec app npm run
+      db:migrate. typecheck, lint и build проходят."
+  - title: "Проблема: в базе Yandex Cloud Document API (YDB Serverless, эндпоинт
+      https://docapi.serverless.yandexcloud.net/ru-cen..."
+    description: |-
+      Проблема: в базе Yandex Cloud Document API (YDB Serverless, эндпоинт https://docapi.serverless.yandexcloud.net/ru-central1/b1g0k6upc0jrsq8rmv62/etn43ruacl31tasukvv3) отсутствует таблица site_visits. Из-за этого POST /api/visits возвращает 500 ResourceNotFoundException, визиты не сохраняются и дашборд «Аналитика» в /admin не показывает данные. Пользователь не может запустить локальную миграцию (нет Docker), а в консоли Yandex Cloud не находит раздел Document API для ручного создания таблиц.
+
+      Нужно: добавить в проект автоматическое создание недостающей таблицы site_visits через Document API (CreateTableCommand) по схеме из lib/schema.ts (ключ id, тип String, HASH). Сделать это безопасно и без падения сайта:
+      1. В lib/db.ts или lib/models.ts добавить функцию ensureSiteVisitsTable(), которая вызывает CreateTableCommand для site_visits, игнорирует ошибку ResourceInUseException (таблица уже существует) и логирует остальные ошибки в консоль с пометкой [visits] (например console.warn), не бросая исключения.
+      2. Вызвать ensureSiteVisitsTable() при обработке POST /api/visits (перед попыткой записи визита) и/или при GET /api/admin/analytics — так таблица создастся автоматически при первом посещении сайта или первом открытии аналитики, без участия пользователя.
+      3. Проверить, что аналогичный механизм (создание таблиц при необходимости) не сломал существующие таблицы (site_content, site_orders и т.д.) — трогать их не нужно, только добавить автосоздание site_visits.
+      4. Убедиться, что POST /api/visits больше не возвращает 500 при отсутствии таблицы: если создать таблицу не удалось, всё равно логировать [visits] и возвращать 202/200, чтобы сайт не падал.
+      5. После исправлений убедиться, что typecheck, lint и build проходят.
+
+      В summary перечислить, что именно добавлено, как это работает и как пользователю проверить (открыть сайт → проверить логи Vercel, что [visits] таблица создана или 200 вместо 500; открыть /admin Аналитика через время).
+    acceptance_criteria:
+      - Запрос пользователя выполнен полностью
+    meta:
+      quick_implement_marker: quick_implement:call_ede3c5b1a95e4fde9e06ee09
+    id: task-3190
+    status: completed
+    summary: >-
+      Добавлена функция ensureSiteVisitsTable() в lib/db.ts, которая создаёт
+      недостающую таблицу site_visits через CreateTableCommand по схеме из
+      lib/schema.ts (ключ id, тип String, HASH), игнорирует ResourceInUseException
+      и логирует прочие ошибки с меткой [visits] без бросания исключений. Функция
+      вызывается в POST /api/visits и GET /api/admin/analytics, поэтому таблица
+      создаётся автоматически при первом посещении сайта или открытии аналитики.
+      Если создание не удалось, POST /api/visits по-прежнему возвращает 202 и сайт
+      не падает. Проверка: открыть сайт или /admin Аналитика и убедиться в логах,
+      что [visits] таблица создана; typecheck, lint и build проходят.

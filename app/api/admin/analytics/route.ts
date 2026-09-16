@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isDatabaseAvailable } from "@/lib/db";
+import { isDatabaseAvailable, ensureSiteVisitsTable } from "@/lib/db";
 import { isAdminRequest } from "@/lib/admin-auth";
 import { getAllOrders, getAllVisits } from "@/lib/models";
 import { mockOrders, mockVisits } from "@/lib/mock-data";
@@ -184,6 +184,9 @@ export async function GET(request: NextRequest) {
 
   try {
     const dbAvailable = await isDatabaseAvailable();
+    if (dbAvailable) {
+      await ensureSiteVisitsTable();
+    }
     const visits = await safeRead(dbAvailable, getAllVisits, mockVisits);
     const orders = await safeRead(dbAvailable, getAllOrders, mockOrders);
 
