@@ -1337,8 +1337,8 @@ tasks:
     description:
       "Пользователь настроил Telegram-бота для уведомлений о заявках и
       действиях на сайте BIOUBORKA.UZ (TELEGRAM_BOT_TOKEN =
-      8726645890:AAERUePBMxFkPwFSj31Uegyvv_hV06DUr88, TELEGRAM_CHAT_ID =
-      48148128), но в чат бота ничего не приходит. Нужно проверить код отправки
+      [REDACTED], TELEGRAM_CHAT_ID =
+      [REDACTED]), но в чат бота ничего не приходит. Нужно проверить код отправки
       уведомлений: lib/telegram.ts (функции isTelegramConfigured,
       buildOrderNotification, buildCallClickNotification,
       buildOrderStartNotification,
@@ -1371,18 +1371,18 @@ tasks:
       app/api/orders/route.ts и app/api/track-action/route.ts корректны, ошибки
       не блокируют сохранение и логируются. Если уведомления всё ещё не
       приходят, причина скорее всего в настройке на Vercel: проверьте наличие
-      env TELEGRAM_BOT_TOKEN=8726645890:AAERUePBMxFkPwFSj31Uegyvv_hV06DUr88 и
-      TELEGRAM_CHAT_ID=48148128, сделайте redeploy, и убедитесь, что бот был
-      запущен и пользователь 48148128 написал ему /start (без первого сообщения
+      env TELEGRAM_BOT_TOKEN=[REDACTED] и
+      TELEGRAM_CHAT_ID=[REDACTED], сделайте redeploy, и убедитесь, что бот был
+      запущен и пользователь [REDACTED] написал ему /start (без первого сообщения
       бот не может слать сообщения пользователю)."
   - id: task-8010
     title: Пользователь настроил Telegram-бота (TELEGRAM_BOT_TOKEN =
-      8726645890:AAGy5PmiFU-XbK-f33j6I5d3C1MdqBymlmA, TELEGRAM_CH...
+      [REDACTED], TELEGRAM_CH...
     description: >-
       Пользователь настроил Telegram-бота (TELEGRAM_BOT_TOKEN =
-      8726645890:AAGy5PmiFU-XbK-f33j6I5d3C1MdqBymlmA, TELEGRAM_CHAT_ID =
-      48148128). Ручная проверка через
-      https://api.telegram.org/bot<токен>/sendMessage?chat_id=48148128&text=Тест
+      [REDACTED], TELEGRAM_CHAT_ID =
+      [REDACTED]). Ручная проверка через
+      https://api.telegram.org/bot<токен>/sendMessage?chat_id=[REDACTED]&text=Тест
       работает (приходит "ok":true, сообщение доставляется). НО уведомления с
       сайта BIOUBORKA.UZ НЕ приходят вообще: ни о новых заявках, ни о кликах по
       «Позвонить», ни о кликах по «Заказать»/«Быстрый заказ».
@@ -1537,7 +1537,8 @@ tasks:
       202, а дашборд /api/admin/analytics уже использует моки при недоступной
       базе. Для создания таблицы выполнить: docker compose exec app npm run
       db:migrate. typecheck, lint и build проходят."
-  - title: "Проблема: в базе Yandex Cloud Document API (YDB Serverless, эндпоинт
+  - id: task-3190
+    title: "Проблема: в базе Yandex Cloud Document API (YDB Serverless, эндпоинт
       https://docapi.serverless.yandexcloud.net/ru-cen..."
     description: |-
       Проблема: в базе Yandex Cloud Document API (YDB Serverless, эндпоинт https://docapi.serverless.yandexcloud.net/ru-central1/b1g0k6upc0jrsq8rmv62/etn43ruacl31tasukvv3) отсутствует таблица site_visits. Из-за этого POST /api/visits возвращает 500 ResourceNotFoundException, визиты не сохраняются и дашборд «Аналитика» в /admin не показывает данные. Пользователь не может запустить локальную миграцию (нет Docker), а в консоли Yandex Cloud не находит раздел Document API для ручного создания таблиц.
@@ -1550,19 +1551,45 @@ tasks:
       5. После исправлений убедиться, что typecheck, lint и build проходят.
 
       В summary перечислить, что именно добавлено, как это работает и как пользователю проверить (открыть сайт → проверить логи Vercel, что [visits] таблица создана или 200 вместо 500; открыть /admin Аналитика через время).
+    status: completed
     acceptance_criteria:
       - Запрос пользователя выполнен полностью
     meta:
       quick_implement_marker: quick_implement:call_ede3c5b1a95e4fde9e06ee09
-    id: task-3190
-    status: completed
-    summary: >-
-      Добавлена функция ensureSiteVisitsTable() в lib/db.ts, которая создаёт
+    summary:
+      "Добавлена функция ensureSiteVisitsTable() в lib/db.ts, которая создаёт
       недостающую таблицу site_visits через CreateTableCommand по схеме из
-      lib/schema.ts (ключ id, тип String, HASH), игнорирует ResourceInUseException
-      и логирует прочие ошибки с меткой [visits] без бросания исключений. Функция
-      вызывается в POST /api/visits и GET /api/admin/analytics, поэтому таблица
-      создаётся автоматически при первом посещении сайта или открытии аналитики.
-      Если создание не удалось, POST /api/visits по-прежнему возвращает 202 и сайт
-      не падает. Проверка: открыть сайт или /admin Аналитика и убедиться в логах,
-      что [visits] таблица создана; typecheck, lint и build проходят.
+      lib/schema.ts (ключ id, тип String, HASH), игнорирует
+      ResourceInUseException и логирует прочие ошибки с меткой [visits] без
+      бросания исключений. Функция вызывается в POST /api/visits и GET
+      /api/admin/analytics, поэтому таблица создаётся автоматически при первом
+      посещении сайта или открытии аналитики. Если создание не удалось, POST
+      /api/visits по-прежнему возвращает 202 и сайт не падает. Проверка: открыть
+      сайт или /admin Аналитика и убедиться в логах, что [visits] таблица
+      создана; typecheck, lint и build проходят."
+  - title: В файле .vibecraft/docs/backlog.yaml в описаниях задач встречаются
+      реальные значения токенов Telegram-бота (строки ви...
+    description:
+      'В файле .vibecraft/docs/backlog.yaml в описаниях задач встречаются
+      реальные значения токенов Telegram-бота (строки вида "TELEGRAM_BOT_TOKEN =
+      ..." и сами токены формата "числа:буквы_и_цифры", а также реальные
+      chat_id). GitHub прислал security-алерт об утёкшем секрете. Нужно: найти
+      ВСЕ реальные значения токенов Telegram-бота в .vibecraft/docs/backlog.yaml
+      и заменить их на текст [REDACTED] (значение токена целиком, включая
+      префикс "числа:"), сохранив остальную структуру и содержимое YAML без
+      изменений. Также проверить другие файлы репозитория (.env*, *.md, конфиги)
+      на наличие реальных токенов Telegram-бота и заменить их на [REDACTED]. НЕ
+      включать реальные значения токенов ни в какие новые
+      тексты/комментарии/коммиты. Убедиться, что typecheck, lint и build не
+      ломаются (если правки только в документации — это допустимо).'
+    acceptance_criteria:
+      - Запрос пользователя выполнен полностью
+    meta:
+      quick_implement_marker: quick_implement:call_35c54bf6593a44eeb6860ffc
+    id: task-8492
+    status: completed
+    summary: 'Все реальные значения токенов Telegram-бота (два токена формата
+      "числа:..." и реальный chat_id) найдены в .vibecraft/docs/backlog.yaml и
+      заменены на [REDACTED] с сохранением остальной структуры и содержимого.
+      Проверены другие файлы репозитория (.env*, *.md, конфиги): реальных
+      токенов там не обнаружено. typecheck, lint и build проходят без ошибок.'
