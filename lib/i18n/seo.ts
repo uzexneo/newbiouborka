@@ -17,30 +17,27 @@ export const seoByLocale: Record<Locale, SeoMeta> = {
     htmlLang: "ru",
     hreflang: "ru",
     ogLocale: "ru_RU",
-    title:
-      "Уборка квартир в Ташкенте — BIOUBORKA.UZ | Биоуборка и химчистка мебели",
+    title: "Уборка квартир в Ташкенте от 25 000 сум | Биоуборка",
     description:
-      "Профессиональная биоуборка квартир и домов в Ташкенте. Химчистка мебели и ковров безопасными средствами. Телефон +998 93 375 27 02. Работаем по всему Ташкенту.",
+      "Клининг в Ташкенте: биоуборка квартир от 25 000 сум, химчистка мебели от 70 000 сум. Только безопасные средства, выезд по всему городу. +998 93 375 27 02.",
     url: siteUrl,
   },
   uzKrill: {
     htmlLang: "uz",
     hreflang: "uz-Cyrl",
     ogLocale: "uz_Cyrl",
-    title:
-      "Тошкентда квартира тозалаш — BIOUBORKA.UZ | Био тозалаш ва мебел кимёвий тозалаш",
+    title: "Тошкентда квартира тозалаш 25 000 сўмдан | Био тозалаш",
     description:
-      "Тошкентда квартира ва уйларни профессионал био тозалаш. Мебел ва гиламларни хавфсиз воситалар билан кимёвий тозалаш. Телефон +998 93 375 27 02. Бутун Тошкент бўйлаб ишлаймиз.",
+      "Тошкентда клининг: квартира ва уйларни био тозалаш 25 000 сўмдан, мебел кимёвий тозалаш 70 000 сўмдан. Хавфсиз воситалар. Телефон: +998 93 375 27 02.",
     url: `${siteUrl}?lang=uzKrill`,
   },
   uzLatin: {
     htmlLang: "uz-latn",
     hreflang: "uz-Latn",
     ogLocale: "uz_Latn",
-    title:
-      "Toshkentda kvartira tozalash — BIOUBORKA.UZ | Bio tozalash va mebel kimyoviy tozalash",
+    title: "Toshkentda kvartira tozalash 25 000 so'mdan | Bio tozalash",
     description:
-      "Toshkentda kvartira va uylarni professional bio tozalash. Mebel va gilamlarni xavfsiz vositalar bilan kimyoviy tozalash. Telefon +998 93 375 27 02. Butun Toshkent bo'ylab ishlaymiz.",
+      "Toshkentda klinning: kvartira va uylarni bio tozalash 25 000 so'mdan, mebel kimyoviy tozalash 70 000 so'mdan. Xavfsiz vositalar. Telefon: +998 93 375 27 02.",
     url: `${siteUrl}?lang=uzLatin`,
   },
 };

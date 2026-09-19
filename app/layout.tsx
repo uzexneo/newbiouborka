@@ -18,15 +18,16 @@ import { Toaster } from "@/components/ui/sonner";
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 const appName = "BIOUBORKA.UZ";
+const appTitle = "Уборка квартир в Ташкенте от 25 000 сум | Биоуборка";
 const appDescription =
-  "Профессиональная биоуборка квартир и домов в Ташкенте. Химчистка мебели и ковров безопасными средствами. Телефон +998 93 375 27 02.";
+  "Клининг в Ташкенте: биоуборка квартир от 25 000 сум, химчистка мебели от 70 000 сум. Только безопасные средства, выезд по всему городу. +998 93 375 27 02.";
 const appUrl = "https://biouborka.uz";
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
   applicationName: appName,
   title: {
-    default: `${appName} — Профессиональная биоуборка в Ташкенте`,
+    default: appTitle,
     template: `%s | ${appName}`,
   },
   description: appDescription,
@@ -47,7 +48,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ru_UZ",
     siteName: appName,
-    title: `${appName} — Профессиональная биоуборка в Ташкенте`,
+    title: appTitle,
     description: appDescription,
     url: appUrl,
     images: [
@@ -59,7 +60,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${appName} — Профессиональная биоуборка в Ташкенте`,
+    title: appTitle,
     description: appDescription,
     images: [`${appUrl}/assets/hero-cleaning.png`],
   },

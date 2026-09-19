@@ -1336,11 +1336,10 @@ tasks:
       на сайте BIOUBORKA.UZ (TELEGRAM_BOT_TOKEN =...
     description:
       "Пользователь настроил Telegram-бота для уведомлений о заявках и
-      действиях на сайте BIOUBORKA.UZ (TELEGRAM_BOT_TOKEN =
-      [REDACTED], TELEGRAM_CHAT_ID =
-      [REDACTED]), но в чат бота ничего не приходит. Нужно проверить код отправки
-      уведомлений: lib/telegram.ts (функции isTelegramConfigured,
-      buildOrderNotification, buildCallClickNotification,
+      действиях на сайте BIOUBORKA.UZ (TELEGRAM_BOT_TOKEN = [REDACTED],
+      TELEGRAM_CHAT_ID = [REDACTED]), но в чат бота ничего не приходит. Нужно
+      проверить код отправки уведомлений: lib/telegram.ts (функции
+      isTelegramConfigured, buildOrderNotification, buildCallClickNotification,
       buildOrderStartNotification,
       sendTelegramNotification/sendTelegramMessage), app/api/orders/route.ts
       (вызов отправки после сохранения заявки, обработка ошибок без блокировки
@@ -1371,82 +1370,35 @@ tasks:
       app/api/orders/route.ts и app/api/track-action/route.ts корректны, ошибки
       не блокируют сохранение и логируются. Если уведомления всё ещё не
       приходят, причина скорее всего в настройке на Vercel: проверьте наличие
-      env TELEGRAM_BOT_TOKEN=[REDACTED] и
-      TELEGRAM_CHAT_ID=[REDACTED], сделайте redeploy, и убедитесь, что бот был
-      запущен и пользователь [REDACTED] написал ему /start (без первого сообщения
-      бот не может слать сообщения пользователю)."
+      env TELEGRAM_BOT_TOKEN=[REDACTED] и TELEGRAM_CHAT_ID=[REDACTED], сделайте
+      redeploy, и убедитесь, что бот был запущен и пользователь [REDACTED]
+      написал ему /start (без первого сообщения бот не может слать сообщения
+      пользователю)."
   - id: task-8010
-    title: Пользователь настроил Telegram-бота (TELEGRAM_BOT_TOKEN =
-      [REDACTED], TELEGRAM_CH...
-    description: >-
-      Пользователь настроил Telegram-бота (TELEGRAM_BOT_TOKEN =
-      [REDACTED], TELEGRAM_CHAT_ID =
-      [REDACTED]). Ручная проверка через
-      https://api.telegram.org/bot<токен>/sendMessage?chat_id=[REDACTED]&text=Тест
-      работает (приходит "ok":true, сообщение доставляется). НО уведомления с
-      сайта BIOUBORKA.UZ НЕ приходят вообще: ни о новых заявках, ни о кликах по
-      «Позвонить», ни о кликах по «Заказать»/«Быстрый заказ».
+    title: Пользователь настроил Telegram-бота (TELEGRAM_BOT_TOKEN = [REDACTED],
+      TELEGRAM_CH...
+    description: |-
+      Пользователь настроил Telegram-бота (TELEGRAM_BOT_TOKEN = [REDACTED], TELEGRAM_CHAT_ID = [REDACTED]). Ручная проверка через https://api.telegram.org/bot<токен>/sendMessage?chat_id=[REDACTED]&text=Тест работает (приходит "ok":true, сообщение доставляется). НО уведомления с сайта BIOUBORKA.UZ НЕ приходят вообще: ни о новых заявках, ни о кликах по «Позвонить», ни о кликах по «Заказать»/«Быстрый заказ».
 
+      Нужен КОНКРЕТНЫЙ ПОШАГОВЫЙ АНАЛИЗ всей цепочки отправки уведомлений и исправление найденных проблем:
 
-      Нужен КОНКРЕТНЫЙ ПОШАГОВЫЙ АНАЛИЗ всей цепочки отправки уведомлений и
-      исправление найденных проблем:
+      1. Прочитать lib/telegram.ts полностью: как читаются process.env.TELEGRAM_BOT_TOKEN и process.env.TELEGRAM_CHAT_ID; что делает isTelegramConfigured(); как формируются buildOrderNotification, buildCallClickNotification, buildOrderStartNotification; как выполняется fetch к Telegram Bot API (URL, метод, тело, headers); как обрабатываются ошибки и ответы (проверить, что ответ Telegram проверяется на ok:false и логируется, а не молча игнорируется).
 
+      2. Прочитать app/api/orders/route.ts: после сохранения заявки реально ли вызывается sendTelegramNotification; не обёрнут ли вызов так, что исключение проглатывается до логирования; возвращает ли API статус, по которому видно, была ли отправка.
 
-      1. Прочитать lib/telegram.ts полностью: как читаются
-      process.env.TELEGRAM_BOT_TOKEN и process.env.TELEGRAM_CHAT_ID; что делает
-      isTelegramConfigured(); как формируются buildOrderNotification,
-      buildCallClickNotification, buildOrderStartNotification; как выполняется
-      fetch к Telegram Bot API (URL, метод, тело, headers); как обрабатываются
-      ошибки и ответы (проверить, что ответ Telegram проверяется на ok:false и
-      логируется, а не молча игнорируется).
+      3. Прочитать app/api/track-action/route.ts: обрабатывает ли он actions "call" и "order_start"; валидация; вызывается ли sendTelegramMessage; логируются ли ошибки.
 
+      4. Прочитать lib/telegram-actions.ts и проверить ВСЕ места вызова: components/floating-call-button.tsx, components/site-footer.tsx, components/contacts-section.tsx, components/service-cards-section.tsx, components/home-content.tsx, components/order-form-modal.tsx, components/quick-order-modal.tsx (если есть). Убедиться, что события реально отправляются (fetch на /api/track-action) при каждом клике, и что нет условий, из-за которых вызов пропускается.
 
-      2. Прочитать app/api/orders/route.ts: после сохранения заявки реально ли
-      вызывается sendTelegramNotification; не обёрнут ли вызов так, что
-      исключение проглатывается до логирования; возвращает ли API статус, по
-      которому видно, была ли отправка.
+      5. Проверить, нет ли проблемы с тем, что приложение собирается как статический экспорт (OUTPUT_MODE=export) — в этом случае API-роуты могут не работать, и fetch на /api/* падает. Если это так — предложить и реализовать решение (например, прямой вызов Telegram API с клиента через серверный прокси, который гарантированно работает, или исключить /api из статического экспорта).
 
+      6. Проверить, что runtime Next.js (nodejs) используется для API-роутов, а не edge (edge может блокировать исходящие fetch к telegram.org или иметь другие ограничения). Если нужно — добавить export const runtime = "nodejs".
 
-      3. Прочитать app/api/track-action/route.ts: обрабатывает ли он actions
-      "call" и "order_start"; валидация; вызывается ли sendTelegramMessage;
-      логируются ли ошибки.
-
-
-      4. Прочитать lib/telegram-actions.ts и проверить ВСЕ места вызова:
-      components/floating-call-button.tsx, components/site-footer.tsx,
-      components/contacts-section.tsx, components/service-cards-section.tsx,
-      components/home-content.tsx, components/order-form-modal.tsx,
-      components/quick-order-modal.tsx (если есть). Убедиться, что события
-      реально отправляются (fetch на /api/track-action) при каждом клике, и что
-      нет условий, из-за которых вызов пропускается.
-
-
-      5. Проверить, нет ли проблемы с тем, что приложение собирается как
-      статический экспорт (OUTPUT_MODE=export) — в этом случае API-роуты могут
-      не работать, и fetch на /api/* падает. Если это так — предложить и
-      реализовать решение (например, прямой вызов Telegram API с клиента через
-      серверный прокси, который гарантированно работает, или исключить /api из
-      статического экспорта).
-
-
-      6. Проверить, что runtime Next.js (nodejs) используется для API-роутов, а
-      не edge (edge может блокировать исходящие fetch к telegram.org или иметь
-      другие ограничения). Если нужно — добавить export const runtime =
-      "nodejs".
-
-
-      7. Добавить понятные диагностические console.log/console.warn в ключевые
-      точки (чтение env, isTelegramConfigured, попытка отправки, ответ Telegram,
-      ошибка), чтобы по логам Vercel (Functions) было видно, на каком шаге
-      обрыв.
-
+      7. Добавить понятные диагностические console.log/console.warn в ключевые точки (чтение env, isTelegramConfigured, попытка отправки, ответ Telegram, ошибка), чтобы по логам Vercel (Functions) было видно, на каком шаге обрыв.
 
       8. После исправлений убедиться, что typecheck, lint и build проходят.
 
-
-      В summary обязательно перечислить: найденную(ые) причину(ы), что именно
-      исправлено, и как пользователю проверить (включая просмотр логов Vercel
-      Functions, если уведомления всё ещё не придут).
+      В summary обязательно перечислить: найденную(ые) причину(ы), что именно исправлено, и как пользователю проверить (включая просмотр логов Vercel Functions, если уведомления всё ещё не придут).
     status: completed
     acceptance_criteria:
       - Запрос пользователя выполнен полностью
@@ -1567,7 +1519,8 @@ tasks:
       /api/visits по-прежнему возвращает 202 и сайт не падает. Проверка: открыть
       сайт или /admin Аналитика и убедиться в логах, что [visits] таблица
       создана; typecheck, lint и build проходят."
-  - title: В файле .vibecraft/docs/backlog.yaml в описаниях задач встречаются
+  - id: task-8492
+    title: В файле .vibecraft/docs/backlog.yaml в описаниях задач встречаются
       реальные значения токенов Telegram-бота (строки ви...
     description:
       'В файле .vibecraft/docs/backlog.yaml в описаниях задач встречаются
@@ -1582,14 +1535,52 @@ tasks:
       включать реальные значения токенов ни в какие новые
       тексты/комментарии/коммиты. Убедиться, что typecheck, lint и build не
       ломаются (если правки только в документации — это допустимо).'
+    status: completed
     acceptance_criteria:
       - Запрос пользователя выполнен полностью
     meta:
       quick_implement_marker: quick_implement:call_35c54bf6593a44eeb6860ffc
-    id: task-8492
-    status: completed
     summary: 'Все реальные значения токенов Telegram-бота (два токена формата
       "числа:..." и реальный chat_id) найдены в .vibecraft/docs/backlog.yaml и
       заменены на [REDACTED] с сохранением остальной структуры и содержимого.
       Проверены другие файлы репозитория (.env*, *.md, конфиги): реальных
       токенов там не обнаружено. typecheck, lint и build проходят без ошибок.'
+  - title:
+      Оптимизировать SEO-заголовки (title) и meta-описания (description) сайта
+      BIOUBORKA.UZ под ключевые запросы, чтобы пов...
+    description:
+      "Оптимизировать SEO-заголовки (title) и meta-описания (description)
+      сайта BIOUBORKA.UZ под ключевые запросы, чтобы повысить CTR в поисковой
+      выдаче Google и Яндекса и улучшить позиции. Сейчас сайт на позициях 7-10,
+      показы растут, но CTR низкий (0.5-2%). Нужно сделать заголовки цепляющими
+      и содержательными: ключевой запрос + город Ташкент + цена (от 25 000 сум /
+      от 70 000 сум) + телефон + выгода/уникальность (биоуборка, безопасные
+      средства). Оптимизировать: главную страницу и все три языковые версии
+      (русский, узбекский кириллица, узбекский латиница). Обновить title и
+      description в lib/i18n/seo.ts (seoByLocale для ru, uzKrill, uzLatin), а
+      также дефолтные metadata в app/layout.tsx (appDescription и title).
+      Убедиться, что title не слишком длинные (до ~60 символов для Google, до
+      ~50-55 для Яндекса — можно чуть больше, но не обрезать главную мысль),
+      description информативные (~150-160 символов), содержат ключевые фразы
+      «уборка квартир Ташкент», «химчистка мебели», «биоуборка», «клининг
+      Ташкент», «цена», телефон +998 93 375 27 02. Проверить, что SeoMetaUpdater
+      и метаданные согласованы. После правок убедиться, что typecheck, lint и
+      build проходят."
+    acceptance_criteria:
+      - Запрос пользователя выполнен полностью
+    meta:
+      quick_implement_marker: quick_implement:call_3e7e4ae49aa24ed7a040af3c
+    id: task-2976
+    status: completed
+    summary: >-
+      Оптимизированы SEO-заголовки и meta-описания под ключевые запросы для
+      главной страницы и трёх языковых версий (ru, uzKrill, uzLatin). Обновлены
+      title/description в lib/i18n/seo.ts (seoByLocale), дефолтные metadata в
+      app/layout.tsx (appTitle/appDescription, включая OG и Twitter), а
+      metadata главной страницы в app/page.tsx согласованы с seo.ts через
+      импорт seoByLocale.ru. Заголовки (51–58 символов) содержат ключевой
+      запрос, город Ташкент, цену «от 25 000 сум» и выгоду «биоуборка»;
+      описания (149–156 символов) — фразы «клининг Ташкент», «химчистка
+      мебели», цены и телефон +998 93 375 27 02. SeoMetaUpdater читает данные
+      из seoByLocale, поэтому остаётся согласованным. typecheck, lint и build
+      проходят без ошибок.
