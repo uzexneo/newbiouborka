@@ -7,6 +7,18 @@ import {
 export const SCHEMA_APP_NAME = "BIOUBORKA.UZ";
 export const SCHEMA_APP_URL = "https://biouborka.uz";
 const SCHEMA_IMAGE = `${SCHEMA_APP_URL}/assets/hero-cleaning.png`;
+const SCHEMA_GEO = { latitude: 41.2995, longitude: 69.2401 };
+
+function toE164(phone: string): string {
+  return `+${phone.replace(/\D/g, "")}`;
+}
+
+function extractNumericPrice(price: string): number | null {
+  if (!price || /по\s*договору/i.test(price)) return null;
+  const digits = price.replace(/\D/g, "");
+  if (!digits) return null;
+  return Number(digits);
+}
 
 interface FaqItem {
   question: string;
@@ -78,21 +90,27 @@ function buildAggregateRating() {
 }
 
 function buildOffers() {
-  return getDefaultServices().map((service) => ({
-    "@type": "Offer",
-    itemOffered: {
-      "@type": "Service",
-      name: service.name,
-      category: service.categoryTitle,
-      url: `${SCHEMA_APP_URL}/#${service.id}`,
-      areaServed: "Ташкент",
-    },
-    priceSpecification: {
-      "@type": "PriceSpecification",
-      price: service.price,
-      priceCurrency: "UZS",
-    },
-  }));
+  return getDefaultServices().flatMap((service) => {
+    const price = extractNumericPrice(service.price);
+    if (price === null) return [];
+    return [
+      {
+        "@type": "Offer",
+        itemOffered: {
+          "@type": "Service",
+          name: service.name,
+          category: service.categoryTitle,
+          url: `${SCHEMA_APP_URL}/#${service.id}`,
+          areaServed: "Ташкент",
+        },
+        priceSpecification: {
+          "@type": "PriceSpecification",
+          price,
+          priceCurrency: "UZS",
+        },
+      },
+    ];
+  });
 }
 
 function buildLocalBusiness() {
@@ -103,7 +121,13 @@ function buildLocalBusiness() {
     url: SCHEMA_APP_URL,
     image: SCHEMA_IMAGE,
     logo: `${SCHEMA_APP_URL}/assets/logo.png`,
-    telephone: DEFAULT_CONTACTS.phone,
+    telephone: toE164(DEFAULT_CONTACTS.phone),
+    email: DEFAULT_CONTACTS.email,
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: SCHEMA_GEO.latitude,
+      longitude: SCHEMA_GEO.longitude,
+    },
     priceRange: "от 25 000 сум",
     description:
       "Профессиональная экологичная уборка квартир и домов в Ташкенте. Био-средства, химчистка мебели и ковров, уборка после ремонта. Безопасно для здоровья.",

@@ -1545,7 +1545,8 @@ tasks:
       заменены на [REDACTED] с сохранением остальной структуры и содержимого.
       Проверены другие файлы репозитория (.env*, *.md, конфиги): реальных
       токенов там не обнаружено. typecheck, lint и build проходят без ошибок.'
-  - title:
+  - id: task-2976
+    title:
       Оптимизировать SEO-заголовки (title) и meta-описания (description) сайта
       BIOUBORKA.UZ под ключевые запросы, чтобы пов...
     description:
@@ -1566,21 +1567,103 @@ tasks:
       Ташкент», «цена», телефон +998 93 375 27 02. Проверить, что SeoMetaUpdater
       и метаданные согласованы. После правок убедиться, что typecheck, lint и
       build проходят."
+    status: completed
     acceptance_criteria:
       - Запрос пользователя выполнен полностью
     meta:
       quick_implement_marker: quick_implement:call_3e7e4ae49aa24ed7a040af3c
-    id: task-2976
-    status: completed
-    summary: >-
+    summary:
       Оптимизированы SEO-заголовки и meta-описания под ключевые запросы для
       главной страницы и трёх языковых версий (ru, uzKrill, uzLatin). Обновлены
       title/description в lib/i18n/seo.ts (seoByLocale), дефолтные metadata в
-      app/layout.tsx (appTitle/appDescription, включая OG и Twitter), а
-      metadata главной страницы в app/page.tsx согласованы с seo.ts через
-      импорт seoByLocale.ru. Заголовки (51–58 символов) содержат ключевой
-      запрос, город Ташкент, цену «от 25 000 сум» и выгоду «биоуборка»;
-      описания (149–156 символов) — фразы «клининг Ташкент», «химчистка
-      мебели», цены и телефон +998 93 375 27 02. SeoMetaUpdater читает данные
-      из seoByLocale, поэтому остаётся согласованным. typecheck, lint и build
-      проходят без ошибок.
+      app/layout.tsx (appTitle/appDescription, включая OG и Twitter), а metadata
+      главной страницы в app/page.tsx согласованы с seo.ts через импорт
+      seoByLocale.ru. Заголовки (51–58 символов) содержат ключевой запрос, город
+      Ташкент, цену «от 25 000 сум» и выгоду «биоуборка»; описания (149–156
+      символов) — фразы «клининг Ташкент», «химчистка мебели», цены и телефон
+      +998 93 375 27 02. SeoMetaUpdater читает данные из seoByLocale, поэтому
+      остаётся согласованным. typecheck, lint и build проходят без ошибок.
+  - id: task-9618
+    title: Аудит разметки Schema.org на сайте BIOUBORKA.UZ
+    description: "Проверить корректность разметки Schema.org (JSON-LD) на сайте
+      BIOUBORKA.UZ: LocalBusiness (название, телефон, адрес, город Ташкент),
+      Service (услуги с ценами через makesOffer), FAQPage, Review (отзывы с
+      aggregateRating). Убедиться, что разметка: (1) присутствует на главной
+      странице и отдаётся в HTML (app/page.tsx через lib/seo-jsonld.ts); (2)
+      содержит корректные типы и обязательные поля для расширенных сниппетов
+      Google и Яндекса; (3) валидна (нет ошибок JSON, дублей, конфликтов типов);
+      (4) соответствует данным сайта (телефон +998 93 375 27 02, адрес Ташкент).
+      Это readonly-проверка: файлы проекта менять НЕ нужно, только прочитать код
+      (lib/seo-jsonld.ts, app/page.tsx, lib/i18n/translations.ts при
+      необходимости) и записать ответ пользователю через summary
+      completed-задачи: что корректно, что можно улучшить для попадания в
+      расширенные сниппеты, какие конкретные рекомендации."
+    status: completed
+    acceptance_criteria:
+      - Прочитан и проанализирован код разметки Schema.org
+      - Файлы проекта не изменены
+      - "В summary completed-задачи записан понятный ответ: что корректно, что
+        улучшить, как проверить через Rich Results Test"
+    summary:
+      "Аудит завершён, файлы проекта не изменены. Корректно: единый валидный
+      JSON-LD (@graph: LocalBusiness + FAQPage, app/page.tsx через
+      lib/seo-jsonld.ts), телефон +998 93 375 27 02, адрес Ташкент, areaServed,
+      openingHours, sameAs, aggregateRating 4.8 (4 отзыва); дублей и конфликтов
+      типов нет. Рекомендации: (1) цены в Offer сделать числовыми (UZS), услуги
+      «по договору» исключить из makesOffer; (2) self-serving Review не дают
+      звёзд в Google; (3) FAQPage в Google не показывается с 08.2023 (оставить
+      для Яндекса); (4) телефон в формате E.164: +998933752702; (5) добавить
+      email и geo. Проверка: search.google.com/test/rich-results,
+      webmaster.yandex.ru/tools/microtest, validator.schema.org. typecheck,
+      lint, build — без ошибок."
+  - title: Улучшить разметку Schema.org (JSON-LD) на сайте BIOUBORKA.UZ по
+      результатам аудита, чтобы повысить шансы на расширенн...
+    description: >-
+      Улучшить разметку Schema.org (JSON-LD) на сайте BIOUBORKA.UZ по
+      результатам аудита, чтобы повысить шансы на расширенные сниппеты Google и
+      Яндекса. Файл разметки: lib/seo-jsonld.ts, подключён в app/page.tsx.
+
+
+      Нужно:
+
+      1. Сделать цены в разметке Service/Offer числовыми (число + currency UZS)
+      вместо текстовых строк. Услуги с ценой «по договору» — исключить из
+      makesOffer (или не включать в разметку цен), чтобы Google не отклонял
+      разметку.
+
+      2. Привести телефон в разметке к международному формату E.164 без
+      пробелов: +998933752702 (во всех местах разметки, где указан телефон; на
+      сайте визуально может оставаться +998 93 375 27 02).
+
+      3. Добавить в LocalBusiness поле email (например info@biouborka.uz или
+      подходящий email компании, если известен — иначе info@biouborka.uz) и
+      geo-координаты Ташкента (например geo: latitude 41.2995, longitude 69.2401
+      или точные координаты центра Ташкента).
+
+      4. Убедиться, что JSON-LD остаётся валидным (один корректный блок @graph,
+      без дублей и конфликтов типов), данные соответствуют сайту (телефон +998
+      93 375 27 02, адрес Ташкент).
+
+      5. После правок убедиться, что typecheck, lint и build проходят.
+
+
+      В summary перечислить, что именно изменено и как проверить через Rich
+      Results Test (search.google.com/test/rich-results).
+    acceptance_criteria:
+      - Запрос пользователя выполнен полностью
+    meta:
+      quick_implement_marker: quick_implement:call_d21dae0b0ee14e769e324352
+    id: task-5321
+    status: completed
+    summary: >-
+      Улучшена Schema.org (JSON-LD) разметка в lib/seo-jsonld.ts. Цены в
+      Offer/PriceSpecification теперь числовые с priceCurrency UZS (число
+      извлекается из строки цены), услуги с ценой «по договору» исключены из
+      makesOffer (было 33 услуги, осталось 22 оффера). Телефон приведён к E.164
+      без пробелов: +998933752702. В LocalBusiness добавлены email
+      info@biouborka.uz и geo-координаты Ташкента (41.2995, 69.2401). JSON-LD
+      остаётся единым блоком @graph (LocalBusiness + FAQPage) без дублей.
+      typecheck, lint, build проходят. Проверка: Rich Results Test
+      (search.google.com/test/rich-results) — вставить код страницы или URL, в
+      секции «Найденные элементы» должны отображаться LocalBusiness с валидными
+      ценами, телефоном, email, geo, а также FAQPage.
