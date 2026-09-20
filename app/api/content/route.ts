@@ -53,6 +53,7 @@ export async function GET() {
       galleryDoc,
       background,
       logo,
+      procedurePhotos,
     ] = await Promise.all([
       getAllSiteServices(),
       parseContent<SiteContacts>("contacts", (p) =>
@@ -89,6 +90,13 @@ export async function GET() {
             }
           : null
       ),
+      parseContent<{ photos?: Record<string, string> }>(
+        "procedurePhotos",
+        (p) =>
+          p && typeof p.photos === "object" && p.photos !== null
+            ? { photos: p.photos as Record<string, string> }
+            : null
+      ),
     ]);
 
     const gallery =
@@ -112,6 +120,7 @@ export async function GET() {
       background: background?.src ?? DEFAULT_BACKGROUND,
       logo: logo?.src ?? null,
       logoSize: logo?.size ?? null,
+      procedurePhotos: procedurePhotos?.photos ?? null,
     };
 
     return NextResponse.json(content);

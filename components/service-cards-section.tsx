@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { OrderFormModal } from "@/components/order-form-modal";
 import {
   Home,
@@ -15,6 +16,7 @@ import {
   Info,
 } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/language-provider";
+import { useSiteContent } from "@/lib/site-content-provider";
 import { SERVICE_CATEGORIES } from "@/lib/i18n/content";
 
 const iconMap: Record<
@@ -36,6 +38,7 @@ const categoryMeta = new Map(SERVICE_CATEGORIES.map((c) => [c.id, c]));
 
 export function ServiceCardsSection() {
   const { t } = useLanguage();
+  const { procedurePhotos } = useSiteContent();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<string | undefined>(
     undefined
@@ -85,6 +88,32 @@ export function ServiceCardsSection() {
                       )}
                     </div>
                   </div>
+
+                  {meta && (
+                    <div className="mb-6 grid overflow-hidden rounded-xl border bg-muted/40 sm:grid-cols-[1fr_auto]">
+                      <div className="flex flex-col justify-center gap-2 p-5 sm:p-6">
+                        <div className="flex items-center gap-2">
+                          <Info className="h-4 w-4 shrink-0 text-primary" />
+                          <h4 className="text-sm font-semibold text-foreground">
+                            {t("services.procedureHeading")}
+                          </h4>
+                        </div>
+                        <p className="text-sm leading-relaxed text-muted-foreground">
+                          {t(meta.procedureKey)}
+                        </p>
+                      </div>
+                      <div className="relative h-48 w-full sm:h-auto sm:w-60 lg:w-64">
+                        <Image
+                          src={procedurePhotos[category.id] ?? meta.photo}
+                          alt={t(category.titleKey)}
+                          fill
+                          sizes="(max-width: 640px) 100vw, 240px"
+                          className="object-cover"
+                        />
+                      </div>
+                    </div>
+                  )}
+
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {category.services.map((service, i) => (
                       <article

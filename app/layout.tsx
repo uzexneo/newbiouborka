@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Script from "next/script";
 import "./globals.css";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
@@ -16,6 +17,9 @@ import { FloatingCallButton } from "@/components/floating-call-button";
 import { Toaster } from "@/components/ui/sonner";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
+
+const GA_ID = "G-7E7Y9R3R19";
+const GA_SRC = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
 
 const appName = "BIOUBORKA.UZ";
 const appTitle = "Уборка квартир в Ташкенте от 25 000 сум | Биоуборка";
@@ -83,6 +87,15 @@ export default function RootLayout({
   return (
     <html lang="ru" className={cn("font-sans", geist.variable)}>
       <body className="antialiased min-h-screen bg-background flex flex-col">
+        <Script src={GA_SRC} strategy="afterInteractive" />
+        <Script id="google-analytics-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_ID}');
+          `}
+        </Script>
         <BridgeProvider />
         <VisitTracker />
         <LanguageProvider>

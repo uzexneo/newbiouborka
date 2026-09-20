@@ -61,6 +61,7 @@ export interface PublicContent {
   background: string | null;
   logo: string | null;
   logoSize?: number | null;
+  procedurePhotos?: Record<string, string> | null;
 }
 
 export const DEFAULT_CONTACTS: SiteContacts = {

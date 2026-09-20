@@ -13,6 +13,8 @@ export interface ServiceCategoryMeta {
   icon: string;
   titleKey: TranslationKey;
   noteKey: TranslationKey;
+  procedureKey: TranslationKey;
+  photo: string;
   services: ServiceItemMeta[];
 }
 
@@ -22,6 +24,8 @@ export const SERVICE_CATEGORIES: ServiceCategoryMeta[] = [
     icon: "Home",
     titleKey: "services.c0.title",
     noteKey: "services.c0.note",
+    procedureKey: "services.c0.proc",
+    photo: "/assets/photo_102@03-08-2026_09-58-07.jpg",
     services: [
       {
         id: "cleaning-general",
@@ -60,6 +64,8 @@ export const SERVICE_CATEGORIES: ServiceCategoryMeta[] = [
     icon: "Droplets",
     titleKey: "services.c1.title",
     noteKey: "services.c1.note",
+    procedureKey: "services.c1.proc",
+    photo: "/assets/photo_231@03-08-2026_10-01-02.jpg",
     services: [
       {
         id: "windows-windows",
@@ -93,6 +99,8 @@ export const SERVICE_CATEGORIES: ServiceCategoryMeta[] = [
     icon: "Layers",
     titleKey: "services.c2.title",
     noteKey: "services.c2.note",
+    procedureKey: "services.c2.proc",
+    photo: "/assets/photo_147@03-08-2026_09-59-36.jpg",
     services: [
       {
         id: "carpets-home",
@@ -111,6 +119,8 @@ export const SERVICE_CATEGORIES: ServiceCategoryMeta[] = [
     icon: "Sofa",
     titleKey: "services.c3.title",
     noteKey: "services.c3.note",
+    procedureKey: "services.c3.proc",
+    photo: "/assets/photo_138@03-08-2026_09-59-36.jpg",
     services: [
       {
         id: "furniture-sofa",
@@ -134,6 +144,8 @@ export const SERVICE_CATEGORIES: ServiceCategoryMeta[] = [
     icon: "BedDouble",
     titleKey: "services.c4.title",
     noteKey: "services.c4.note",
+    procedureKey: "services.c4.proc",
+    photo: "/assets/photo_191@03-08-2026_09-59-37.jpg",
     services: [
       {
         id: "mattresses-single",
@@ -152,6 +164,8 @@ export const SERVICE_CATEGORIES: ServiceCategoryMeta[] = [
     icon: "Armchair",
     titleKey: "services.c5.title",
     noteKey: "services.c5.note",
+    procedureKey: "services.c5.proc",
+    photo: "/assets/photo_216@03-08-2026_09-59-37.jpg",
     services: [
       {
         id: "leather-sofa",
@@ -175,6 +189,8 @@ export const SERVICE_CATEGORIES: ServiceCategoryMeta[] = [
     icon: "Brush",
     titleKey: "services.c6.title",
     noteKey: "services.c6.note",
+    procedureKey: "services.c6.proc",
+    photo: "/assets/photo_125@03-08-2026_09-59-36.jpg",
     services: [
       {
         id: "floors-cleaning",
@@ -198,6 +214,8 @@ export const SERVICE_CATEGORIES: ServiceCategoryMeta[] = [
     icon: "CookingPot",
     titleKey: "services.c7.title",
     noteKey: "services.c7.note",
+    procedureKey: "services.c7.proc",
+    photo: "/assets/photo_110@03-08-2026_09-58-07.jpg",
     services: [
       {
         id: "kitchen-stove",
@@ -226,6 +244,8 @@ export const SERVICE_CATEGORIES: ServiceCategoryMeta[] = [
     icon: "Sparkles",
     titleKey: "services.c8.title",
     noteKey: "services.c8.note",
+    procedureKey: "services.c8.proc",
+    photo: "/assets/photo_233@03-08-2026_10-01-02.jpg",
     services: [
       {
         id: "other-disinfection",
@@ -259,6 +279,20 @@ export const SERVICE_CATEGORIES: ServiceCategoryMeta[] = [
 export const ALL_SERVICES: ServiceItemMeta[] = SERVICE_CATEGORIES.flatMap(
   (category) => category.services
 );
+
+// Категории услуг, для которых администратор может загрузить фото процедуры
+// в блоке «Как проходит процедура» (должны совпадать с id в SERVICE_CATEGORIES).
+export const PROCEDURE_CATEGORY_IDS = [
+  "cleaning",
+  "windows",
+  "carpets",
+  "furniture",
+  "mattresses",
+  "leather",
+  "floors",
+  "kitchen",
+  "other",
+] as const;
 
 export interface TextCardMeta {
   icon: LucideIcon;

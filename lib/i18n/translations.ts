@@ -35,6 +35,7 @@ const ru = {
     "Полный прайс-лист биоуборки по категориям. Прозрачные цены без скрытых доплат.",
   "services.orderButton": "Заказать",
   "services.minOrder": "Минимальная стоимость заказа — 700 000 сум",
+  "services.procedureHeading": "Как проходит процедура",
   "services.c0.title": "Уборка",
   "services.c0.note": "от 25 000–35 000 сум/м²",
   "services.c0.i0.title": "Генеральная уборка",
@@ -49,6 +50,8 @@ const ru = {
   "services.c0.i4.price": "по договору",
   "services.c0.i5.title": "Уборка прилегающей территории",
   "services.c0.i5.price": "по договору",
+  "services.c0.proc":
+    "Выезжаем с набором био-средств и инвентаря. Чистим поверхности, моем полы, окна и зеркала, выносим мусор. Показываем результат.",
   "services.c1.title": "Мойка окон, витражей и фасадов",
   "services.c1.note": "от 20 000–30 000 сум/м²",
   "services.c1.i0.title": "Мойка окон",
@@ -61,12 +64,16 @@ const ru = {
   "services.c1.i3.price": "от 30 000 сум/м²",
   "services.c1.i4.title": "Уборка крыш",
   "services.c1.i4.price": "по договору",
+  "services.c1.proc":
+    "Оцениваем загрязнение и подбираем био-состав. Моем рамы и стёкла, убираем разводы и налёт, полируем до блеска. Фасады — со снаряжением альпинистов.",
   "services.c2.title": "Химчистка ковров",
   "services.c2.note": "25 000 сум/м²",
   "services.c2.i0.title": "Химчистка ковров на дому",
   "services.c2.i0.price": "25 000 сум/м²",
   "services.c2.i1.title": "Химчистка ковровых покрытий",
   "services.c2.i1.price": "25 000 сум/м²",
+  "services.c2.proc":
+    "Определяем тип ворса и наносим био-шампунь. Глубокая очистка экстрактором удаляет пыль, пятна и аллергены. Ковёр сохнет 6–12 часов.",
   "services.c3.title": "Химчистка мягкой мебели",
   "services.c3.note": "от 70 000–100 000 сум",
   "services.c3.i0.title": "Химчистка дивана",
@@ -75,12 +82,16 @@ const ru = {
   "services.c3.i1.price": "от 100 000 сум",
   "services.c3.i2.title": "Химчистка офисного стула",
   "services.c3.i2.price": "25 000 сум (офисное кресло — 40 000 сум)",
+  "services.c3.proc":
+    "Оцениваем обивку и наносим био-пену. Экстрактор глубоко очищает ткань, выводит пятна и нейтрализует запахи. Мебель сохнет 4–8 часов.",
   "services.c4.title": "Химчистка матрацев",
   "services.c4.note": "300 000–600 000 сум",
   "services.c4.i0.title": "Односпальный матрац",
   "services.c4.i0.price": "300 000 сум с двух сторон",
   "services.c4.i1.title": "Двуспальный матрац",
   "services.c4.i1.price": "600 000 сум с двух сторон",
+  "services.c4.proc":
+    "Снимаем бельё и обрабатываем матрац био-составом с двух сторон. Удаляем пятна, пылевых клещей и запахи. Сушка занимает несколько часов.",
   "services.c5.title": "Химчистка кожаной мебели",
   "services.c5.note": "от 25 000–400 000 сум",
   "services.c5.i0.title": "Химчистка кожаного дивана",
@@ -89,6 +100,8 @@ const ru = {
   "services.c5.i1.price": "от 150 000 сум",
   "services.c5.i2.title": "Химчистка кожаных стульев",
   "services.c5.i2.price": "от 25 000 сум",
+  "services.c5.proc":
+    "Проверяем тип кожи и окраску. Мягким очистителем убираем загрязнения, включая швы, затем питаем кожу и восстанавливаем защитный слой.",
   "services.c6.title": "Уход за полами",
   "services.c6.note": "по договору",
   "services.c6.i0.title": "Глубокая очистка полов",
@@ -97,6 +110,8 @@ const ru = {
   "services.c6.i1.price": "по договору",
   "services.c6.i2.title": "Полировка мрамора и гранита",
   "services.c6.i2.price": "по договору",
+  "services.c6.proc":
+    "Подбираем технологию под тип покрытия: камень, ламинат или дерево. Глубоко очищаем, при необходимости полируем и наносим защитный состав.",
   "services.c7.title": "Кухня",
   "services.c7.note": "100 000–700 000 сум",
   "services.c7.i0.title": "Чистка плиты",
@@ -107,6 +122,8 @@ const ru = {
   "services.c7.i2.price": "100 000 сум",
   "services.c7.i3.title": "Генеральная уборка кухни",
   "services.c7.i3.price": "700 000 сум",
+  "services.c7.proc":
+    "Работаем по зонам: плита, холодильник, духовка, вытяжка. Био-средство растворяет жир и нагар, затем всё тщательно смываем. Без запахов.",
   "services.c8.title": "Прочие услуги",
   "services.c8.note": "по договору",
   "services.c8.i0.title": "Дезинфекция",
@@ -119,6 +136,8 @@ const ru = {
   "services.c8.i3.price": "по договору",
   "services.c8.i4.title": "Доплата за сильную загрязнённость",
   "services.c8.i4.price": "по договору",
+  "services.c8.proc":
+    "Специалист осматривает объект и подбирает метод обработки. Дезинфекция, устранение запахов или плесени сертифицированными био-средствами.",
   "about.heading": "О компании BIOUBORKA.UZ",
   "about.p1":
     "BIOUBORKA.UZ — профессиональный сервис экологичной уборки в Ташкенте. Мы объединили многолетний опыт клининга с современными био-технологиями, чтобы предложить вам чистоту без компромиссов для здоровья.",
@@ -297,6 +316,7 @@ const uzKrill = {
     "Категориялар бўйича био тозалашнинг тўлиқ нарх рўйхати. Яширин қўшимча тўловларсиз шаффоф нархлар.",
   "services.orderButton": "Буюртма бериш",
   "services.minOrder": "Заказнинг минимал қиймати — 700 000 сўм",
+  "services.procedureHeading": "Жараён қандай ўтади",
   "services.c0.title": "Тозалаш",
   "services.c0.note": "25 000–35 000 сўм/м² дан",
   "services.c0.i0.title": "Умумий тозалаш",
@@ -311,6 +331,8 @@ const uzKrill = {
   "services.c0.i4.price": "шартнома асосида",
   "services.c0.i5.title": "Ҳудудни тозалаш",
   "services.c0.i5.price": "шартнома асосида",
+  "services.c0.proc":
+    "Био-воситалар ва жиҳозлар тўплами билан келамиз. Юзаларни тозалаймиз, пол, ойна ва кўзгуларни ювамиз, ахлатни чиқарамиз. Натижани кўрсатамиз.",
   "services.c1.title": "Ойна, витраж ва фасадларни ювиш",
   "services.c1.note": "20 000–30 000 сўм/м² дан",
   "services.c1.i0.title": "Ойналарни ювиш",
@@ -323,12 +345,16 @@ const uzKrill = {
   "services.c1.i3.price": "30 000 сўм/м² дан",
   "services.c1.i4.title": "Томларни тозалаш",
   "services.c1.i4.price": "шартнома асосида",
+  "services.c1.proc":
+    "Ифлосланишни баҳолаб, био-таркиб танлаймиз. Рам ва ойналарни ювамиз, томчи ва чангни кетказамиз, ялтиратиб пардозлаймиз. Фасадлар — альпинист жиҳозлари билан.",
   "services.c2.title": "Гиламларни кимёвий тозалаш",
   "services.c2.note": "25 000 сўм/м²",
   "services.c2.i0.title": "Уйда гиламларни кимёвий тозалаш",
   "services.c2.i0.price": "25 000 сўм/м²",
   "services.c2.i1.title": "Гилам қопламаларни кимёвий тозалаш",
   "services.c2.i1.price": "25 000 сўм/м²",
+  "services.c2.proc":
+    "Тола турини аниқлаб, био-шампунь суркамиз. Чуқур тозалаш чанг, дог ва аллергенларни кетказади. Гилам 6–12 соатда қурийди.",
   "services.c3.title": "Юмшоқ мебелни кимёвий тозалаш",
   "services.c3.note": "70 000–100 000 сўмдан",
   "services.c3.i0.title": "Диванни кимёвий тозалаш",
@@ -337,12 +363,16 @@ const uzKrill = {
   "services.c3.i1.price": "100 000 сўмдан",
   "services.c3.i2.title": "Офис стулини кимёвий тозалаш",
   "services.c3.i2.price": "25 000 сўм (офис креслоси — 40 000 сўм)",
+  "services.c3.proc":
+    "Қопламани баҳолаб, био-кўпик суркамиз. Экстрактор матони чуқур тозалайди, догларни кетказади ва ҳидларни нейтраллайди. Мебел 4–8 соатда қурийди.",
   "services.c4.title": "Матрасларни кимёвий тозалаш",
   "services.c4.note": "300 000–600 000 сўм",
   "services.c4.i0.title": "Бир кишилик матрас",
   "services.c4.i0.price": "300 000 сўм икки томондан",
   "services.c4.i1.title": "Икки кишилик матрас",
   "services.c4.i1.price": "600 000 сўм икки томондан",
+  "services.c4.proc":
+    "Чойшабларни оламиз ва матрасни икки томондан био-таркиб билан ишлаймиз. Доглар, чанг каналари ва ҳидларни йўқ қиламиз. Қуриши — бир неча соат.",
   "services.c5.title": "Чарм мебелни кимёвий тозалаш",
   "services.c5.note": "25 000–400 000 сўмдан",
   "services.c5.i0.title": "Чарм диванни кимёвий тозалаш",
@@ -351,6 +381,8 @@ const uzKrill = {
   "services.c5.i1.price": "150 000 сўмдан",
   "services.c5.i2.title": "Чарм стулларни кимёвий тозалаш",
   "services.c5.i2.price": "25 000 сўмдан",
+  "services.c5.proc":
+    "Тери тури ва бўёғини текширамиз. Юмшоқ тозалагич билан чоклардаги ифлосликларни ҳам оламиз, сўнг терини озуқлантирамиз ва ҳимоя қатламини тиклаймиз.",
   "services.c6.title": "Полларга ғамхўрлик",
   "services.c6.note": "шартнома асосида",
   "services.c6.i0.title": "Полларни чуқур тозалаш",
@@ -359,6 +391,8 @@ const uzKrill = {
   "services.c6.i1.price": "шартнома асосида",
   "services.c6.i2.title": "Мармар ва гранитни сайқаллаш",
   "services.c6.i2.price": "шартнома асосида",
+  "services.c6.proc":
+    "Қоплама турига қараб технология танлаймиз: тош, ламинат ёки ёғоч. Чуқур тозалаймиз, керак бўлса сайқаллаймиз ва ҳимоя қопламаси суркамиз.",
   "services.c7.title": "Ошхона",
   "services.c7.note": "100 000–700 000 сўм",
   "services.c7.i0.title": "Плитани тозалаш",
@@ -369,6 +403,8 @@ const uzKrill = {
   "services.c7.i2.price": "100 000 сўм",
   "services.c7.i3.title": "Ошхонани умумий тозалаш",
   "services.c7.i3.price": "700 000 сўм",
+  "services.c7.proc":
+    "Зоналар бўйича ишлаймиз: плита, музлатгич, духовка, мойўтказгич. Био-восита ёғ ва куйгани эритади, кейин ҳаммасини яхшилаб ювамиз. Ҳидсиз.",
   "services.c8.title": "Бошқа хизматлар",
   "services.c8.note": "шартнома асосида",
   "services.c8.i0.title": "Дезинфекция",
@@ -381,6 +417,8 @@ const uzKrill = {
   "services.c8.i3.price": "шартнома асосида",
   "services.c8.i4.title": "Кучли ифлосланиш учун қўшимча тўлов",
   "services.c8.i4.price": "шартнома асосида",
+  "services.c8.proc":
+    "Мутахассис объектни кўздан кечириб, ишлов усулини танлайди. Дезинфекция, ҳид ёки моғорни сертификатланган био-воситалар билан бартараф этамиз.",
   "about.heading": "BIOUBORKA.UZ компанияси ҳақида",
   "about.p1":
     "BIOUBORKA.UZ — Тошкентдаги профессионал экологик тозалаш хизмати. Соғлиғингизга зиён етказмасдан тозаликни таклиф қилиш учун кўп йиллик клининг тажрибасини замонавий био-технологиялар билан бирлаштирдик.",
@@ -559,6 +597,7 @@ const uzLatin = {
     "Kategoriyalar bo'yicha bio tozalashning to'liq narx ro'yxati. Yashirin qo'shimcha to'lovlarsiz shaffof narxlar.",
   "services.orderButton": "Buyurtma berish",
   "services.minOrder": "Buyurtmaning minimal qiymati — 700 000 so'm",
+  "services.procedureHeading": "Jarayon qanday o'tadi",
   "services.c0.title": "Tozalash",
   "services.c0.note": "25 000–35 000 so'm/m² dan",
   "services.c0.i0.title": "Umumiy tozalash",
@@ -573,6 +612,8 @@ const uzLatin = {
   "services.c0.i4.price": "shartnoma asosida",
   "services.c0.i5.title": "Hududni tozalash",
   "services.c0.i5.price": "shartnoma asosida",
+  "services.c0.proc":
+    "Bio-vositalar va jihozlar to'plami bilan kelamiz. Yuzalarni tozalaymiz, pol, oyna va ko'zgularni yuvamiz, axlatni chiqaramiz. Natijani ko'rsatamiz.",
   "services.c1.title": "Oyna, vitraj va fasadlarni yuvish",
   "services.c1.note": "20 000–30 000 so'm/m² dan",
   "services.c1.i0.title": "Oynalarni yuvish",
@@ -585,12 +626,16 @@ const uzLatin = {
   "services.c1.i3.price": "30 000 so'm/m² dan",
   "services.c1.i4.title": "Tomlarni tozalash",
   "services.c1.i4.price": "shartnoma asosida",
+  "services.c1.proc":
+    "Ifloslanishni baholab, bio-tarkib tanlaymiz. Ram va oynalarni yuvamiz, tomchi va changni ketkazamiz, yaltiratib pardozlaymiz. Fasadlar — alpinist jihozlari bilan.",
   "services.c2.title": "Gilamlarni kimyoviy tozalash",
   "services.c2.note": "25 000 so'm/m²",
   "services.c2.i0.title": "Uyda gilamlarni kimyoviy tozalash",
   "services.c2.i0.price": "25 000 so'm/m²",
   "services.c2.i1.title": "Gilam qoplamalarni kimyoviy tozalash",
   "services.c2.i1.price": "25 000 so'm/m²",
+  "services.c2.proc":
+    "Tola turini aniqlab, bio-shampun surkamiz. Chuqur tozalash chang, dog' va allergenlarni ketkazadi. Gilam 6–12 soatda quriydi.",
   "services.c3.title": "Yumshoq mebelni kimyoviy tozalash",
   "services.c3.note": "70 000–100 000 so'mdan",
   "services.c3.i0.title": "Divanni kimyoviy tozalash",
@@ -599,12 +644,16 @@ const uzLatin = {
   "services.c3.i1.price": "100 000 so'mdan",
   "services.c3.i2.title": "Ofis stulini kimyoviy tozalash",
   "services.c3.i2.price": "25 000 so'm (ofis kreslosi — 40 000 so'm)",
+  "services.c3.proc":
+    "Qoplamani baholab, bio-ko'pik surkamiz. Ekstraktor matoni chuqur tozalaydi, dog'larni ketkazadi va hidlarni neytrallaydi. Mebel 4–8 soatda quriydi.",
   "services.c4.title": "Matraslarni kimyoviy tozalash",
   "services.c4.note": "300 000–600 000 so'm",
   "services.c4.i0.title": "Bir kishilik matras",
   "services.c4.i0.price": "300 000 so'm ikki tomondan",
   "services.c4.i1.title": "Ikki kishilik matras",
   "services.c4.i1.price": "600 000 so'm ikki tomondan",
+  "services.c4.proc":
+    "Choyshablarni olamiz va matrasni ikki tomondan bio-tarkib bilan ishlaymiz. Dog'lar, chang kanalari va hidlarni yo'q qilamiz. Qurishi — bir necha soat.",
   "services.c5.title": "Charm mebelni kimyoviy tozalash",
   "services.c5.note": "25 000–400 000 so'mdan",
   "services.c5.i0.title": "Charm divanni kimyoviy tozalash",
@@ -613,6 +662,8 @@ const uzLatin = {
   "services.c5.i1.price": "150 000 so'mdan",
   "services.c5.i2.title": "Charm stullarni kimyoviy tozalash",
   "services.c5.i2.price": "25 000 so'mdan",
+  "services.c5.proc":
+    "Teri turi va bo'yog'ini tekshiramiz. Yumshoq tozalagich bilan choklardagi iflosliklarni ham olamiz, so'ng terini oziqlantiramiz va himoya qatlamini tiklaymiz.",
   "services.c6.title": "Pollarga g'amxo'rlik",
   "services.c6.note": "shartnoma asosida",
   "services.c6.i0.title": "Pollarni chuqur tozalash",
@@ -621,6 +672,8 @@ const uzLatin = {
   "services.c6.i1.price": "shartnoma asosida",
   "services.c6.i2.title": "Marmar va granitni sayqallash",
   "services.c6.i2.price": "shartnoma asosida",
+  "services.c6.proc":
+    "Qoplama turiga qarab texnologiya tanlaymiz: tosh, laminat yoki yog'och. Chuqur tozalaymiz, kerak bo'lsa sayqallaymiz va himoya qoplamasi surkamiz.",
   "services.c7.title": "Oshxona",
   "services.c7.note": "100 000–700 000 so'm",
   "services.c7.i0.title": "Plitani tozalash",
@@ -631,6 +684,8 @@ const uzLatin = {
   "services.c7.i2.price": "100 000 so'm",
   "services.c7.i3.title": "Oshxonani umumiy tozalash",
   "services.c7.i3.price": "700 000 so'm",
+  "services.c7.proc":
+    "Zonalar bo'yicha ishlaymiz: plita, muzlatgich, duxovka, moy o'tkazgich. Bio-vosita yog' va kuyganini eritadi, keyin hammasini yaxshilab yuvamiz. Hidsiz.",
   "services.c8.title": "Boshqa xizmatlar",
   "services.c8.note": "shartnoma asosida",
   "services.c8.i0.title": "Dezinfektsiya",
@@ -643,6 +698,8 @@ const uzLatin = {
   "services.c8.i3.price": "shartnoma asosida",
   "services.c8.i4.title": "Kuchli ifloslanish uchun qo'shimcha to'lov",
   "services.c8.i4.price": "shartnoma asosida",
+  "services.c8.proc":
+    "Mutaxassis obyektni ko'zdan kechirib, ishlov usulini tanlaydi. Dezinfektsiya, hid yoki mo'g'orni sertifikatlangan bio-vositalar bilan bartaraf etamiz.",
   "about.heading": "BIOUBORKA.UZ kompaniyasi haqida",
   "about.p1":
     "BIOUBORKA.UZ — Toshkentdagi professional ekologik tozalash xizmati. Sog'lig'ingizga ziyon yetkazmasdan tozalikni taklif qilish uchun ko'p yillik klining tajribasini zamonaviy bio-texnologiyalar bilan birlashtirdik.",

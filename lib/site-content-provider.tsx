@@ -39,6 +39,7 @@ interface SiteContentValue {
   background: string;
   logo: string;
   logoSize: number;
+  procedurePhotos: Record<string, string>;
   isDynamic: boolean;
 }
 
@@ -151,6 +152,9 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
       ? dynamic.logoSize
       : DEFAULT_LOGO_SIZE;
 
+  const procedurePhotos: Record<string, string> =
+    dynamic?.procedurePhotos ?? {};
+
   const hasDynamicData =
     loaded &&
     (!!dynamic?.services?.length ||
@@ -160,7 +164,8 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
       !!dynamic?.testimonials?.length ||
       !!dynamic?.gallery?.length ||
       !!dynamic?.background ||
-      !!dynamic?.logo);
+      !!dynamic?.logo ||
+      Object.keys(procedurePhotos).length > 0);
 
   return (
     <SiteContentContext.Provider
@@ -174,6 +179,7 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
         background,
         logo,
         logoSize,
+        procedurePhotos,
         isDynamic: hasDynamicData,
       }}
     >

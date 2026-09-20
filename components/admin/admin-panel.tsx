@@ -10,6 +10,7 @@ import {
   FileText,
   Images,
   ImageIcon,
+  ImagePlus,
   Inbox,
   LogOut,
   ShieldCheck,
@@ -33,6 +34,7 @@ import { AdminMedia } from "@/components/admin/admin-media";
 import { AdminApplications } from "@/components/admin/admin-applications";
 import { AdminLogo } from "@/components/admin/admin-logo";
 import { AdminAnalytics } from "@/components/admin/admin-analytics";
+import { AdminProcedurePhotos } from "@/components/admin/admin-procedure-photos";
 
 const sections = [
   { id: "overview", label: "Обзор", icon: LayoutDashboard },
@@ -42,6 +44,7 @@ const sections = [
   { id: "gallery", label: "Галерея", icon: Images },
   { id: "media", label: "Фон сайта", icon: ImageIcon },
   { id: "logo", label: "Логотип", icon: ImageIcon },
+  { id: "procedurePhotos", label: "Фото процедур", icon: ImagePlus },
   { id: "applications", label: "Заявки клиентов", icon: Inbox },
   { id: "analytics", label: "Аналитика", icon: BarChart3 },
 ] as const;
@@ -153,6 +156,8 @@ export function AdminPanel() {
               <AdminMedia />
             ) : active === "logo" ? (
               <AdminLogo />
+            ) : active === "procedurePhotos" ? (
+              <AdminProcedurePhotos />
             ) : active === "applications" ? (
               <AdminApplications />
             ) : active === "analytics" ? (

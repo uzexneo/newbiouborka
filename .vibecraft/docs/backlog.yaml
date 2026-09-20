@@ -1666,7 +1666,8 @@ tasks:
       (search.google.com/test/rich-results) — вставить код страницы или URL, в
       секции «Найденные элементы» должны отображаться LocalBusiness с валидными
       ценами, телефоном, email, geo, а также FAQPage."
-  - title:
+  - id: task-0736
+    title:
       Убрать с сайта BIOUBORKA.UZ отправку в Telegram уведомлений о кликах по
       кнопкам (клики по «Позвонить», клики по «Зака...
     description: 'Убрать с сайта BIOUBORKA.UZ отправку в Telegram уведомлений о
@@ -1681,18 +1682,117 @@ tasks:
       service-cards-section, home-content, quick-order-modal и др.), а механизм
       уведомлений о новых заявках (app/api/orders через lib/telegram.ts)
       полностью сохранить. Сайт и формы должны продолжать работать без ошибок.'
+    status: completed
     acceptance_criteria:
       - Запрос пользователя выполнен полностью
     meta:
       quick_implement_marker: quick_implement:call_c5e74d5c44c94dcf959d46ee
-    id: task-0736
-    status: completed
-    summary: 'Убран трекинг кликов и отправка событий "call" и "order_start" в
+    summary: Убран трекинг кликов и отправка событий "call" и "order_start" в
       Telegram. Удалены app/api/track-action/route.ts и lib/telegram-actions.ts;
       из lib/validation.ts убран trackActionSchema, из lib/telegram.ts — билдеры
       buildCallClickNotification и buildOrderStartNotification. Все вызовы
-      trackCallClick/trackOrderStart убраны из floating-call-button, site-footer,
-      contacts-section, service-cards-section, home-content (quick-order-modal и
-      order-form-modal их не содержали). Механизм уведомлений о новых заявках
-      (app/api/orders через lib/telegram.ts) полностью сохранён. typecheck, lint,
-      build проходят.'
+      trackCallClick/trackOrderStart убраны из floating-call-button,
+      site-footer, contacts-section, service-cards-section, home-content
+      (quick-order-modal и order-form-modal их не содержали). Механизм
+      уведомлений о новых заявках (app/api/orders через lib/telegram.ts)
+      полностью сохранён. typecheck, lint, build проходят.
+  - id: task-1858
+    title:
+      Добавить на главную страницу сайта BIOUBORKA.UZ в каталог услуг (секция с
+      ценами, components/service-cards-section.ts...
+    description:
+      "Добавить на главную страницу сайта BIOUBORKA.UZ в каталог услуг
+      (секция с ценами, components/service-cards-section.tsx) для каждой
+      категории/услуги небольшой блок «Как проходит процедура»: короткий текст
+      примерно 100 символов о том, как проходит процедура данной услуги, и одна
+      фотография. Текст и фото разместить перед карточками цен этой
+      услуги/категории (перед прайсом). Тексты должны переводиться на три языка
+      (русский, узбекская кириллица, узбекская латиница) — добавить ключи в
+      lib/i18n/translations.ts. Фото взять из существующих в проекте
+      (public/assets, фото выполненных работ из галереи — 17 файлов
+      photo_*.jpg): распределить по категориям услуг (Уборка, Мойка окон,
+      Химчистка ковров, Мягкая мебель, Матрацы, Кожаная мебель, Уход за полами,
+      Кухня, Прочие) так, чтобы у каждой категории было своё подходящее фото
+      (при необходимости одно фото на категорию или несколько услуг). Если у
+      категории нет подходящего фото — можно использовать нейтральное из
+      имеющихся или иконку. Дизайн: аккуратный, в текущем зелёно-белом стиле,
+      адаптивный. Сайт и формы должны продолжать работать. После правок
+      убедиться, что typecheck, lint и build проходят."
+    status: completed
+    acceptance_criteria:
+      - Запрос пользователя выполнен полностью
+    meta:
+      quick_implement_marker: quick_implement:call_c8244429f6b04d768c67eb71
+    summary: "В components/service-cards-section.tsx для каждой категории услуг
+      перед карточками цен добавлен адаптивный блок «Как проходит процедура»:
+      короткий текст (~100 символов) и фото из существующей галереи (по одному
+      подходящему снимку на категорию; для «Кожаной мебели», «Ухода за полами» и
+      «Прочих услуг» — нейтральные фото). Тексты процедур переведены на три
+      языка (ru, uz-Krill, uz-Latin): ключи services.procedureHeading и
+      services.c0–c8.proc добавлены в lib/i18n/translations.ts, метаданные
+      procedureKey/photo — в lib/i18n/content.ts. typecheck, lint, build
+      проходят."
+  - id: task-7585
+    title: Добавить в панель управления (/admin) возможность менять фотографии в
+      блоке «Как проходит процедура» для каждой катег...
+    description: "Добавить в панель управления (/admin) возможность менять
+      фотографии в блоке «Как проходит процедура» для каждой категории услуг на
+      главной странице (components/service-cards-section.tsx). Сейчас в этом
+      блоке перед ценами каждой категории показывается текст о процедуре и фото
+      из статических данных (public/assets). Нужно: чтобы администратор мог
+      через панель управления загрузить/заменить фото для каждой категории услуг
+      (Уборка, Мойка окон, Химчистка ковров, Мягкая мебель, Матрацы, Кожаная
+      мебель, Уход за полами, Кухня, Прочие), фото сохранялось (например, в
+      DynamoDB через существующий механизм хранения изображений base64, как для
+      галереи/логотипа) и отображалось на сайте в блоке «Как проходит процедура»
+      вместо фото по умолчанию. Если фото для категории не загружено —
+      показывать текущее фото по умолчанию. Использовать существующие паттерны
+      проекта (загрузка через sharp, хранение в site_content или аналогично,
+      публичный /api/content, SiteContentProvider). Сохранить тексты процедур
+      без изменений. Сайт и формы должны продолжать работать. После правок
+      убедиться, что typecheck, lint и build проходят."
+    status: completed
+    acceptance_criteria:
+      - Запрос пользователя выполнен полностью
+    meta:
+      quick_implement_marker: quick_implement:call_2e12686b5f5c4dcfb7a98185
+    summary:
+      Добавлена возможность менять фото в блоке «Как проходит процедура» для
+      каждой категории услуг через панель управления /admin. Новый раздел «Фото
+      процедур» (components/admin/admin-procedure-photos.tsx) загружает/заменяет
+      фото и сбрасывает его на дефолтное через API
+      app/api/admin/procedure-photos (GET/POST/DELETE); фото сжимаются sharp и
+      хранятся base64 в site_content (id=procedurePhotos). Публичный
+      /api/content отдаёт procedurePhotos, SiteContentProvider пробрасывает их в
+      components/service-cards-section.tsx, где загруженное фото показывается
+      вместо дефолтного (lib/i18n/content.ts); тексты процедур не менялись.
+      typecheck, lint и build проходят без ошибок.
+  - title: Добавить на сайт BIOUBORKA.UZ Google Analytics (тег Google gtag.js) с
+      идентификатором G-7E7Y9R3R19. Установить тег та...
+    description: 'Добавить на сайт BIOUBORKA.UZ Google Analytics (тег Google
+      gtag.js) с идентификатором G-7E7Y9R3R19. Установить тег так, чтобы он
+      подключался на всех страницах сайта (в корневом layout app/layout.tsx),
+      ровно один раз, после элемента <head>. Использовать штатный способ Next.js
+      для подключения сторонних скриптов: компонент next/script с
+      strategy="afterInteractive" и корректной настройкой gtag
+      (window.dataLayer, function gtag(){dataLayer.push(arguments)}, gtag(''js'',
+      new Date()), gtag(''config'', ''G-7E7Y9R3R19'')). Тег должен загружаться из
+      https://www.googletagmanager.com/gtag/js?id=G-7E7Y9R3R19. Убедиться, что
+      сайт, аналитика посещений (components/visit-tracker.tsx / /api/visits) и
+      все остальные функции продолжают работать без ошибок. После правок
+      убедиться, что typecheck, lint и build проходят.'
+    acceptance_criteria:
+      - Запрос пользователя выполнен полностью
+    meta:
+      quick_implement_marker: quick_implement:call_1f812b9130a44a079489e5d8
+    id: task-8023
+    status: completed
+    summary: >-
+      На сайт BIOUBORKA.UZ добавлен Google Analytics (gtag.js, ID G-7E7Y9R3R19).
+      В корневой layout app/layout.tsx через next/script с strategy
+      "afterInteractive" подключён тег https://www.googletagmanager.com/gtag/js?id=G-7E7Y9R3R19
+      и инлайн-скрипт инициализации (window.dataLayer, gtag('js', new Date()),
+      gtag('config', 'G-7E7Y9R3R19')) — ровно один раз, сразу после <head>.
+      Собственная аналитика посещений (components/visit-tracker.tsx / /api/visits)
+      и остальные функции работают без изменений. typecheck, lint и build проходят
+      без ошибок.
