@@ -1616,7 +1616,8 @@ tasks:
       email и geo. Проверка: search.google.com/test/rich-results,
       webmaster.yandex.ru/tools/microtest, validator.schema.org. typecheck,
       lint, build — без ошибок."
-  - title: Улучшить разметку Schema.org (JSON-LD) на сайте BIOUBORKA.UZ по
+  - id: task-5321
+    title: Улучшить разметку Schema.org (JSON-LD) на сайте BIOUBORKA.UZ по
       результатам аудита, чтобы повысить шансы на расширенн...
     description: >-
       Улучшить разметку Schema.org (JSON-LD) на сайте BIOUBORKA.UZ по
@@ -1649,14 +1650,12 @@ tasks:
 
       В summary перечислить, что именно изменено и как проверить через Rich
       Results Test (search.google.com/test/rich-results).
+    status: completed
     acceptance_criteria:
       - Запрос пользователя выполнен полностью
     meta:
       quick_implement_marker: quick_implement:call_d21dae0b0ee14e769e324352
-    id: task-5321
-    status: completed
-    summary: >-
-      Улучшена Schema.org (JSON-LD) разметка в lib/seo-jsonld.ts. Цены в
+    summary: "Улучшена Schema.org (JSON-LD) разметка в lib/seo-jsonld.ts. Цены в
       Offer/PriceSpecification теперь числовые с priceCurrency UZS (число
       извлекается из строки цены), услуги с ценой «по договору» исключены из
       makesOffer (было 33 услуги, осталось 22 оффера). Телефон приведён к E.164
@@ -1666,4 +1665,34 @@ tasks:
       typecheck, lint, build проходят. Проверка: Rich Results Test
       (search.google.com/test/rich-results) — вставить код страницы или URL, в
       секции «Найденные элементы» должны отображаться LocalBusiness с валидными
-      ценами, телефоном, email, geo, а также FAQPage.
+      ценами, телефоном, email, geo, а также FAQPage."
+  - title:
+      Убрать с сайта BIOUBORKA.UZ отправку в Telegram уведомлений о кликах по
+      кнопкам (клики по «Позвонить», клики по «Зака...
+    description: 'Убрать с сайта BIOUBORKA.UZ отправку в Telegram уведомлений о
+      кликах по кнопкам (клики по «Позвонить», клики по «Заказать»/«Быстрый
+      заказ» — уведомления о начале оформления заявки). Оставить ТОЛЬКО
+      уведомления о реальных заявках (когда клиент действительно отправил форму
+      заказа): уведомление о новой заявке с именем, телефоном, услугой, датой,
+      временем, адресом, комментарием. То есть удалить/отключить трекинг кликов
+      и отправку событий "call" и "order_start" в Telegram
+      (app/api/track-action, lib/telegram-actions.ts и все места вызова:
+      floating-call-button, site-footer, contacts-section,
+      service-cards-section, home-content, quick-order-modal и др.), а механизм
+      уведомлений о новых заявках (app/api/orders через lib/telegram.ts)
+      полностью сохранить. Сайт и формы должны продолжать работать без ошибок.'
+    acceptance_criteria:
+      - Запрос пользователя выполнен полностью
+    meta:
+      quick_implement_marker: quick_implement:call_c5e74d5c44c94dcf959d46ee
+    id: task-0736
+    status: completed
+    summary: 'Убран трекинг кликов и отправка событий "call" и "order_start" в
+      Telegram. Удалены app/api/track-action/route.ts и lib/telegram-actions.ts;
+      из lib/validation.ts убран trackActionSchema, из lib/telegram.ts — билдеры
+      buildCallClickNotification и buildOrderStartNotification. Все вызовы
+      trackCallClick/trackOrderStart убраны из floating-call-button, site-footer,
+      contacts-section, service-cards-section, home-content (quick-order-modal и
+      order-form-modal их не содержали). Механизм уведомлений о новых заявках
+      (app/api/orders через lib/telegram.ts) полностью сохранён. typecheck, lint,
+      build проходят.'

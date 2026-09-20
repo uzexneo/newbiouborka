@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/language-provider";
 import { SERVICE_CATEGORIES } from "@/lib/i18n/content";
-import { trackOrderStart } from "@/lib/telegram-actions";
 
 const iconMap: Record<
   string,
@@ -42,10 +41,9 @@ export function ServiceCardsSection() {
     undefined
   );
 
-  const handleOrderClick = (serviceId: string, serviceName: string) => {
+  const handleOrderClick = (serviceId: string) => {
     setSelectedService(serviceId);
     setModalOpen(true);
-    trackOrderStart(serviceName);
   };
 
   return (
@@ -103,9 +101,7 @@ export function ServiceCardsSection() {
                         </div>
                         <button
                           type="button"
-                          onClick={() =>
-                            handleOrderClick(service.id, t(service.titleKey))
-                          }
+                          onClick={() => handleOrderClick(service.id)}
                           className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-xs transition-all hover:bg-primary/90"
                         >
                           {t("services.orderButton")}

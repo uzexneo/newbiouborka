@@ -111,30 +111,3 @@ export async function sendTelegramMessage(text: string): Promise<boolean> {
 export async function sendTelegramNotification(order: Order): Promise<boolean> {
   return sendTelegramMessage(buildOrderNotification(order));
 }
-
-export function buildCallClickNotification(
-  phone: string,
-  source?: string
-): string {
-  const lines = [
-    "Клик по кнопке звонка — BIOUBORKA.UZ",
-    "",
-    `📞 Телефон: ${phone}`,
-  ];
-
-  if (source) {
-    lines.push(`🌐 Страница/источник: ${source}`);
-  }
-
-  return lines.join("\n");
-}
-
-export function buildOrderStartNotification(service?: string): string {
-  const lines = [
-    "Начало оформления заявки — BIOUBORKA.UZ",
-    "",
-    service ? `🧹 Услуга: ${service}` : "Пользователь начал оформление заявки",
-  ];
-
-  return lines.join("\n");
-}
