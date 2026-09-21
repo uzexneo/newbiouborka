@@ -29,7 +29,7 @@ export const seoByLocale: Record<Locale, SeoMeta> = {
     title: "Тошкентда квартира тозалаш 25 000 сўмдан | Био тозалаш",
     description:
       "Тошкентда клининг: квартира ва уйларни био тозалаш 25 000 сўмдан, мебел кимёвий тозалаш 70 000 сўмдан. Хавфсиз воситалар. Телефон: +998 93 375 27 02.",
-    url: `${siteUrl}?lang=uzKrill`,
+    url: `${siteUrl}/uz-krill`,
   },
   uzLatin: {
     htmlLang: "uz-latn",
@@ -38,7 +38,7 @@ export const seoByLocale: Record<Locale, SeoMeta> = {
     title: "Toshkentda kvartira tozalash 25 000 so'mdan | Bio tozalash",
     description:
       "Toshkentda klinning: kvartira va uylarni bio tozalash 25 000 so'mdan, mebel kimyoviy tozalash 70 000 so'mdan. Xavfsiz vositalar. Telefon: +998 93 375 27 02.",
-    url: `${siteUrl}?lang=uzLatin`,
+    url: `${siteUrl}/uz-latin`,
   },
 };
 

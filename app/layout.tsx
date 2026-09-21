@@ -72,8 +72,8 @@ export const metadata: Metadata = {
     canonical: appUrl,
     languages: {
       ru: appUrl,
-      "uz-Cyrl": `${appUrl}?lang=uzKrill`,
-      "uz-Latn": `${appUrl}?lang=uzLatin`,
+      "uz-Cyrl": `${appUrl}/uz-krill`,
+      "uz-Latn": `${appUrl}/uz-latin`,
       "x-default": appUrl,
     },
   },

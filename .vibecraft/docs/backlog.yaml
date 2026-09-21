@@ -1767,7 +1767,8 @@ tasks:
       components/service-cards-section.tsx, где загруженное фото показывается
       вместо дефолтного (lib/i18n/content.ts); тексты процедур не менялись.
       typecheck, lint и build проходят без ошибок.
-  - title: Добавить на сайт BIOUBORKA.UZ Google Analytics (тег Google gtag.js) с
+  - id: task-8023
+    title: Добавить на сайт BIOUBORKA.UZ Google Analytics (тег Google gtag.js) с
       идентификатором G-7E7Y9R3R19. Установить тег та...
     description: 'Добавить на сайт BIOUBORKA.UZ Google Analytics (тег Google
       gtag.js) с идентификатором G-7E7Y9R3R19. Установить тег так, чтобы он
@@ -1781,18 +1782,83 @@ tasks:
       сайт, аналитика посещений (components/visit-tracker.tsx / /api/visits) и
       все остальные функции продолжают работать без ошибок. После правок
       убедиться, что typecheck, lint и build проходят.'
+    status: completed
     acceptance_criteria:
       - Запрос пользователя выполнен полностью
     meta:
       quick_implement_marker: quick_implement:call_1f812b9130a44a079489e5d8
-    id: task-8023
+    summary: На сайт BIOUBORKA.UZ добавлен Google Analytics (gtag.js, ID
+      G-7E7Y9R3R19). В корневой layout app/layout.tsx через next/script с
+      strategy "afterInteractive" подключён тег
+      https://www.googletagmanager.com/gtag/js?id=G-7E7Y9R3R19 и инлайн-скрипт
+      инициализации (window.dataLayer, gtag('js', new Date()), gtag('config',
+      'G-7E7Y9R3R19')) — ровно один раз, сразу после <head>. Собственная
+      аналитика посещений (components/visit-tracker.tsx / /api/visits) и
+      остальные функции работают без изменений. typecheck, lint и build проходят
+      без ошибок.
+  - title:
+      Исправить проблему индексации мультиязычных версий сайта BIOUBORKA.UZ.
+      Сейчас узбекские версии доступны через query-п...
+    description: >-
+      Исправить проблему индексации мультиязычных версий сайта BIOUBORKA.UZ.
+      Сейчас узбекские версии доступны через query-параметры (?lang=uzKrill,
+      ?lang=uzLatin) — Google Search Console показывает, что эти URL не
+      индексируются (поисковики плохо индексируют страницы с параметрами и
+      считают их дубликатами основной).
+
+
+      Нужно: сделать для каждой языковой версии отдельный полноценный адрес
+      (путь), который поисковики смогут индексировать:
+
+      - `/` (или `/ru`) — русская версия
+
+      - `/uz-krill` — узбекская кириллица (htmlLang uz, hreflang uz-Cyrl)
+
+      - `/uz-latin` — узбекская латиница (htmlLang uz-latn, hreflang uz-Latn)
+
+
+      Реализовать в Next.js App Router: создать отдельные страницы/маршруты для
+      /uz-krill и /uz-latin, которые рендерят тот же контент главной страницы,
+      но с предустановленным языком (язык определяется из URL, не только из
+      localStorage). Русская версия остаётся на корне /. При этом:
+
+      1. Обновить lib/i18n/seo.ts: url для uzKrill =
+      https://biouborka.uz/uz-krill, uzLatin = https://biouborka.uz/uz-latin
+      (без query-параметров).
+
+      2. Обновить app/layout.tsx metadata.alternates.languages: canonical и
+      hreflang должны указывать на новые пути (/uz-krill, /uz-latin).
+
+      3. Обновить app/sitemap.ts: добавить записи для /uz-krill и /uz-latin с
+      корректными hreflang вместо ?lang=.
+
+      4. Убедиться, что SeoMetaUpdater (components/seo-meta-updater.tsx)
+      выставляет корректные canonical/hreflang для новых путей.
+
+      5. Переключатель языка (components/language-switcher.tsx) должен вести на
+      соответствующие пути (при выборе узбекской кириллицы — переход на
+      /uz-krill и т.д.), сохраняя переключение на всех страницах.
+
+      6. На самих страницах /uz-krill и /uz-latin контент должен сразу
+      отображаться на нужном языке (язык из URL имеет приоритет).
+
+
+      Убедиться, что сайт работает, формы работают, переключение языка работает
+      на всех трёх версиях, typecheck, lint и build проходят. В summary указать,
+      что именно изменено и как проверить индексацию.
+    acceptance_criteria:
+      - Запрос пользователя выполнен полностью
+    meta:
+      quick_implement_marker: quick_implement:call_617daafac33345d4bb9a83ae
+    id: task-5929
     status: completed
     summary: >-
-      На сайт BIOUBORKA.UZ добавлен Google Analytics (gtag.js, ID G-7E7Y9R3R19).
-      В корневой layout app/layout.tsx через next/script с strategy
-      "afterInteractive" подключён тег https://www.googletagmanager.com/gtag/js?id=G-7E7Y9R3R19
-      и инлайн-скрипт инициализации (window.dataLayer, gtag('js', new Date()),
-      gtag('config', 'G-7E7Y9R3R19')) — ровно один раз, сразу после <head>.
-      Собственная аналитика посещений (components/visit-tracker.tsx / /api/visits)
-      и остальные функции работают без изменений. typecheck, lint и build проходят
-      без ошибок.
+      Для каждой языковой версии создан отдельный индексируемый путь: / (ru),
+      /uz-krill (uz-Cyrl), /uz-latin (uz-Latn). Созданы страницы
+      app/uz-krill/page.tsx и app/uz-latin/page.tsx (тот же контент главной,
+      свои title/canonical/hreflang), язык определяется из URL приоритетно через
+      useSyncExternalStore в lib/i18n/language-provider.tsx, переключатель ведёт
+      на новые пути. Обновлены lib/i18n/seo.ts, app/layout.tsx, app/sitemap.ts;
+      legacy ?lang= получили 301-редирект через proxy.ts. Проверка индексации:
+      открыть /uz-krill и /uz-latin (canonical+hreflang), sitemap.xml, robots.txt.
+      typecheck, lint, build проходят.

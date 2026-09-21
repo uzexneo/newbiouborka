@@ -3,22 +3,13 @@ import { SERVICE_CATEGORIES, ALL_SERVICES } from "@/lib/i18n/content";
 
 const baseUrl = "https://biouborka.uz";
 
-type LocaleCode = "ru" | "uzKrill" | "uzLatin";
-
-const localeHreflang: Record<LocaleCode, string> = {
-  ru: "ru",
-  uzKrill: "uz-Cyrl",
-  uzLatin: "uz-Latn",
-};
-
-function localizedUrl(base: string): Record<string, string> {
-  const languages: Record<string, string> = {};
-  (Object.keys(localeHreflang) as LocaleCode[]).forEach((code) => {
-    const suffix = code === "ru" ? "" : `?lang=${code}`;
-    languages[localeHreflang[code]] = `${baseUrl}${suffix}${base}`;
-  });
-  languages["x-default"] = `${baseUrl}${base}`;
-  return languages;
+function localizedUrl(path: string): Record<string, string> {
+  return {
+    ru: `${baseUrl}${path}`,
+    "uz-Cyrl": `${baseUrl}/uz-krill${path}`,
+    "uz-Latn": `${baseUrl}/uz-latin${path}`,
+    "x-default": `${baseUrl}${path}`,
+  };
 }
 
 function entry(
@@ -26,12 +17,16 @@ function entry(
   priority: number,
   changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]
 ): MetadataRoute.Sitemap[number] {
+  let path = url.replace(baseUrl, "");
+  if (path === "/uz-krill" || path === "/uz-latin") {
+    path = "";
+  }
   return {
     url,
     lastModified: new Date(),
     changeFrequency,
     priority,
-    alternates: { languages: localizedUrl(url.replace(baseUrl, "")) },
+    alternates: { languages: localizedUrl(path) },
   };
 }
 
@@ -39,6 +34,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const items: MetadataRoute.Sitemap = [];
 
   items.push(entry(baseUrl, 1, "weekly"));
+  items.push(entry(`${baseUrl}/uz-krill`, 1, "weekly"));
+  items.push(entry(`${baseUrl}/uz-latin`, 1, "weekly"));
 
   const sections: Array<{ anchor: string; priority: number }> = [
     { anchor: "#services", priority: 0.9 },

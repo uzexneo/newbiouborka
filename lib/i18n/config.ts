@@ -22,6 +22,26 @@ export const languages: Language[] = [
 export const defaultLocale: Locale = "ru";
 export const LOCALE_STORAGE_KEY = "biouborka.locale";
 
+export const localeToPath: Record<Locale, string> = {
+  ru: "/",
+  uzKrill: "/uz-krill",
+  uzLatin: "/uz-latin",
+};
+
+export function localeFromPath(pathname: string | null): Locale | null {
+  if (!pathname) {
+    return null;
+  }
+  const path = pathname.replace(/\/$/, "") || "/";
+  if (path === "/uz-krill" || path.startsWith("/uz-krill/")) {
+    return "uzKrill";
+  }
+  if (path === "/uz-latin" || path.startsWith("/uz-latin/")) {
+    return "uzLatin";
+  }
+  return null;
+}
+
 export function isLocale(value: unknown): value is Locale {
   return (
     typeof value === "string" && (locales as readonly string[]).includes(value)

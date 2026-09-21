@@ -7,11 +7,15 @@ import {
   useEffect,
   useMemo,
   useState,
+  useSyncExternalStore,
 } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import {
   defaultLocale,
   isLocale,
   languages,
+  localeFromPath,
+  localeToPath,
   LOCALE_STORAGE_KEY,
   type Locale,
 } from "./config";
@@ -27,26 +31,61 @@ const LanguageContext = createContext<LanguageContextValue | undefined>(
   undefined
 );
 
+const emptySubscribe = () => () => {};
+
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(defaultLocale);
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const [storedLocale, setStoredLocale] = useState<Locale | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem(LOCALE_STORAGE_KEY);
     if (!isLocale(stored)) {
       return;
     }
-    const id = requestAnimationFrame(() => setLocaleState(stored));
+    const id = requestAnimationFrame(() => setStoredLocale(stored));
     return () => cancelAnimationFrame(id);
   }, []);
 
-  const setLocale = useCallback((next: Locale) => {
-    setLocaleState(next);
-    try {
-      localStorage.setItem(LOCALE_STORAGE_KEY, next);
-    } catch {
-      // localStorage may be unavailable (e.g. private mode); ignore.
+  // The language is taken from the URL first (priority), and only falls back
+  // to the previously saved choice. getServerSnapshot keeps SSR output stable
+  // (default locale) so hydration never mismatches, while the client snapshot
+  // is applied synchronously right after hydration without a visible flash.
+  const locale = useSyncExternalStore(
+    emptySubscribe,
+    () => localeFromPath(pathname) ?? storedLocale ?? defaultLocale,
+    () => defaultLocale
+  );
+
+  useEffect(() => {
+    const fromPath = localeFromPath(pathname);
+    if (fromPath) {
+      try {
+        localStorage.setItem(LOCALE_STORAGE_KEY, fromPath);
+      } catch {
+        // localStorage may be unavailable (e.g. private mode); ignore.
+      }
     }
-  }, []);
+  }, [pathname]);
+
+  const setLocale = useCallback(
+    (next: Locale) => {
+      try {
+        localStorage.setItem(LOCALE_STORAGE_KEY, next);
+      } catch {
+        // localStorage may be unavailable (e.g. private mode); ignore.
+      }
+      setStoredLocale(next);
+      const target = localeToPath[next];
+      const currentPath = window.location.pathname;
+      const hash = window.location.hash;
+      if (target !== currentPath) {
+        router.push(target + hash);
+      }
+    },
+    [router]
+  );
 
   useEffect(() => {
     const htmlLang =
