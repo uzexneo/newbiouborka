@@ -22,9 +22,9 @@ const GA_ID = "G-7E7Y9R3R19";
 const GA_SRC = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
 
 const appName = "BIOUBORKA.UZ";
-const appTitle = "Уборка квартир в Ташкенте от 25 000 сум | Биоуборка";
+const appTitle = "Клининг Ташкент, уборка квартир от 25 000 сум | Биоуборка";
 const appDescription =
-  "Клининг в Ташкенте: биоуборка квартир от 25 000 сум, химчистка мебели от 70 000 сум. Только безопасные средства, выезд по всему городу. +998 93 375 27 02.";
+  "Уборка квартир Ташкент: клининг от 25 000 сум/м², биоуборка, химчистка мебели и ковров безопасными средствами. Выезд по всему городу. +998 93 375 27 02.";
 const appUrl = "https://biouborka.uz";
 
 export const metadata: Metadata = {

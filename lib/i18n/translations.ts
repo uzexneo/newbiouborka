@@ -15,7 +15,7 @@ const ru = {
   "hero.title1": "Уборка квартир в Ташкенте",
   "hero.title2": "и химчистка мебели",
   "hero.subtitle":
-    "BIOUBORKA.UZ — профессиональная биоуборка в Ташкенте: экологичный клининг квартир и домов, химчистка мебели и ковров безопасными средствами.",
+    "BIOUBORKA.UZ — клининг в Ташкенте: профессиональная уборка квартир и домов, химчистка мебели и ковров безопасными био-средствами.",
   "hero.ctaServices": "Наши услуги",
   "hero.ctaContact": "Связаться с нами",
   "benefits.heading": "Почему биоуборка в Ташкенте?",
@@ -30,7 +30,7 @@ const ru = {
   "benefits.2.title": "Глубокое очищение",
   "benefits.2.desc":
     "Профессиональный подход к чистоте каждого уголка вашего дома",
-  "services.heading": "Услуги уборки и химчистки в Ташкенте",
+  "services.heading": "Клининг Ташкент: цены на уборку квартир и химчистку",
   "services.subheading":
     "Полный прайс-лист биоуборки по категориям. Прозрачные цены без скрытых доплат.",
   "services.orderButton": "Заказать",
@@ -52,7 +52,7 @@ const ru = {
   "services.c0.i5.price": "по договору",
   "services.c0.proc":
     "Выезжаем с набором био-средств и инвентаря. Чистим поверхности, моем полы, окна и зеркала, выносим мусор. Показываем результат.",
-  "services.c1.title": "Мойка окон, витражей и фасадов",
+  "services.c1.title": "Биомойка окон, витражей и фасадов",
   "services.c1.note": "от 20 000–30 000 сум/м²",
   "services.c1.i0.title": "Мойка окон",
   "services.c1.i0.price": "25 000 сум/м²",
@@ -65,7 +65,7 @@ const ru = {
   "services.c1.i4.title": "Уборка крыш",
   "services.c1.i4.price": "по договору",
   "services.c1.proc":
-    "Оцениваем загрязнение и подбираем био-состав. Моем рамы и стёкла, убираем разводы и налёт, полируем до блеска. Фасады — со снаряжением альпинистов.",
+    "Проводим биомойку окон и фасадов экологичными био-средствами. Оцениваем загрязнение и подбираем био-состав. Моем рамы и стёкла, убираем разводы и налёт, полируем до блеска. Фасады — со снаряжением альпинистов.",
   "services.c2.title": "Химчистка ковров",
   "services.c2.note": "25 000 сум/м²",
   "services.c2.i0.title": "Химчистка ковров на дому",
@@ -209,7 +209,8 @@ const ru = {
   "contacts.addressHint": "Работаем по всему Ташкенту",
   "contacts.socialsHeading": "Мы в соцсетях",
   "contacts.feedbackHeading": "Обратная связь",
-  "faq.heading": "Частые вопросы по уборке и химчистке",
+  "faq.heading":
+    "Частые вопросы о клининге и ценах на уборку квартир в Ташкенте",
   "faq.subheading":
     "Собрали ответы на частые вопросы клиентов о биоуборке, химчистке мебели и записи на уборку.",
   "faq.q0": "Что такое биоуборка и чем она отличается от обычной уборки?",
@@ -229,7 +230,16 @@ const ru = {
     "В большинстве случаев мы можем приехать в день обращения или на следующий день. Позвоните нам или оставьте заявку, и мы подберём удобное время.",
   "faq.q5": "Как записаться на уборку в Ташкенте?",
   "faq.a5":
-    "Оставьте заявку через форму на сайте, позвоните по телефону или напишите нам в Instagram или Telegram. Мы свяжемся с вами для уточнения деталей и удобного времени визита.",
+    "Оставьте заявку через форму на сайте, позвоните по телефону +998 93 375 27 02 или напишите нам в Instagram или Telegram. Мы свяжемся с вами для уточнения деталей и удобного времени визита.",
+  "faq.q6": "Как заказать уборку в Ташкенте?",
+  "faq.a6":
+    "Позвоните нам по телефону +998 93 375 27 02 или оставьте заявку через форму «Быстрый заказ» на сайте. Мы перезвоним, назовём точную цену и подберём удобное время выезда — работаем по всему Ташкенту с 9:00 до 21:00.",
+  "faq.q7": "Какая цена генеральной уборки в Ташкенте?",
+  "faq.a7":
+    "Генеральная уборка квартиры — от 25 000 сум за квадратный метр. Итоговая цена зависит от площади и степени загрязнения, точную стоимость назовём после короткого описания задач. Звоните: +998 93 375 27 02.",
+  "faq.q8": "Безопасно ли использовать био-средства?",
+  "faq.a8":
+    "Да, полностью безопасно. Мы используем сертифицированные биоразлагаемые средства без хлора и агрессивной химии — они подходят для детей, аллергиков и домашних животных. Уточнить детали можно по телефону +998 93 375 27 02.",
   "field.name": "Имя",
   "field.namePlaceholder": "Ваше имя",
   "field.phone": "Телефон",
@@ -296,7 +306,7 @@ const uzKrill = {
   "hero.title1": "Тошкентда квартираларни тозалаш",
   "hero.title2": "ва мебелни кимёвий тозалаш",
   "hero.subtitle":
-    "BIOUBORKA.UZ — Тошкентда профессионал био тозалаш: квартира ва уйларни экологик тозалаш, мебел ва гиламларни хавфсиз воситалар билан кимёвий тозалаш.",
+    "BIOUBORKA.UZ — Тошкентда клининг: квартира ва уйларни профессионал тозалаш, мебел ва гиламларни хавфсиз био-воситалар билан кимёвий тозалаш.",
   "hero.ctaServices": "Бизнинг хизматларимиз",
   "hero.ctaContact": "Биз билан боғланиш",
   "benefits.heading": "Нима учун Тошкентда био тозалаш?",
@@ -311,7 +321,8 @@ const uzKrill = {
   "benefits.2.title": "Чуқур тозалаш",
   "benefits.2.desc":
     "Уйингизнинг ҳар бир бурчаги тозалигига профессионал ёндашув",
-  "services.heading": "Тошкентда тозалаш ва кимёвий тозалаш хизматлари",
+  "services.heading":
+    "Клининг Тошкент: квартира тозалаш ва кимёвий тозалаш нархлари",
   "services.subheading":
     "Категориялар бўйича био тозалашнинг тўлиқ нарх рўйхати. Яширин қўшимча тўловларсиз шаффоф нархлар.",
   "services.orderButton": "Буюртма бериш",
@@ -333,7 +344,7 @@ const uzKrill = {
   "services.c0.i5.price": "шартнома асосида",
   "services.c0.proc":
     "Био-воситалар ва жиҳозлар тўплами билан келамиз. Юзаларни тозалаймиз, пол, ойна ва кўзгуларни ювамиз, ахлатни чиқарамиз. Натижани кўрсатамиз.",
-  "services.c1.title": "Ойна, витраж ва фасадларни ювиш",
+  "services.c1.title": "Ойна, витраж ва фасадларни биомойка қилиш",
   "services.c1.note": "20 000–30 000 сўм/м² дан",
   "services.c1.i0.title": "Ойналарни ювиш",
   "services.c1.i0.price": "25 000 сўм/м²",
@@ -346,7 +357,7 @@ const uzKrill = {
   "services.c1.i4.title": "Томларни тозалаш",
   "services.c1.i4.price": "шартнома асосида",
   "services.c1.proc":
-    "Ифлосланишни баҳолаб, био-таркиб танлаймиз. Рам ва ойналарни ювамиз, томчи ва чангни кетказамиз, ялтиратиб пардозлаймиз. Фасадлар — альпинист жиҳозлари билан.",
+    "Ойна ва фасадларни экологик воситалар билан биомойка қиламиз. Ифлосланишни баҳолаб, био-таркиб танлаймиз. Рам ва ойналарни ювамиз, томчи ва чангни кетказамиз, ялтиратиб пардозлаймиз. Фасадлар — альпинист жиҳозлари билан.",
   "services.c2.title": "Гиламларни кимёвий тозалаш",
   "services.c2.note": "25 000 сўм/м²",
   "services.c2.i0.title": "Уйда гиламларни кимёвий тозалаш",
@@ -491,7 +502,7 @@ const uzKrill = {
   "contacts.socialsHeading": "Ижтимоий тармоқларда",
   "contacts.feedbackHeading": "Қайта алоқа",
   "faq.heading":
-    "Тозалаш ва кимёвий тозалаш бўйича тез-тез сўраладиган саволлар",
+    "Клининг ва Тошкентда квартира тозалаш нархлари ҳақида кўп сўраладиган саволлар",
   "faq.subheading":
     "Мижозларнинг био тозалаш, мебелни кимёвий тозалаш ва тозалашга ёзилиш бўйича кўп учрайдиган саволларига жавоб бердик.",
   "faq.q0": "Био тозалаш нима ва у оддий тозалашдан нима билан фарқ қилади?",
@@ -511,7 +522,16 @@ const uzKrill = {
     "Кўп ҳолларда биз мурожаат қилган куни ёки эртаси куни кела оламиз. Бизга қўнғироқ қилинг ёки заявка қолдиринг — қулай вақтни танлаймиз.",
   "faq.q5": "Тошкентда тозалашга қандай ёзилиш мумкин?",
   "faq.a5":
-    "Сайтдаги форма орқали заявка қолдиринг, телефонга қўнғироқ қилинг ёки Instagram ёки Telegram орқали ёзинг. Тафсилотлар ва қулай ташриф вақтини аниқлаш учун сиз билан боғланамиз.",
+    "Сайтдаги форма орқали заявка қолдиринг, +998 93 375 27 02 рақамига қўнғироқ қилинг ёки Instagram ёки Telegram орқали ёзинг. Тафсилотлар ва қулай ташриф вақтини аниқлаш учун сиз билан боғланамиз.",
+  "faq.q6": "Тошкентда тозалашни қандай буюртириш мумкин?",
+  "faq.a6":
+    "+998 93 375 27 02 рақамига қўнғироқ қилинг ёки сайтдаги «Тез буюртма» формаси орқали заявка қолдиринг. Биз қайта қўнғироқ қиламиз, аниқ нархни айтамиз ва қулай вақтни танлаймиз — бутун Тошкент бўйлаб 9:00 дан 21:00 гача ишлаймиз.",
+  "faq.q7": "Тошкентда генерал тозалаш нархи қанча?",
+  "faq.a7":
+    "Квартирани генерал тозалаш — квадрат метр учун 25 000 сўмдан. Якуний нарх майдон ва ифлосланиш даражасига боғлиқ, аниқ нархни вазифаларни қисқача баён қилганингиздан кейин айтамиз. Қўнғироқ қилинг: +998 93 375 27 02.",
+  "faq.q8": "Био-воситаларни ишлатиш хавфсизми?",
+  "faq.a8":
+    "Ҳа, бутунлай хавфсиз. Биз хлор ва агрессив кимёвий моддаларсиз сертификатланган биопарчаланадиган воситаларни ишлатамиз — улар болалар, аллергиклар ва уй ҳайвонлари учун мос. Тафсилотни +998 93 375 27 02 рақами орқали аниқлашингиз мумкин.",
   "field.name": "Исм",
   "field.namePlaceholder": "Исмингиз",
   "field.phone": "Телефон",
@@ -577,7 +597,7 @@ const uzLatin = {
   "hero.title1": "Toshkentda kvartiralarni tozalash",
   "hero.title2": "va mebelni kimyoviy tozalash",
   "hero.subtitle":
-    "BIOUBORKA.UZ — Toshkentda professional bio tozalash: kvartira va uylarni ekologik tozalash, mebel va gilamlarni xavfsiz vositalar bilan kimyoviy tozalash.",
+    "BIOUBORKA.UZ — Toshkentda klining: kvartira va uylarni professional tozalash, mebel va gilamlarni xavfsiz bio-vositalar bilan kimyoviy tozalash.",
   "hero.ctaServices": "Bizning xizmatlarimiz",
   "hero.ctaContact": "Biz bilan bog'lanish",
   "benefits.heading": "Nima uchun Toshkentda bio tozalash?",
@@ -592,7 +612,8 @@ const uzLatin = {
   "benefits.2.title": "Chuqur tozalash",
   "benefits.2.desc":
     "Uyingizning har bir burchagi tozaligiga professional yondashuv",
-  "services.heading": "Toshkentda tozalash va kimyoviy tozalash xizmatlari",
+  "services.heading":
+    "Klining Toshkent: kvartira tozalash va kimyoviy tozalash narxlari",
   "services.subheading":
     "Kategoriyalar bo'yicha bio tozalashning to'liq narx ro'yxati. Yashirin qo'shimcha to'lovlarsiz shaffof narxlar.",
   "services.orderButton": "Buyurtma berish",
@@ -614,7 +635,7 @@ const uzLatin = {
   "services.c0.i5.price": "shartnoma asosida",
   "services.c0.proc":
     "Bio-vositalar va jihozlar to'plami bilan kelamiz. Yuzalarni tozalaymiz, pol, oyna va ko'zgularni yuvamiz, axlatni chiqaramiz. Natijani ko'rsatamiz.",
-  "services.c1.title": "Oyna, vitraj va fasadlarni yuvish",
+  "services.c1.title": "Oyna, vitraj va fasadlarni biomoyka qilish",
   "services.c1.note": "20 000–30 000 so'm/m² dan",
   "services.c1.i0.title": "Oynalarni yuvish",
   "services.c1.i0.price": "25 000 so'm/m²",
@@ -627,7 +648,7 @@ const uzLatin = {
   "services.c1.i4.title": "Tomlarni tozalash",
   "services.c1.i4.price": "shartnoma asosida",
   "services.c1.proc":
-    "Ifloslanishni baholab, bio-tarkib tanlaymiz. Ram va oynalarni yuvamiz, tomchi va changni ketkazamiz, yaltiratib pardozlaymiz. Fasadlar — alpinist jihozlari bilan.",
+    "Oyna va fasadlarni ekologik vositalar bilan biomoyka qilamiz. Ifloslanishni baholab, bio-tarkib tanlaymiz. Ram va oynalarni yuvamiz, tomchi va changni ketkazamiz, yaltiratib pardozlaymiz. Fasadlar — alpinist jihozlari bilan.",
   "services.c2.title": "Gilamlarni kimyoviy tozalash",
   "services.c2.note": "25 000 so'm/m²",
   "services.c2.i0.title": "Uyda gilamlarni kimyoviy tozalash",
@@ -772,7 +793,7 @@ const uzLatin = {
   "contacts.socialsHeading": "Ijtimoiy tarmoqlarda",
   "contacts.feedbackHeading": "Qayta aloqa",
   "faq.heading":
-    "Tozalash va kimyoviy tozalash bo'yicha tez-tez so'raladigan savollar",
+    "Klining va Toshkentda kvartira tozalash narxlari haqida ko'p so'raladigan savollar",
   "faq.subheading":
     "Mijozlarning bio tozalash, mebelni kimyoviy tozalash va tozalashga yozilish bo'yicha ko'p uchraydigan savollariga javob berdik.",
   "faq.q0":
@@ -793,7 +814,16 @@ const uzLatin = {
     "Ko'p hollarda biz murojaat qilgan kunimiz yoki ertasi kuni kela olamiz. Bizga qo'ng'iroq qiling yoki ariza qoldiring — qulay vaqtni tanlaymiz.",
   "faq.q5": "Toshkentda tozalashga qanday yozilish mumkin?",
   "faq.a5":
-    "Saytdagi forma orqali ariza qoldiring, telefonga qo'ng'iroq qiling yoki Instagram yoki Telegram orqali yozing. Tafsilotlar va qulay tashrif vaqtini aniqlash uchun siz bilan bog'lanamiz.",
+    "Saytdagi forma orqali ariza qoldiring, +998 93 375 27 02 raqamiga qo'ng'iroq qiling yoki Instagram yoki Telegram orqali yozing. Tafsilotlar va qulay tashrif vaqtini aniqlash uchun siz bilan bog'lanamiz.",
+  "faq.q6": "Toshkentda tozalashni qanday buyurtirish mumkin?",
+  "faq.a6":
+    "+998 93 375 27 02 raqamiga qo'ng'iroq qiling yoki saytdagi «Tez buyurtma» formasi orqali ariza qoldiring. Biz qayta qo'ng'iroq qilamiz, aniq narxni aytamiz va qulay vaqtni tanlaymiz — butun Toshkent bo'ylab 9:00 dan 21:00 gacha ishlaymiz.",
+  "faq.q7": "Toshkentda general tozalash narxi qancha?",
+  "faq.a7":
+    "Kvartirani general tozalash — kvadrat metr uchun 25 000 so'mdan. Yakuniy narx maydon va ifloslanish darajasiga bog'liq, aniq narxni vazifalaringizni qisqacha bayon qilganingizdan keyin aytamiz. Qo'ng'iroq qiling: +998 93 375 27 02.",
+  "faq.q8": "Bio-vositalarni ishlatish xavfsizmi?",
+  "faq.a8":
+    "Ha, butunlay xavfsiz. Biz xlor va agressiv kimyoviy moddalarsiz sertifikatlangan bioparchalanadigan vositalarni ishlatamiz — ular bolalar, allergiklar va uy hayvonlari uchun mos. Tafsilotni +998 93 375 27 02 raqami orqali aniqlashingiz mumkin.",
   "field.name": "Ism",
   "field.namePlaceholder": "Ismingiz",
   "field.phone": "Telefon",
