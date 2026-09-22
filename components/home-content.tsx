@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Leaf,
   ArrowRight,
@@ -12,6 +13,7 @@ import {
   ShieldCheck,
   Users,
   Zap,
+  Phone,
 } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/language-provider";
 import type { TranslationKey } from "@/lib/i18n/translations";
@@ -46,17 +48,34 @@ const TRUST_CARDS: TrustCardMeta[] = [
 
 export function HomeContent() {
   const { t } = useLanguage();
-  const { gallery, background } = useSiteContent();
+  const { gallery, background, contacts } = useSiteContent();
   const [quickOpen, setQuickOpen] = useState(false);
+  const telHref = `tel:+${contacts.phone.replace(/[^\d]/g, "")}`;
+  const isLocalBackground =
+    background.startsWith("/") && !background.startsWith("//");
 
   return (
     <>
       <section className="relative overflow-hidden">
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url("${background}")` }}
-        />
+        {isLocalBackground ? (
+          <div aria-hidden="true" className="absolute inset-0">
+            <Image
+              src={background}
+              alt=""
+              fill
+              priority
+              fetchPriority="high"
+              sizes="100vw"
+              className="object-cover object-center"
+            />
+          </div>
+        ) : (
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url("${background}")` }}
+          />
+        )}
         <div aria-hidden="true" className="absolute inset-0 bg-black/60" />
         <div className="relative container mx-auto px-4 py-20 sm:py-28 lg:py-36">
           <div className="max-w-2xl mx-auto text-center space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -73,6 +92,12 @@ export function HomeContent() {
                 {t("hero.subtitle")}
               </p>
             </div>
+            <div className="flex justify-center">
+              <span className="inline-flex items-center gap-2 rounded-full border border-green-300/40 bg-white/10 px-4 py-1.5 text-sm font-semibold text-green-300 backdrop-blur">
+                <Tag className="h-4 w-4" />
+                {t("hero.price")}
+              </span>
+            </div>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <button
                 type="button"
@@ -82,6 +107,13 @@ export function HomeContent() {
                 <Zap className="h-4 w-4" />
                 {t("quick.title")}
               </button>
+              <a
+                href={telHref}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-white/40 bg-white/10 px-6 py-2.5 text-sm font-medium text-white transition-all hover:bg-white/20"
+              >
+                <Phone className="h-4 w-4" />
+                {contacts.phone}
+              </a>
               <Link
                 href="#services"
                 className="inline-flex items-center gap-1.5 rounded-lg border border-white/40 bg-white/10 px-6 py-2.5 text-sm font-medium text-white transition-all hover:bg-white/20"

@@ -25,7 +25,7 @@ export const SERVICE_CATEGORIES: ServiceCategoryMeta[] = [
     titleKey: "services.c0.title",
     noteKey: "services.c0.note",
     procedureKey: "services.c0.proc",
-    photo: "/assets/photo_102@03-08-2026_09-58-07.jpg",
+    photo: "/assets/photo_102@03-08-2026_09-58-07.webp",
     services: [
       {
         id: "cleaning-general",
@@ -65,7 +65,7 @@ export const SERVICE_CATEGORIES: ServiceCategoryMeta[] = [
     titleKey: "services.c1.title",
     noteKey: "services.c1.note",
     procedureKey: "services.c1.proc",
-    photo: "/assets/photo_231@03-08-2026_10-01-02.jpg",
+    photo: "/assets/photo_231@03-08-2026_10-01-02.webp",
     services: [
       {
         id: "windows-windows",
@@ -100,7 +100,7 @@ export const SERVICE_CATEGORIES: ServiceCategoryMeta[] = [
     titleKey: "services.c2.title",
     noteKey: "services.c2.note",
     procedureKey: "services.c2.proc",
-    photo: "/assets/photo_147@03-08-2026_09-59-36.jpg",
+    photo: "/assets/photo_147@03-08-2026_09-59-36.webp",
     services: [
       {
         id: "carpets-home",
@@ -120,7 +120,7 @@ export const SERVICE_CATEGORIES: ServiceCategoryMeta[] = [
     titleKey: "services.c3.title",
     noteKey: "services.c3.note",
     procedureKey: "services.c3.proc",
-    photo: "/assets/photo_138@03-08-2026_09-59-36.jpg",
+    photo: "/assets/photo_138@03-08-2026_09-59-36.webp",
     services: [
       {
         id: "furniture-sofa",
@@ -145,7 +145,7 @@ export const SERVICE_CATEGORIES: ServiceCategoryMeta[] = [
     titleKey: "services.c4.title",
     noteKey: "services.c4.note",
     procedureKey: "services.c4.proc",
-    photo: "/assets/photo_191@03-08-2026_09-59-37.jpg",
+    photo: "/assets/photo_191@03-08-2026_09-59-37.webp",
     services: [
       {
         id: "mattresses-single",
@@ -165,7 +165,7 @@ export const SERVICE_CATEGORIES: ServiceCategoryMeta[] = [
     titleKey: "services.c5.title",
     noteKey: "services.c5.note",
     procedureKey: "services.c5.proc",
-    photo: "/assets/photo_216@03-08-2026_09-59-37.jpg",
+    photo: "/assets/photo_216@03-08-2026_09-59-37.webp",
     services: [
       {
         id: "leather-sofa",
@@ -190,7 +190,7 @@ export const SERVICE_CATEGORIES: ServiceCategoryMeta[] = [
     titleKey: "services.c6.title",
     noteKey: "services.c6.note",
     procedureKey: "services.c6.proc",
-    photo: "/assets/photo_125@03-08-2026_09-59-36.jpg",
+    photo: "/assets/photo_125@03-08-2026_09-59-36.webp",
     services: [
       {
         id: "floors-cleaning",
@@ -215,7 +215,7 @@ export const SERVICE_CATEGORIES: ServiceCategoryMeta[] = [
     titleKey: "services.c7.title",
     noteKey: "services.c7.note",
     procedureKey: "services.c7.proc",
-    photo: "/assets/photo_110@03-08-2026_09-58-07.jpg",
+    photo: "/assets/photo_110@03-08-2026_09-58-07.webp",
     services: [
       {
         id: "kitchen-stove",
@@ -245,7 +245,7 @@ export const SERVICE_CATEGORIES: ServiceCategoryMeta[] = [
     titleKey: "services.c8.title",
     noteKey: "services.c8.note",
     procedureKey: "services.c8.proc",
-    photo: "/assets/photo_233@03-08-2026_10-01-02.jpg",
+    photo: "/assets/photo_233@03-08-2026_10-01-02.webp",
     services: [
       {
         id: "other-disinfection",

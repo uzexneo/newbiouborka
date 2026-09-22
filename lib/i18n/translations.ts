@@ -18,6 +18,7 @@ const ru = {
     "BIOUBORKA.UZ — клининг в Ташкенте: профессиональная уборка квартир и домов, химчистка мебели и ковров безопасными био-средствами.",
   "hero.ctaServices": "Наши услуги",
   "hero.ctaContact": "Связаться с нами",
+  "hero.price": "от 25 000 сум",
   "benefits.heading": "Почему биоуборка в Ташкенте?",
   "benefits.subheading":
     "Мы используем экологичные средства, которые эффективно очищают и полностью безопасны для здоровья.",
@@ -309,6 +310,7 @@ const uzKrill = {
     "BIOUBORKA.UZ — Тошкентда клининг: квартира ва уйларни профессионал тозалаш, мебел ва гиламларни хавфсиз био-воситалар билан кимёвий тозалаш.",
   "hero.ctaServices": "Бизнинг хизматларимиз",
   "hero.ctaContact": "Биз билан боғланиш",
+  "hero.price": "25 000 сўмдан",
   "benefits.heading": "Нима учун Тошкентда био тозалаш?",
   "benefits.subheading":
     "Биз самарали тозалайдиган ва соғлиқ учун бутунлай хавфсиз экологик воситаларни ишлатамиз.",
@@ -600,6 +602,7 @@ const uzLatin = {
     "BIOUBORKA.UZ — Toshkentda klining: kvartira va uylarni professional tozalash, mebel va gilamlarni xavfsiz bio-vositalar bilan kimyoviy tozalash.",
   "hero.ctaServices": "Bizning xizmatlarimiz",
   "hero.ctaContact": "Biz bilan bog'lanish",
+  "hero.price": "25 000 so'mdan",
   "benefits.heading": "Nima uchun Toshkentda bio tozalash?",
   "benefits.subheading":
     "Biz samarali tozalaydigan va salomatlik uchun butunlay xavfsiz ekologik vositalarni ishlatamiz.",

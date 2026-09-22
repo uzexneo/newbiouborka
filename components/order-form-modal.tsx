@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/field";
 import { useLanguage } from "@/lib/i18n/language-provider";
 import { useSiteContent } from "@/lib/site-content-provider";
+import { trackGenerateLead } from "@/lib/analytics";
 
 interface ValidationMessages {
   name: string;
@@ -125,6 +126,8 @@ export function OrderFormModal({
       if (!response.ok) {
         throw new Error("save failed");
       }
+
+      trackGenerateLead({ formName: "order", service: result.data.service });
 
       setFormData({
         name: "",

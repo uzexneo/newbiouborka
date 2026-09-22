@@ -6,6 +6,10 @@ const basePath =
 const nextConfig: NextConfig = {
   output: process.env.OUTPUT_MODE === "export" ? "export" : undefined,
 
+  images: {
+    formats: ["image/avif", "image/webp"],
+  },
+
   ...(basePath && {
     basePath,
     assetPrefix: basePath,

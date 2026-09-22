@@ -4,9 +4,9 @@
 
 import type { GalleryItem } from "./gallery-data";
 
-export const DEFAULT_BACKGROUND = "/assets/hero-cleaning.png";
+export const DEFAULT_BACKGROUND = "/assets/hero-cleaning.webp";
 
-export const DEFAULT_LOGO = "/assets/logo.png";
+export const DEFAULT_LOGO = "/assets/logo.webp";
 
 export const DEFAULT_LOGO_SIZE = 44;
 
