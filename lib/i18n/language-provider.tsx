@@ -15,6 +15,7 @@ import {
   isLocale,
   languages,
   localeFromPath,
+  localizePathname,
   localeToPath,
   LOCALE_STORAGE_KEY,
   type Locale,
@@ -77,11 +78,14 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         // localStorage may be unavailable (e.g. private mode); ignore.
       }
       setStoredLocale(next);
-      const target = localeToPath[next];
       const currentPath = window.location.pathname;
-      const hash = window.location.hash;
+      const target = localizePathname(currentPath, next);
+      const isHome =
+        localeToPath[next] === "/"
+          ? target === "/"
+          : target === localeToPath[next];
       if (target !== currentPath) {
-        router.push(target + hash);
+        router.push(target + (isHome ? window.location.hash : ""));
       }
     },
     [router]

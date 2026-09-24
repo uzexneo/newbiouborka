@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { useLanguage } from "@/lib/i18n/language-provider";
+import { localeToPath } from "@/lib/i18n/config";
 import { seoByLocale, getHreflangAlternates, siteUrl } from "@/lib/i18n/seo";
 
 const OG_IMAGE = `${siteUrl}/assets/hero-cleaning.png`;
@@ -58,8 +60,18 @@ function setHreflangLinks(): void {
 
 export function SeoMetaUpdater() {
   const { locale } = useLanguage();
+  const pathname = usePathname();
 
   useEffect(() => {
+    // Page-level metadata (title, description, canonical, hreflang) for
+    // nested routes such as /uslugi/* is already correct from generateMetadata.
+    // Only the homepage meta is updated here on locale switch.
+    const homePath = localeToPath[locale];
+    const path = pathname.replace(/\/$/, "") || "/";
+    if (path !== homePath) {
+      return;
+    }
+
     const seo = seoByLocale[locale];
 
     document.title = seo.title;
@@ -78,7 +90,7 @@ export function SeoMetaUpdater() {
     setMeta("name", "twitter:title", seo.title);
     setMeta("name", "twitter:description", seo.description);
     setMeta("name", "twitter:image", OG_IMAGE);
-  }, [locale]);
+  }, [locale, pathname]);
 
   return null;
 }

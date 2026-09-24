@@ -12,11 +12,11 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { href: "/", key: "nav.home" },
+  { href: "/", key: "nav.home", localized: true },
   { href: "/uslugi", key: "nav.services", localized: true },
-  { href: "#portfolio", key: "nav.portfolio" },
-  { href: "#about", key: "nav.about" },
-  { href: "#contacts", key: "nav.contacts" },
+  { href: "#portfolio", key: "nav.portfolio", localized: true },
+  { href: "#about", key: "nav.about", localized: true },
+  { href: "#contacts", key: "nav.contacts", localized: true },
 ];
 
 export function HeaderNav() {
@@ -28,7 +28,13 @@ export function HeaderNav() {
       {navItems.map((item) => (
         <Link
           key={item.href}
-          href={item.localized ? `${base}${item.href}` : item.href}
+          href={
+            item.localized
+              ? item.href === "/"
+                ? base || "/"
+                : `${base}${item.href}`
+              : item.href
+          }
           className="text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           {t(item.key)}

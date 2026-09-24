@@ -28,6 +28,24 @@ export const localeToPath: Record<Locale, string> = {
   uzLatin: "/uz-latin",
 };
 
+export function localizePathname(pathname: string, locale: Locale): string {
+  let rest = pathname;
+  for (const prefix of ["/uz-krill", "/uz-latin"]) {
+    if (rest === prefix || rest.startsWith(`${prefix}/`)) {
+      rest = rest.slice(prefix.length);
+      break;
+    }
+  }
+  if (!rest) {
+    rest = "/";
+  }
+  const target = localeToPath[locale];
+  if (target === "/") {
+    return rest;
+  }
+  return rest === "/" ? target : `${target}${rest}`;
+}
+
 export function localeFromPath(pathname: string | null): Locale | null {
   if (!pathname) {
     return null;

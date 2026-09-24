@@ -3,20 +3,22 @@
 import Link from "next/link";
 import { Leaf, Phone, Mail, Camera, Send, MapPin } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/language-provider";
+import { localeToPath } from "@/lib/i18n/config";
 import { useSiteContent } from "@/lib/site-content-provider";
 
 export function SiteFooter() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const { contacts } = useSiteContent();
   const appName = "BIOUBORKA.UZ";
   const telHref = `tel:+${contacts.phone.replace(/[^\d]/g, "")}`;
+  const homeHref = localeToPath[locale];
 
   return (
     <footer className="border-t">
       <div className="container mx-auto px-4 py-8 grid gap-6 sm:grid-cols-3">
         <div className="space-y-2">
           <Link
-            href="/"
+            href={homeHref}
             className="flex items-center gap-2 text-sm font-semibold"
           >
             <Leaf className="h-4 w-4 text-primary" />
