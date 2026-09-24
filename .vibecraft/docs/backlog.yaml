@@ -1983,7 +1983,8 @@ tasks:
       контактов и кнопкой «Быстрый заказ»; зелёно-белый дизайн, фоновое фото
       hero-cleaning.png и все разделы сохранены. typecheck, lint, build
       проходят.'
-  - title:
+  - id: task-8432
+    title:
       "Исправить проблему производительности на сайте BIOUBORKA.UZ: показатель
       LCP (Largest Contentful Paint) на мобильных у..."
     description: >-
@@ -2027,20 +2028,165 @@ tasks:
       перечислить: найденные причины медленного LCP (размеры файлов до/после),
       что именно изменено, и как пользователю проверить результат (PageSpeed
       Insights mobile / Search Console Core Web Vitals после деплоя).
+    status: completed
     acceptance_criteria:
       - Запрос пользователя выполнен полностью
     meta:
       quick_implement_marker: quick_implement:call_b97afd3c9c8f417683736172
-    id: task-8432
-    status: completed
-    summary: >-
-      Причина медленного LCP — герой-изображение hero-cleaning.png (829 КБ),
-      грузившееся через CSS backgroundImage без предзагрузки. Переведено в
-      WebP (47 КБ) и AVIF (35 КБ), PNG оставлен как fallback; фон героя теперь
+    summary:
+      "Причина медленного LCP — герой-изображение hero-cleaning.png (829 КБ),
+      грузившееся через CSS backgroundImage без предзагрузки. Переведено в WebP
+      (47 КБ) и AVIF (35 КБ), PNG оставлен как fallback; фон героя теперь
       рендерится через next/image с priority + fill (автоматический preload,
       fetchpriority=high, srcset), в next.config включён формат AVIF. Фото
       галереи/процедур перекодированы в WebP (120–300 КБ → 34–99 КБ), логотип
-      193 → 16 КБ. typecheck, lint, build проходят. Проверить результат можно
-      в PageSpeed Insights (mobile) и Search Console (Core Web Vitals) после
-      деплоя; основная реализация: components/home-content.tsx, lib/site-content.ts,
-      lib/gallery-data.ts, scripts/optimize-images.ts.
+      193 → 16 КБ. typecheck, lint, build проходят. Проверить результат можно в
+      PageSpeed Insights (mobile) и Search Console (Core Web Vitals) после
+      деплоя; основная реализация: components/home-content.tsx,
+      lib/site-content.ts, lib/gallery-data.ts, scripts/optimize-images.ts."
+  - id: task-8075
+    title: Создать отдельные страницы услуг на сайте BIOUBORKA.UZ для
+      SEO-продвижения по коммерческим запросам («уборка квартир ...
+    description: >-
+      Создать отдельные страницы услуг на сайте BIOUBORKA.UZ для SEO-продвижения
+      по коммерческим запросам («уборка квартир ташкент», «клининг ташкент»,
+      «химчистка… ташкент», «мойка окон ташкент» и т.д.). Сейчас все 9 категорий
+      и 33 услуги находятся на одной главной странице, из-за чего отдельные
+      запросы не получают релевантных страниц и стоят на 2-й странице выдачи.
+
+
+      Требования:
+
+      1. Создать хаб-страницу /uslugi (список всех категорий со ссылками) и 9
+      отдельных страниц категорий услуг:
+         - /uslugi/uborka — Уборка
+         - /uslugi/moyka-okon — Мойка окон, витражей и фасадов (с упоминанием биомойки экосредствами)
+         - /uslugi/ximchistka-kovrov — Химчистка ковров
+         - /uslugi/ximchistka-myagkoy-mebeli — Химчистка мягкой мебели
+         - /uslugi/ximchistka-matracev — Химчистка матрацев
+         - /uslugi/ximchistka-kozhanoy-mebeli — Химчистка кожаной мебели
+         - /uslugi/uhod-za-polami — Уход за полами
+         - /uslugi/kuhnya — Кухня
+         - /uslugi/prochie-uslugi — Прочие услуги
+
+      2. Каждая страница должна содержать:
+         - Уникальный H1 с ключевой фразой + «в Ташкенте» (например «Уборка квартир в Ташкенте — цены от 25 000 сум»);
+         - Уникальные title (~50–58 символов) и meta description (~150–160 символов) с ключевым запросом, городом Ташкент, ценой и телефоном +998 93 375 27 02; согласовать с существующими паттернами lib/i18n/seo.ts;
+         - Список услуг этой категории с ценами (данные из существующих SERVICE_CATEGORIES/ALL_SERVICES, переводы через t(...));
+         - Блок «Как проходит процедура» для этой категории (текст и фото, как на главной);
+         - Кнопку «Заказать»/«Быстрый заказ», открывающую форму заявки с предвыбранной категорией/услугой (переиспользовать существующие OrderFormModal/QuickOrderModal);
+         - Короткий FAQ-блок с 2–3 вопросами по этой услуге (цены, телефон);
+         - Хлебные крошки (Главная → Услуги → Категория) и внутренние ссылки на другие категории;
+         - Семантическую структуру (h1, section, article) и JSON-LD разметку Service/Offer с числовыми ценами UZS (переиспользовать подход lib/seo-jsonld.ts).
+
+      3. Мультиязычность: контент страниц должен переводиться через существующую
+      систему (lib/i18n/translations.ts) на три языка (русский, узбекская
+      кириллица, узбекская латиница). Создать зеркальные маршруты
+      /uz-krill/uslugi/* и /uz-latin/uslugi/* с фиксированной локалью (по
+      аналогии с /uz-krill и /uz-latin для главной). Hreflang и canonical для
+      каждого языка.
+
+
+      4. Обновить навигацию: добавить пункт «Услуги» в шапку
+      (components/header-nav.tsx), ведущий на /uslugi.
+
+
+      5. Обновить app/sitemap.ts: добавить хаб и все страницы категорий для трёх
+      языков с корректными hreflang-альтернативами (база https://biouborka.uz).
+
+
+      6. Сохранить дизайн (зелёно-белый), все существующие разделы и
+      функциональность (формы, админ-панель, аналитика, Telegram-уведомления).
+      Не ломать главную страницу.
+
+
+      7. После правок убедиться, что typecheck, lint и build проходят.
+    status: completed
+    acceptance_criteria:
+      - Запрос пользователя выполнен полностью
+    meta:
+      quick_implement_marker: quick_implement:call_2f4f6c9a73114e3981487d8e
+    summary:
+      "Создан хаб /uslugi и 9 страниц категорий услуг на трёх языках (включая
+      зеркала /uz-krill/uslugi/* и /uz-latin/uslugi/*). На каждой странице —
+      уникальные H1/title/meta description (Ташкент, цены, телефон), список услуг
+      с ценами, блок «Как проходит процедура», FAQ, хлебные крошки, ссылки на
+      другие категории, формы заказа и JSON-LD Service/Offer. Обновлены навигация
+      (Услуги → /uslugi) и app/sitemap.ts. Основная реализация:
+      lib/i18n/service-pages.ts, lib/i18n/content.ts (SERVICE_PAGES),
+      components/services-category-content.tsx, app/uslugi/*. typecheck, lint,
+      build проходят."
+  - title:
+      Создать отдельные страницы услуг на сайте BIOUBORKA.UZ (русская версия)
+      для SEO-продвижения по коммерческим запросам ...
+    description: >-
+      Создать отдельные страницы услуг на сайте BIOUBORKA.UZ (русская версия)
+      для SEO-продвижения по коммерческим запросам («уборка квартир ташкент»,
+      «клининг ташкент», «химчистка… ташкент», «мойка окон ташкент» и т.д.).
+      Сейчас все 9 категорий и 33 услуги находятся на одной главной странице,
+      из-за чего отдельные запросы не получают релевантных страниц.
+
+
+      Требования (первый этап — только русский язык, узбекские зеркала добавим
+      позже):
+
+      1. Создать хаб-страницу /uslugi (список всех категорий услуг со ссылками
+      на страницы) и 9 отдельных страниц категорий:
+         - /uslugi/uborka — Уборка
+         - /uslugi/moyka-okon — Мойка окон, витражей и фасадов (с упоминанием биомойки экосредствами)
+         - /uslugi/ximchistka-kovrov — Химчистка ковров
+         - /uslugi/ximchistka-myagkoy-mebeli — Химчистка мягкой мебели
+         - /uslugi/ximchistka-matracev — Химчистка матрацев
+         - /uslugi/ximchistka-kozhanoy-mebeli — Химчистка кожаной мебели
+         - /uslugi/uhod-za-polami — Уход за полами
+         - /uslugi/kuhnya — Кухня
+         - /uslugi/prochie-uslugi — Прочие услуги
+
+      2. Каждая страница должна содержать:
+         - Уникальный H1 с ключевой фразой + «в Ташкенте» (например «Уборка квартир в Ташкенте — цены от 25 000 сум»);
+         - Уникальные title (~50–58 символов) и meta description (~150–160 символов) с ключевым запросом, городом Ташкент, ценой и телефоном +998 93 375 27 02;
+         - Список услуг этой категории с ценами (данные из существующих SERVICE_CATEGORIES/ALL_SERVICES);
+         - Блок «Как проходит процедура» для этой категории (текст и фото, как на главной);
+         - Кнопку «Заказать», открывающую форму заявки с предвыбранной услугой (переиспользовать существующие OrderFormModal/QuickOrderModal);
+         - Короткий FAQ-блок с 2–3 вопросами по этой услуге (цены, телефон);
+         - Хлебные крошки (Главная → Услуги → Категория) и внутренние ссылки на другие категории;
+         - Семантическую структуру (h1, section, article) и JSON-LD разметку Service/Offer с числовыми ценами UZS.
+
+      3. Обновить навигацию: добавить пункт «Услуги» в шапку
+      (components/header-nav.tsx), ведущий на /uslugi.
+
+
+      4. Обновить app/sitemap.ts: добавить хаб и все страницы категорий с
+      корректными canonical и hreflang для русского языка (база
+      https://biouborka.uz).
+
+
+      5. Сохранить дизайн (зелёно-белый), все существующие разделы и
+      функциональность (формы, админ-панель, аналитика, Telegram-уведомления).
+      Не ломать главную страницу.
+
+
+      6. После правок убедиться, что typecheck, lint и build проходят.
+    acceptance_criteria:
+      - Запрос пользователя выполнен полностью
+    meta:
+      quick_implement_marker: quick_implement:call_f8e59e4eea274dc4b86bad0f
+    id: task-1284
+    status: completed
+    summary: >-
+      Созданы отдельные страницы услуг для SEO: хаб-каталог /uslugi и 9 страниц
+      категорий (/uslugi/uborka, /uslugi/moyka-okon, /uslugi/ximchistka-kovrov,
+      /uslugi/ximchistka-myagkoy-mebeli, /uslugi/ximchistka-matracev,
+      /uslugi/ximchistka-kozhanoy-mebeli, /uslugi/uhod-za-polami,
+      /uslugi/kuhnya, /uslugi/prochie-uslugi). Каждая страница имеет уникальные
+      H1/title/description с ключевым запросом, Ташкентом, ценой и телефоном
+      +998 93 375 27 02, список услуг с ценами из SERVICE_CATEGORIES, блок «Как
+      проходит процедура», кнопку «Заказать» с предвыбором услуги, FAQ,
+      хлебные крошки, ссылки на другие категории и JSON-LD Service/Offer
+      (числовые цены UZS) + FAQPage/BreadcrumbList. Пункт «Услуги» добавлен в
+      шапку (components/header-nav.tsx), sitemap.ts покрывает хаб и категории с
+      canonical/hreflang (база https://biouborka.uz). Основная реализация:
+      app/uslugi/, components/services-hub-content.tsx,
+      components/services-category-content.tsx, lib/i18n/content.ts
+      (SERVICE_PAGES), lib/i18n/service-pages.ts, lib/i18n/translations.ts,
+      lib/seo-jsonld.ts. typecheck, lint, build проходят без ошибок.

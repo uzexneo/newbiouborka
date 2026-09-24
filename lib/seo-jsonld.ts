@@ -3,6 +3,12 @@ import {
   DEFAULT_TESTIMONIALS,
   getDefaultServices,
 } from "./site-content";
+import { dictionaries } from "./i18n/translations";
+import {
+  SERVICE_PAGES,
+  getServiceCategoryById,
+  getServicePageBySlug,
+} from "./i18n/content";
 
 export const SCHEMA_APP_NAME = "BIOUBORKA.UZ";
 export const SCHEMA_APP_URL = "https://biouborka.uz";
@@ -15,9 +21,9 @@ function toE164(phone: string): string {
 
 function extractNumericPrice(price: string): number | null {
   if (!price || /по\s*договору/i.test(price)) return null;
-  const digits = price.replace(/\D/g, "");
-  if (!digits) return null;
-  return Number(digits);
+  const match = price.match(/\d[\d\s]*/);
+  if (!match) return null;
+  return Number(match[0].replace(/\s/g, ""));
 }
 
 interface FaqItem {
@@ -184,4 +190,168 @@ export function getSchemaOrgJsonLd(): SchemaOrgJsonLd {
       },
     ],
   };
+}
+
+export interface ServiceOfferInput {
+  name: string;
+  price: string;
+}
+
+export function getServicesHubJsonLd(
+  url: string,
+  categories: { name: string; url: string }[]
+): SchemaOrgJsonLd {
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Главная",
+            item: SCHEMA_APP_URL,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Услуги",
+            item: url,
+          },
+        ],
+      },
+      {
+        "@type": "ItemList",
+        name: "Услуги клининга в Ташкенте",
+        url,
+        itemListElement: categories.map((category, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: category.name,
+          url: category.url,
+        })),
+      },
+    ],
+  };
+}
+
+export function getServiceCategoryJsonLd(
+  categoryName: string,
+  url: string,
+  services: ServiceOfferInput[],
+  faq: { question: string; answer: string }[]
+): SchemaOrgJsonLd {
+  const offers = services.flatMap((service) => {
+    const price = extractNumericPrice(service.price);
+    if (price === null) return [];
+    return [
+      {
+        "@type": "Offer",
+        itemOffered: {
+          "@type": "Service",
+          name: service.name,
+          url: `${url}#service`,
+          areaServed: "Ташкент",
+        },
+        priceSpecification: {
+          "@type": "PriceSpecification",
+          price,
+          priceCurrency: "UZS",
+        },
+      },
+    ];
+  });
+
+  const serviceNode: Record<string, unknown> = {
+    "@type": "Service",
+    "@id": `${url}#service`,
+    name: categoryName,
+    url,
+    provider: { "@id": `${SCHEMA_APP_URL}/#organization` },
+    areaServed: "Ташкент",
+  };
+  if (offers.length > 0) {
+    serviceNode.offers = offers;
+  }
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      serviceNode,
+      {
+        "@type": "FAQPage",
+        mainEntity: faq.map((item) => ({
+          "@type": "Question",
+          name: item.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: item.answer,
+          },
+        })),
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Главная",
+            item: SCHEMA_APP_URL,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Услуги",
+            item: `${SCHEMA_APP_URL}/uslugi`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: categoryName,
+            item: url,
+          },
+        ],
+      },
+    ],
+  };
+}
+
+export function getServicesHubJsonLdDefault(): SchemaOrgJsonLd {
+  const dict = dictionaries.ru;
+  const url = `${SCHEMA_APP_URL}/uslugi`;
+  return getServicesHubJsonLd(
+    url,
+    SERVICE_PAGES.map((page) => {
+      const category = getServiceCategoryById(page.categoryId);
+      return {
+        name: category ? dict[category.titleKey] : page.slug,
+        url: `${url}/${page.slug}`,
+      };
+    })
+  );
+}
+
+export function getServiceCategoryJsonLdBySlug(
+  slug: string
+): SchemaOrgJsonLd | null {
+  const page = getServicePageBySlug(slug);
+  const category = page ? getServiceCategoryById(page.categoryId) : undefined;
+  if (!page || !category) {
+    return null;
+  }
+  const dict = dictionaries.ru;
+  const url = `${SCHEMA_APP_URL}/uslugi/${page.slug}`;
+  return getServiceCategoryJsonLd(
+    dict[category.titleKey],
+    url,
+    category.services.map((service) => ({
+      name: dict[service.titleKey],
+      price: dict[service.priceKey],
+    })),
+    page.faq.map((item) => ({
+      question: dict[item.qKey],
+      answer: dict[item.aKey],
+    }))
+  );
 }

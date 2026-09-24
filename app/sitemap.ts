@@ -1,5 +1,9 @@
 import type { MetadataRoute } from "next";
-import { SERVICE_CATEGORIES, ALL_SERVICES } from "@/lib/i18n/content";
+import {
+  SERVICE_CATEGORIES,
+  ALL_SERVICES,
+  SERVICE_PAGES,
+} from "@/lib/i18n/content";
 
 const baseUrl = "https://biouborka.uz";
 
@@ -20,6 +24,10 @@ function entry(
   let path = url.replace(baseUrl, "");
   if (path === "/uz-krill" || path === "/uz-latin") {
     path = "";
+  } else if (path.startsWith("/uz-krill/")) {
+    path = path.slice("/uz-krill".length);
+  } else if (path.startsWith("/uz-latin/")) {
+    path = path.slice("/uz-latin".length);
   }
   return {
     url,
@@ -36,6 +44,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
   items.push(entry(baseUrl, 1, "weekly"));
   items.push(entry(`${baseUrl}/uz-krill`, 1, "weekly"));
   items.push(entry(`${baseUrl}/uz-latin`, 1, "weekly"));
+
+  items.push(entry(`${baseUrl}/uslugi`, 0.9, "weekly"));
+  items.push(entry(`${baseUrl}/uz-krill/uslugi`, 0.9, "weekly"));
+  items.push(entry(`${baseUrl}/uz-latin/uslugi`, 0.9, "weekly"));
+
+  SERVICE_PAGES.forEach((page) => {
+    items.push(entry(`${baseUrl}/uslugi/${page.slug}`, 0.8, "weekly"));
+    items.push(entry(`${baseUrl}/uz-krill/uslugi/${page.slug}`, 0.8, "weekly"));
+    items.push(entry(`${baseUrl}/uz-latin/uslugi/${page.slug}`, 0.8, "weekly"));
+  });
 
   const sections: Array<{ anchor: string; priority: number }> = [
     { anchor: "#services", priority: 0.9 },

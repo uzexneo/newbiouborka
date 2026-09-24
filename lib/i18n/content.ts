@@ -280,6 +280,207 @@ export const ALL_SERVICES: ServiceItemMeta[] = SERVICE_CATEGORIES.flatMap(
   (category) => category.services
 );
 
+export interface ServicePageFaqMeta {
+  qKey: TranslationKey;
+  aKey: TranslationKey;
+}
+
+export interface ServicePageMeta {
+  slug: string;
+  categoryId: string;
+  h1Key: TranslationKey;
+  seoTitleKey: TranslationKey;
+  seoDescKey: TranslationKey;
+  introKey: TranslationKey;
+  faq: ServicePageFaqMeta[];
+}
+
+export const SERVICE_PAGES: ServicePageMeta[] = [
+  {
+    slug: "uborka",
+    categoryId: "cleaning",
+    h1Key: "uslugi.uborka.h1",
+    seoTitleKey: "uslugi.uborka.seoTitle",
+    seoDescKey: "uslugi.uborka.seoDesc",
+    introKey: "uslugi.uborka.intro",
+    faq: [
+      { qKey: "uslugi.uborka.faq1q", aKey: "uslugi.uborka.faq1a" },
+      { qKey: "uslugi.uborka.faq2q", aKey: "uslugi.uborka.faq2a" },
+      { qKey: "uslugi.uborka.faq3q", aKey: "uslugi.uborka.faq3a" },
+    ],
+  },
+  {
+    slug: "moyka-okon",
+    categoryId: "windows",
+    h1Key: "uslugi.moyka-okon.h1",
+    seoTitleKey: "uslugi.moyka-okon.seoTitle",
+    seoDescKey: "uslugi.moyka-okon.seoDesc",
+    introKey: "uslugi.moyka-okon.intro",
+    faq: [
+      { qKey: "uslugi.moyka-okon.faq1q", aKey: "uslugi.moyka-okon.faq1a" },
+      { qKey: "uslugi.moyka-okon.faq2q", aKey: "uslugi.moyka-okon.faq2a" },
+      { qKey: "uslugi.moyka-okon.faq3q", aKey: "uslugi.moyka-okon.faq3a" },
+    ],
+  },
+  {
+    slug: "ximchistka-kovrov",
+    categoryId: "carpets",
+    h1Key: "uslugi.ximchistka-kovrov.h1",
+    seoTitleKey: "uslugi.ximchistka-kovrov.seoTitle",
+    seoDescKey: "uslugi.ximchistka-kovrov.seoDesc",
+    introKey: "uslugi.ximchistka-kovrov.intro",
+    faq: [
+      {
+        qKey: "uslugi.ximchistka-kovrov.faq1q",
+        aKey: "uslugi.ximchistka-kovrov.faq1a",
+      },
+      {
+        qKey: "uslugi.ximchistka-kovrov.faq2q",
+        aKey: "uslugi.ximchistka-kovrov.faq2a",
+      },
+      {
+        qKey: "uslugi.ximchistka-kovrov.faq3q",
+        aKey: "uslugi.ximchistka-kovrov.faq3a",
+      },
+    ],
+  },
+  {
+    slug: "ximchistka-myagkoy-mebeli",
+    categoryId: "furniture",
+    h1Key: "uslugi.ximchistka-myagkoy-mebeli.h1",
+    seoTitleKey: "uslugi.ximchistka-myagkoy-mebeli.seoTitle",
+    seoDescKey: "uslugi.ximchistka-myagkoy-mebeli.seoDesc",
+    introKey: "uslugi.ximchistka-myagkoy-mebeli.intro",
+    faq: [
+      {
+        qKey: "uslugi.ximchistka-myagkoy-mebeli.faq1q",
+        aKey: "uslugi.ximchistka-myagkoy-mebeli.faq1a",
+      },
+      {
+        qKey: "uslugi.ximchistka-myagkoy-mebeli.faq2q",
+        aKey: "uslugi.ximchistka-myagkoy-mebeli.faq2a",
+      },
+      {
+        qKey: "uslugi.ximchistka-myagkoy-mebeli.faq3q",
+        aKey: "uslugi.ximchistka-myagkoy-mebeli.faq3a",
+      },
+    ],
+  },
+  {
+    slug: "ximchistka-matracev",
+    categoryId: "mattresses",
+    h1Key: "uslugi.ximchistka-matracev.h1",
+    seoTitleKey: "uslugi.ximchistka-matracev.seoTitle",
+    seoDescKey: "uslugi.ximchistka-matracev.seoDesc",
+    introKey: "uslugi.ximchistka-matracev.intro",
+    faq: [
+      {
+        qKey: "uslugi.ximchistka-matracev.faq1q",
+        aKey: "uslugi.ximchistka-matracev.faq1a",
+      },
+      {
+        qKey: "uslugi.ximchistka-matracev.faq2q",
+        aKey: "uslugi.ximchistka-matracev.faq2a",
+      },
+      {
+        qKey: "uslugi.ximchistka-matracev.faq3q",
+        aKey: "uslugi.ximchistka-matracev.faq3a",
+      },
+    ],
+  },
+  {
+    slug: "ximchistka-kozhanoy-mebeli",
+    categoryId: "leather",
+    h1Key: "uslugi.ximchistka-kozhanoy-mebeli.h1",
+    seoTitleKey: "uslugi.ximchistka-kozhanoy-mebeli.seoTitle",
+    seoDescKey: "uslugi.ximchistka-kozhanoy-mebeli.seoDesc",
+    introKey: "uslugi.ximchistka-kozhanoy-mebeli.intro",
+    faq: [
+      {
+        qKey: "uslugi.ximchistka-kozhanoy-mebeli.faq1q",
+        aKey: "uslugi.ximchistka-kozhanoy-mebeli.faq1a",
+      },
+      {
+        qKey: "uslugi.ximchistka-kozhanoy-mebeli.faq2q",
+        aKey: "uslugi.ximchistka-kozhanoy-mebeli.faq2a",
+      },
+      {
+        qKey: "uslugi.ximchistka-kozhanoy-mebeli.faq3q",
+        aKey: "uslugi.ximchistka-kozhanoy-mebeli.faq3a",
+      },
+    ],
+  },
+  {
+    slug: "uhod-za-polami",
+    categoryId: "floors",
+    h1Key: "uslugi.uhod-za-polami.h1",
+    seoTitleKey: "uslugi.uhod-za-polami.seoTitle",
+    seoDescKey: "uslugi.uhod-za-polami.seoDesc",
+    introKey: "uslugi.uhod-za-polami.intro",
+    faq: [
+      {
+        qKey: "uslugi.uhod-za-polami.faq1q",
+        aKey: "uslugi.uhod-za-polami.faq1a",
+      },
+      {
+        qKey: "uslugi.uhod-za-polami.faq2q",
+        aKey: "uslugi.uhod-za-polami.faq2a",
+      },
+      {
+        qKey: "uslugi.uhod-za-polami.faq3q",
+        aKey: "uslugi.uhod-za-polami.faq3a",
+      },
+    ],
+  },
+  {
+    slug: "kuhnya",
+    categoryId: "kitchen",
+    h1Key: "uslugi.kuhnya.h1",
+    seoTitleKey: "uslugi.kuhnya.seoTitle",
+    seoDescKey: "uslugi.kuhnya.seoDesc",
+    introKey: "uslugi.kuhnya.intro",
+    faq: [
+      { qKey: "uslugi.kuhnya.faq1q", aKey: "uslugi.kuhnya.faq1a" },
+      { qKey: "uslugi.kuhnya.faq2q", aKey: "uslugi.kuhnya.faq2a" },
+      { qKey: "uslugi.kuhnya.faq3q", aKey: "uslugi.kuhnya.faq3a" },
+    ],
+  },
+  {
+    slug: "prochie-uslugi",
+    categoryId: "other",
+    h1Key: "uslugi.prochie-uslugi.h1",
+    seoTitleKey: "uslugi.prochie-uslugi.seoTitle",
+    seoDescKey: "uslugi.prochie-uslugi.seoDesc",
+    introKey: "uslugi.prochie-uslugi.intro",
+    faq: [
+      {
+        qKey: "uslugi.prochie-uslugi.faq1q",
+        aKey: "uslugi.prochie-uslugi.faq1a",
+      },
+      {
+        qKey: "uslugi.prochie-uslugi.faq2q",
+        aKey: "uslugi.prochie-uslugi.faq2a",
+      },
+      {
+        qKey: "uslugi.prochie-uslugi.faq3q",
+        aKey: "uslugi.prochie-uslugi.faq3a",
+      },
+    ],
+  },
+];
+
+export function getServicePageBySlug(
+  slug: string
+): ServicePageMeta | undefined {
+  return SERVICE_PAGES.find((page) => page.slug === slug);
+}
+
+export function getServiceCategoryById(
+  id: string
+): ServiceCategoryMeta | undefined {
+  return SERVICE_CATEGORIES.find((category) => category.id === id);
+}
+
 // Категории услуг, для которых администратор может загрузить фото процедуры
 // в блоке «Как проходит процедура» (должны совпадать с id в SERVICE_CATEGORIES).
 export const PROCEDURE_CATEGORY_IDS = [

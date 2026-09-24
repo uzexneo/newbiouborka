@@ -290,6 +290,173 @@ const ru = {
   "trust.guaranteeDesc": "Переделаем бесплатно, если что-то не устроит",
   "trust.teamTitle": "Опытная команда",
   "trust.teamDesc": "Мастера с опытом работы от 2 лет",
+  "uslugi.seoTitle": "Услуги клининга в Ташкенте — цены | BIOUBORKA.UZ",
+  "uslugi.seoDesc":
+    "Уборка квартир, мойка окон, химчистка ковров и мебели в Ташкенте. Прозрачные цены от 25 000 сум. Звоните: +998 93 375 27 02.",
+  "uslugi.h1": "Услуги клининга в Ташкенте",
+  "uslugi.subheading":
+    "Полный прайс-лист биоуборки: уборка квартир, химчистка ковров и мебели, мойка окон, уход за полами. Выберите категорию услуг.",
+  "uslugi.cta": "Смотреть услуги",
+  "uslugi.faqHeading": "Частые вопросы",
+  "uslugi.otherHeading": "Другие категории услуг",
+  "uslugi.servicesHeading": "Услуги и цены",
+  "uslugi.quickCta": "Нужна помощь с выбором? Закажите быструю консультацию",
+  "uslugi.uborka.h1": "Уборка квартир в Ташкенте — цены от 25 000 сум",
+  "uslugi.uborka.seoTitle":
+    "Уборка квартир в Ташкенте от 25 000 сум | Биоуборка",
+  "uslugi.uborka.seoDesc":
+    "Уборка квартир и офисов в Ташкенте: генеральная, после ремонта и пожара. Цены от 25 000 сум/м². Био-средства. Телефон: +998 93 375 27 02.",
+  "uslugi.uborka.intro":
+    "Профессиональная уборка квартир, домов и офисов в Ташкенте экологичными био-средствами: генеральная уборка, уборка после ремонта, дезинфекции и пожара, уборка прилегающей территории. Выезжаем в день обращения.",
+  "uslugi.uborka.faq1q": "Сколько стоит уборка квартиры в Ташкенте?",
+  "uslugi.uborka.faq1a":
+    "Генеральная уборка — от 25 000 сум за м². Точная цена зависит от площади и степени загрязнения. Позвоните +998 93 375 27 02 — назовём стоимость за 5 минут.",
+  "uslugi.uborka.faq2q": "Какие виды уборки вы выполняете?",
+  "uslugi.uborka.faq2a":
+    "Генеральная уборка, уборка после ремонта, после дезинфекции и пожара, уборка офисов и прилегающей территории. Все работы — безопасными био-средствами.",
+  "uslugi.uborka.faq3q": "Как быстро вы приедете на уборку в Ташкенте?",
+  "uslugi.uborka.faq3a":
+    "В большинстве случаев выезжаем в день обращения. Оставьте заявку на сайте или позвоните +998 93 375 27 02.",
+  "uslugi.moyka-okon.h1": "Мойка окон в Ташкенте — биомойка от 20 000 сум",
+  "uslugi.moyka-okon.seoTitle":
+    "Мойка окон в Ташкенте от 20 000 сум | Биоуборка",
+  "uslugi.moyka-okon.seoDesc":
+    "Мойка окон, балконов, витражей и фасадов в Ташкенте экосредствами. Биомойка без разводов от 20 000 сум/м². Звоните: +998 93 375 27 02.",
+  "uslugi.moyka-okon.intro":
+    "Профессиональная биомойка окон, витражей и фасадов экологичными средствами. Моем рамы и стёкла без разводов, очищаем балконы и витражи, фасады моем методом промышленного альпинизма.",
+  "uslugi.moyka-okon.faq1q": "Сколько стоит мойка окон в Ташкенте?",
+  "uslugi.moyka-okon.faq1a":
+    "Мойка окон — 25 000 сум/м², балконов и фасадов — от 20 000 сум/м². Точную цену назовём после оценки объёма. Звоните: +998 93 375 27 02.",
+  "uslugi.moyka-okon.faq2q": "Что такое биомойка окон?",
+  "uslugi.moyka-okon.faq2a":
+    "Это мойка экологичными биоразлагаемыми средствами без агрессивной химии: стёкла моются без разводов, а средства безопасны для детей и домашних животных.",
+  "uslugi.moyka-okon.faq3q": "Моете ли вы окна на высоте?",
+  "uslugi.moyka-okon.faq3a":
+    "Да, фасады и витражи на высоте моем методом промышленного альпинизма. Оборудование сертифицировано, работаем аккуратно и безопасно.",
+  "uslugi.ximchistka-kovrov.h1": "Химчистка ковров в Ташкенте — 25 000 сум/м²",
+  "uslugi.ximchistka-kovrov.seoTitle":
+    "Химчистка ковров в Ташкенте 25 000 сум/м² | Биоуборка",
+  "uslugi.ximchistka-kovrov.seoDesc":
+    "Химчистка ковров на дому в Ташкенте: 25 000 сум/м². Глубокая очистка экстрактором, вывод пятен и аллергенов. Телефон: +998 93 375 27 02.",
+  "uslugi.ximchistka-kovrov.intro":
+    "Химчистка ковров и ковровых покрытий на дому в Ташкенте. Глубокая очистка экстрактором удаляет пыль, пятна и аллергены. Используем био-шампуни, безопасные для детей и животных.",
+  "uslugi.ximchistka-kovrov.faq1q": "Сколько стоит химчистка ковра в Ташкенте?",
+  "uslugi.ximchistka-kovrov.faq1a":
+    "Химчистка ковров — 25 000 сум/м². Выезжаем на дом по всему Ташкенту. Уточнить детали можно по телефону +998 93 375 27 02.",
+  "uslugi.ximchistka-kovrov.faq2q": "Сколько сохнет ковёр после химчистки?",
+  "uslugi.ximchistka-kovrov.faq2a":
+    "Обычно 6–12 часов в зависимости от типа ворса и влажности. Мастер подскажет, как ускорить сушку.",
+  "uslugi.ximchistka-kovrov.faq3q": "Безопасна ли химчистка для аллергиков?",
+  "uslugi.ximchistka-kovrov.faq3a":
+    "Да, мы используем био-шампуни без агрессивной химии, а экстрактор глубоко удаляет пылевых клещей и аллергены — безопасно для детей и аллергиков.",
+  "uslugi.ximchistka-myagkoy-mebeli.h1":
+    "Химчистка мягкой мебели в Ташкенте — от 100 000 сум",
+  "uslugi.ximchistka-myagkoy-mebeli.seoTitle":
+    "Химчистка диванов в Ташкенте от 100 000 сум | Биоуборка",
+  "uslugi.ximchistka-myagkoy-mebeli.seoDesc":
+    "Химчистка мягкой мебели в Ташкенте: диван от 100 000 сум, кресло от 100 000 сум. Выезд на дом, био-средства. Телефон: +998 93 375 27 02.",
+  "uslugi.ximchistka-myagkoy-mebeli.intro":
+    "Химчистка диванов, кресел и офисных стульев на дому в Ташкенте. Био-пена и экстрактор глубоко очищают обивку, выводят пятна и нейтрализуют запахи.",
+  "uslugi.ximchistka-myagkoy-mebeli.faq1q":
+    "Сколько стоит химчистка дивана в Ташкенте?",
+  "uslugi.ximchistka-myagkoy-mebeli.faq1a":
+    "Химчистка дивана — 100 000 сум за посадочное место, кресла — от 100 000 сум. Точную цену назовём после осмотра. Звоните: +998 93 375 27 02.",
+  "uslugi.ximchistka-myagkoy-mebeli.faq2q":
+    "Сколько сохнет мебель после химчистки?",
+  "uslugi.ximchistka-myagkoy-mebeli.faq2a":
+    "Обычно 4–8 часов. Мы используем профессиональные экстракторы, которые оставляют минимум влаги.",
+  "uslugi.ximchistka-myagkoy-mebeli.faq3q":
+    "Выведете ли вы пятна от кофе и вина?",
+  "uslugi.ximchistka-myagkoy-mebeli.faq3a":
+    "Да, экстракторная чистка с био-пеной выводит большинство пятен: кофе, чай, вино, соки. Если пятно не выводится — честно предупредим заранее.",
+  "uslugi.ximchistka-matracev.h1":
+    "Химчистка матрацев в Ташкенте — от 300 000 сум",
+  "uslugi.ximchistka-matracev.seoTitle":
+    "Химчистка матрасов в Ташкенте от 300 000 сум | Биоуборка",
+  "uslugi.ximchistka-matracev.seoDesc":
+    "Химчистка матрацев в Ташкенте: односпальный от 300 000 сум, двуспальный 600 000 сум с двух сторон. Выезд на дом. Телефон: +998 93 375 27 02.",
+  "uslugi.ximchistka-matracev.intro":
+    "Химчистка матрацев с двух сторон на дому в Ташкенте. Удаляем пятна, пылевых клещей, запахи и аллергены. Био-средства безопасны для детей и аллергиков.",
+  "uslugi.ximchistka-matracev.faq1q":
+    "Сколько стоит химчистка матраца в Ташкенте?",
+  "uslugi.ximchistka-matracev.faq1a":
+    "Односпальный матрац — 300 000 сум с двух сторон, двуспальный — 600 000 сум с двух сторон. Звоните +998 93 375 27 02 для записи.",
+  "uslugi.ximchistka-matracev.faq2q": "Как проходит химчистка матраца?",
+  "uslugi.ximchistka-matracev.faq2a":
+    "Снимаем бельё, обрабатываем матрац био-составом с двух сторон, удаляем пятна и пылевых клещей. Сушка занимает несколько часов.",
+  "uslugi.ximchistka-matracev.faq3q": "Можно ли спать сразу после химчистки?",
+  "uslugi.ximchistka-matracev.faq3a":
+    "Рекомендуем дождаться полного высыхания — обычно несколько часов. После этого матрац снова готов к использованию.",
+  "uslugi.ximchistka-kozhanoy-mebeli.h1":
+    "Химчистка кожаной мебели в Ташкенте — от 25 000 сум",
+  "uslugi.ximchistka-kozhanoy-mebeli.seoTitle":
+    "Химчистка кожаной мебели в Ташкенте | Биоуборка",
+  "uslugi.ximchistka-kozhanoy-mebeli.seoDesc":
+    "Химчистка кожаных диванов, кресел и стульев в Ташкенте: от 25 000 сум. Деликатный уход и питание кожи. Телефон: +998 93 375 27 02.",
+  "uslugi.ximchistka-kozhanoy-mebeli.intro":
+    "Деликатная химчистка кожаной мебели на дому в Ташкенте. Убираем загрязнения со швов и поверхности, питаем кожу и восстанавливаем защитный слой.",
+  "uslugi.ximchistka-kozhanoy-mebeli.faq1q":
+    "Сколько стоит химчистка кожаной мебели?",
+  "uslugi.ximchistka-kozhanoy-mebeli.faq1a":
+    "Кожаный диван — от 400 000 сум, кресло — от 150 000 сум, стулья — от 25 000 сум. Точную цену назовём после осмотра. Звоните: +998 93 375 27 02.",
+  "uslugi.ximchistka-kozhanoy-mebeli.faq2q": "Не испортит ли химчистка кожу?",
+  "uslugi.ximchistka-kozhanoy-mebeli.faq2a":
+    "Нет. Мы подбираем состав по типу кожи, используем мягкие очистители и питающие средства, восстанавливаем защитный слой.",
+  "uslugi.ximchistka-kozhanoy-mebeli.faq3q":
+    "Как часто нужно чистить кожаную мебель?",
+  "uslugi.ximchistka-kozhanoy-mebeli.faq3a":
+    "Рекомендуем раз в 6–12 месяцев. Регулярный уход продлевает срок службы кожи и сохраняет внешний вид.",
+  "uslugi.uhod-za-polami.h1":
+    "Уход за полами в Ташкенте — полировка и защитные покрытия",
+  "uslugi.uhod-za-polami.seoTitle":
+    "Уход за полами в Ташкенте: полировка, очистка | Биоуборка",
+  "uslugi.uhod-za-polami.seoDesc":
+    "Уход за полами в Ташкенте: глубокая очистка, полировка мрамора и гранита, защитные покрытия. Стоимость по договору. Телефон: +998 93 375 27 02.",
+  "uslugi.uhod-za-polami.intro":
+    "Профессиональный уход за полами в Ташкенте: глубокая очистка, полировка мрамора и гранита, нанесение защитных покрытий. Подбираем технологию под тип покрытия.",
+  "uslugi.uhod-za-polami.faq1q": "Сколько стоит уход за полами в Ташкенте?",
+  "uslugi.uhod-za-polami.faq1a":
+    "Стоимость зависит от типа покрытия, площади и состояния пола — рассчитывается индивидуально. Позвоните +998 93 375 27 02 для расчёта.",
+  "uslugi.uhod-za-polami.faq2q": "Какие полы вы можете обработать?",
+  "uslugi.uhod-za-polami.faq2a":
+    "Работаем с камнем (мрамор, гранит), ламинатом, паркетом и деревом. Для каждого типа подбираем технологию и средства.",
+  "uslugi.uhod-za-polami.faq3q": "Что даёт защитное покрытие пола?",
+  "uslugi.uhod-za-polami.faq3a":
+    "Защитный состав снижает износ, облегчает уборку и сохраняет блеск. Полировка мрамора и гранита восстанавливает поверхность.",
+  "uslugi.kuhnya.h1": "Уборка кухни в Ташкенте — цены от 100 000 сум",
+  "uslugi.kuhnya.seoTitle":
+    "Уборка кухни в Ташкенте от 100 000 сум | Биоуборка",
+  "uslugi.kuhnya.seoDesc":
+    "Чистка плиты, холодильника и духовки в Ташкенте от 100 000 сум. Генеральная уборка кухни — 700 000 сум. Био-средства. Телефон: +998 93 375 27 02.",
+  "uslugi.kuhnya.intro":
+    "Профессиональная чистка кухни в Ташкенте: плита, холодильник, духовка, вытяжка. Био-средства растворяют жир и нагар без запахов и агрессивной химии.",
+  "uslugi.kuhnya.faq1q": "Сколько стоит чистка кухни в Ташкенте?",
+  "uslugi.kuhnya.faq1a":
+    "Чистка плиты или холодильника — 100 000 сум, генеральная уборка кухни — 700 000 сум. Звоните: +998 93 375 27 02.",
+  "uslugi.kuhnya.faq2q": "Растворяете ли вы жир без химии?",
+  "uslugi.kuhnya.faq2a":
+    "Да, специальные био-составы эффективно растворяют жир и нагар, при этом безопасны для здоровья и не оставляют запахов.",
+  "uslugi.kuhnya.faq3q": "Можно ли почистить духовку и вытяжку?",
+  "uslugi.kuhnya.faq3a":
+    "Да, в генеральную уборку кухни входит чистка плиты, духовки, холодильника и вытяжки. Точный перечень уточняйте по телефону +998 93 375 27 02.",
+  "uslugi.prochie-uslugi.h1":
+    "Прочие услуги клининга в Ташкенте — дезинфекция и запахи",
+  "uslugi.prochie-uslugi.seoTitle":
+    "Дезинфекция и устранение запахов в Ташкенте | Биоуборка",
+  "uslugi.prochie-uslugi.seoDesc":
+    "Дезинфекция помещений, устранение запахов и плесени в Ташкенте. Ночные услуги клининга. Стоимость по договору. Звоните: +998 93 375 27 02.",
+  "uslugi.prochie-uslugi.intro":
+    "Дополнительные услуги клининга в Ташкенте: дезинфекция помещений, устранение запахов и плесени, ночные уборки. Сертифицированные био-средства.",
+  "uslugi.prochie-uslugi.faq1q":
+    "Сколько стоит дезинфекция помещения в Ташкенте?",
+  "uslugi.prochie-uslugi.faq1a":
+    "Стоимость зависит от площади и метода обработки — рассчитывается индивидуально. Позвоните +998 93 375 27 02 для консультации.",
+  "uslugi.prochie-uslugi.faq2q": "Можно ли убрать запах и плесень навсегда?",
+  "uslugi.prochie-uslugi.faq2a":
+    "Мы устраняем причину запаха и плесени сертифицированными средствами и даём рекомендации по профилактике.",
+  "uslugi.prochie-uslugi.faq3q": "Работаете ли вы ночью?",
+  "uslugi.prochie-uslugi.faq3a":
+    "Да, доступны ночные услуги — удобно для офисов и магазинов. Обсудим график по телефону +998 93 375 27 02.",
 } as const;
 
 const uzKrill = {
@@ -582,6 +749,178 @@ const uzKrill = {
   "trust.guaranteeDesc": "Бирор нарса ёқмаса — бепул қайта бажарамиз",
   "trust.teamTitle": "Тажрибали жамоа",
   "trust.teamDesc": "2 йилдан ортиқ тажрибали усталар",
+  "uslugi.seoTitle": "Тошкентда клининг хизматлари — нархлар | BIOUBORKA.UZ",
+  "uslugi.seoDesc":
+    "Тошкентда квартира тозалаш, ойна ювиш, гилам ва мебелни кимёвий тозалаш. 25 000 сўмдан шаффоф нархлар. Қўнғироқ: +998 93 375 27 02.",
+  "uslugi.h1": "Тошкентда клининг хизматлари",
+  "uslugi.subheading":
+    "Био тозалашнинг тўлиқ нарх рўйхати: квартира тозалаш, гилам ва мебелни кимёвий тозалаш, ойна ювиш, полларга ғамхўрлик. Хизмат категориясини танланг.",
+  "uslugi.cta": "Хизматларни кўриш",
+  "uslugi.faqHeading": "Кўп сўраладиган саволлар",
+  "uslugi.otherHeading": "Бошқа хизмат категориялари",
+  "uslugi.servicesHeading": "Хизматлар ва нархлар",
+  "uslugi.quickCta": "Танлашда ёрдам керакми? Тез маслаҳатга буюртма беринг",
+  "uslugi.uborka.h1": "Тошкентда квартираларни тозалаш — 25 000 сўмдан",
+  "uslugi.uborka.seoTitle":
+    "Тошкентда квартира тозалаш 25 000 сўмдан | Био тозалаш",
+  "uslugi.uborka.seoDesc":
+    "Тошкентда квартира ва офисларни тозалаш: умумий, таъмир ва ёнғиндан кейин. 25 000 сўм/м² дан. Био-воситалар. Телефон: +998 93 375 27 02.",
+  "uslugi.uborka.intro":
+    "Тошкентда квартира, уй ва офисларни экологик био-воситалар билан профессионал тозалаш: умумий тозалаш, таъмир, дезинфекция ва ёнғиндан кейин тозалаш, ҳудудни тозалаш. Мурожаат куни чиқамиз.",
+  "uslugi.uborka.faq1q": "Тошкентда квартира тозалаш қанча туради?",
+  "uslugi.uborka.faq1a":
+    "Умумий тозалаш — 25 000 сўм/м² дан. Аниқ нарх майдон ва ифлосланиш даражасига боғлиқ. +998 93 375 27 02 га қўнғироқ қилинг — нархни 5 дақиқада айтамиз.",
+  "uslugi.uborka.faq2q": "Қандай тозалаш турларини бажарасиз?",
+  "uslugi.uborka.faq2a":
+    "Умумий тозалаш, таъмирдан кейин, дезинфекция ва ёнғиндан кейин тозалаш, офис ва ҳудудларни тозалаш. Барча ишлар — хавфсиз био-воситалар билан.",
+  "uslugi.uborka.faq3q": "Тошкентда тозалашга қанча тез келасиз?",
+  "uslugi.uborka.faq3a":
+    "Кўп ҳолларда мурожаат куни чиқамиз. Сайтда ариза қолдиринг ёки +998 93 375 27 02 га қўнғироқ қилинг.",
+  "uslugi.moyka-okon.h1": "Тошкентда ойналарни ювиш — биомойка 20 000 сўмдан",
+  "uslugi.moyka-okon.seoTitle":
+    "Тошкентда ойна ювиш 20 000 сўмдан | Био тозалаш",
+  "uslugi.moyka-okon.seoDesc":
+    "Тошкентда ойна, балкон, витраж ва фасадларни экологик воситалар билан ювиш. Томчисиз биомойка 20 000 сўм/м² дан. Қўнғироқ: +998 93 375 27 02.",
+  "uslugi.moyka-okon.intro":
+    "Тошкентда ойна, витраж ва фасадларни экологик воситалар билан профессионал биомойка қилиш. Рам ва ойналарни томчисиз ювамиз, балкон ва витражларни тозалаймиз, фасадларни саноат альпинизми усулида ювамиз.",
+  "uslugi.moyka-okon.faq1q": "Тошкентда ойна ювиш қанча туради?",
+  "uslugi.moyka-okon.faq1a":
+    "Ойналарни ювиш — 25 000 сўм/м², балкон ва фасадлар — 20 000 сўм/м² дан. Аниқ нархни ҳажмни баҳолагандан кейин айтамиз. Қўнғироқ: +998 93 375 27 02.",
+  "uslugi.moyka-okon.faq2q": "Ойна биомойкаси нима?",
+  "uslugi.moyka-okon.faq2a":
+    "Бу агрессив кимёвий моддаларсиз экологик биоразлагадиган воситалар билан ювиш: ойналар томчисиз тоза бўлади, воситалар болалар ва уй ҳайвонлари учун хавфсиз.",
+  "uslugi.moyka-okon.faq3q": "Баландликдаги ойналарни ювасизми?",
+  "uslugi.moyka-okon.faq3a":
+    "Ҳа, баландликдаги фасад ва витражларни саноат альпинизми усулида ювамиз. Жиҳозлар сертификатланган, эҳтиёткор ва хавфсиз ишлаймиз.",
+  "uslugi.ximchistka-kovrov.h1":
+    "Тошкентда гиламларни кимёвий тозалаш — 25 000 сўм/м²",
+  "uslugi.ximchistka-kovrov.seoTitle":
+    "Тошкентда гилам кимёвий тозалаш 25 000 сўм/м²",
+  "uslugi.ximchistka-kovrov.seoDesc":
+    "Тошкентда уйда гиламларни кимёвий тозалаш: 25 000 сўм/м². Экстрактор билан чуқур тозалаш, дог ва аллергенларни кетказиш. Телефон: +998 93 375 27 02.",
+  "uslugi.ximchistka-kovrov.intro":
+    "Тошкентда уйда гилам ва гилам қопламаларни кимёвий тозалаш. Экстрактор билан чуқур тозалаш чанг, дог ва аллергенларни кетказади. Болалар ва ҳайвонлар учун хавфсиз био-шампунлар ишлатамиз.",
+  "uslugi.ximchistka-kovrov.faq1q":
+    "Тошкентда гилам кимёвий тозалаш қанча туради?",
+  "uslugi.ximchistka-kovrov.faq1a":
+    "Гиламларни кимёвий тозалаш — 25 000 сўм/м². Бутун Тошкент бўйлаб уйингизга чиқамиз. Тафсилотни +998 93 375 27 02 телефони орқали аниқланг.",
+  "uslugi.ximchistka-kovrov.faq2q":
+    "Гилам кимёвий тозалашдан кейин қанча қурийди?",
+  "uslugi.ximchistka-kovrov.faq2a":
+    "Одатда 6–12 соат — тола тури ва намликка боғлиқ. Уста қуритишни тезлаштириш бўйича маслаҳат беради.",
+  "uslugi.ximchistka-kovrov.faq3q":
+    "Кимёвий тозалаш аллергиклар учун хавфсизми?",
+  "uslugi.ximchistka-kovrov.faq3a":
+    "Ҳа, биз агрессив кимёвий моддаларсиз био-шампунлар ишлатамиз, экстрактор эса чанг каналари ва аллергенларни чуқур кетказади — болалар ва аллергиклар учун хавфсиз.",
+  "uslugi.ximchistka-myagkoy-mebeli.h1":
+    "Тошкентда юмшоқ мебелни кимёвий тозалаш — 100 000 сўмдан",
+  "uslugi.ximchistka-myagkoy-mebeli.seoTitle":
+    "Тошкентда диван кимёвий тозалаш 100 000 сўмдан",
+  "uslugi.ximchistka-myagkoy-mebeli.seoDesc":
+    "Тошкентда юмшоқ мебелни кимёвий тозалаш: диван 100 000 сўмдан, кресло 100 000 сўмдан. Уйга чиқиш, био-воситалар. Телефон: +998 93 375 27 02.",
+  "uslugi.ximchistka-myagkoy-mebeli.intro":
+    "Тошкентда уйда диван, кресло ва офис стулларини кимёвий тозалаш. Био-кўпик ва экстрактор қопламани чуқур тозалайди, догларни кетказади ва ҳидларни нейтраллайди.",
+  "uslugi.ximchistka-myagkoy-mebeli.faq1q":
+    "Тошкентда диван кимёвий тозалаш қанча туради?",
+  "uslugi.ximchistka-myagkoy-mebeli.faq1a":
+    "Диван — 100 000 сўм (ўтириш жойи учун), кресло — 100 000 сўмдан. Аниқ нархни кўздан кечиришдан кейин айтамиз. Қўнғироқ: +998 93 375 27 02.",
+  "uslugi.ximchistka-myagkoy-mebeli.faq2q":
+    "Кимёвий тозалашдан кейин мебел қанча қурийди?",
+  "uslugi.ximchistka-myagkoy-mebeli.faq2a":
+    "Одатда 4–8 соат. Биз кам намлик қолдирадиган профессионал экстракторлардан фойдаланамиз.",
+  "uslugi.ximchistka-myagkoy-mebeli.faq3q":
+    "Кофе ва вино догларини кетказасизми?",
+  "uslugi.ximchistka-myagkoy-mebeli.faq3a":
+    "Ҳа, био-кўпик билан экстракторли тозалаш кофе, чой, вино, шира каби кўпчилик догларни кетказади. Агар дог кетмаса — олдиндан ҳалол огоҳлантирамиз.",
+  "uslugi.ximchistka-matracev.h1":
+    "Тошкентда матрасларни кимёвий тозалаш — 300 000 сўмдан",
+  "uslugi.ximchistka-matracev.seoTitle":
+    "Тошкентда матрас кимёвий тозалаш 300 000 сўмдан",
+  "uslugi.ximchistka-matracev.seoDesc":
+    "Тошкентда матрасларни кимёвий тозалаш: бир кишилик 300 000 сўмдан, икки кишилик 600 000 сўм икки томондан. Уйга чиқиш. Телефон: +998 93 375 27 02.",
+  "uslugi.ximchistka-matracev.intro":
+    "Тошкентда уйда матрасларни икки томондан кимёвий тозалаш. Доглар, чанг каналари, ҳид ва аллергенларни кетказамиз. Био-воситалар болалар ва аллергиклар учун хавфсиз.",
+  "uslugi.ximchistka-matracev.faq1q":
+    "Тошкентда матрас кимёвий тозалаш қанча туради?",
+  "uslugi.ximchistka-matracev.faq1a":
+    "Бир кишилик матрас — 300 000 сўм икки томондан, икки кишилик — 600 000 сўм икки томондан. Ёзилиш учун +998 93 375 27 02 га қўнғироқ қилинг.",
+  "uslugi.ximchistka-matracev.faq2q": "Матрас кимёвий тозалаш қандай ўтади?",
+  "uslugi.ximchistka-matracev.faq2a":
+    "Чойшабларни оламиз, матрасни икки томондан био-таркиб билан ишлаймиз, дог ва чанг каналарини кетказамиз. Қуриши бир неча соат давом этади.",
+  "uslugi.ximchistka-matracev.faq3q":
+    "Кимёвий тозалашдан кейин дарҳол ухлаш мумкинми?",
+  "uslugi.ximchistka-matracev.faq3a":
+    "Тўлиқ қуришини кутишни тавсия қиламиз — одатда бир неча соат. Кейин матрас яна фойдаланишга тайёр.",
+  "uslugi.ximchistka-kozhanoy-mebeli.h1":
+    "Тошкентда чарм мебелни кимёвий тозалаш — 25 000 сўмдан",
+  "uslugi.ximchistka-kozhanoy-mebeli.seoTitle":
+    "Тошкентда чарм мебел кимёвий тозалаш | Био тозалаш",
+  "uslugi.ximchistka-kozhanoy-mebeli.seoDesc":
+    "Тошкентда чарм диван, кресло ва стулларни кимёвий тозалаш: 25 000 сўмдан. Эҳтиёткор парвариш, терини озуқлантириш. Телефон: +998 93 375 27 02.",
+  "uslugi.ximchistka-kozhanoy-mebeli.intro":
+    "Тошкентда уйда чарм мебелни эҳтиёткорлик билан кимёвий тозалаш. Чок ва юзалардаги ифлосликларни кетказамиз, терини озуқлантирамиз ва ҳимоя қатламини тиклаймиз.",
+  "uslugi.ximchistka-kozhanoy-mebeli.faq1q":
+    "Чарм мебел кимёвий тозалаш қанча туради?",
+  "uslugi.ximchistka-kozhanoy-mebeli.faq1a":
+    "Чарм диван — 400 000 сўмдан, кресло — 150 000 сўмдан, стул — 25 000 сўмдан. Аниқ нархни кўздан кечиришдан кейин айтамиз. Қўнғироқ: +998 93 375 27 02.",
+  "uslugi.ximchistka-kozhanoy-mebeli.faq2q":
+    "Кимёвий тозалаш терига зарар етказадими?",
+  "uslugi.ximchistka-kozhanoy-mebeli.faq2a":
+    "Йўқ. Таркибни тери турига қараб танлаймиз, юмшоқ тозалагич ва озуқлантирувчи воситалар ишлатамиз, ҳимоя қатламини тиклаймиз.",
+  "uslugi.ximchistka-kozhanoy-mebeli.faq3q":
+    "Чарм мебелни қанча тез-тез тозалаш керак?",
+  "uslugi.ximchistka-kozhanoy-mebeli.faq3a":
+    "Ҳар 6–12 ойда бир мартани тавсия қиламиз. Мунтазам парвариш терининг хизмат муддатини узайтиради ва кўринишини сақлайди.",
+  "uslugi.uhod-za-polami.h1":
+    "Тошкентда полларга ғамхўрлик — сайқаллаш ва ҳимоя қопламалари",
+  "uslugi.uhod-za-polami.seoTitle":
+    "Тошкентда полларга ғамхўрлик | Био тозалаш",
+  "uslugi.uhod-za-polami.seoDesc":
+    "Тошкентда полларга ғамхўрлик: чуқур тозалаш, мармар ва гранитни сайқаллаш, ҳимоя қопламалари. Нарх шартнома асосида. Телефон: +998 93 375 27 02.",
+  "uslugi.uhod-za-polami.intro":
+    "Тошкентда полларга профессионал ғамхўрлик: чуқур тозалаш, мармар ва гранитни сайқаллаш, ҳимоя қопламаларини суртиш. Қоплама турига қараб технология танлаймиз.",
+  "uslugi.uhod-za-polami.faq1q": "Тошкентда полларга ғамхўрлик қанча туради?",
+  "uslugi.uhod-za-polami.faq1a":
+    "Нарх қоплама тури, майдон ва пол ҳолатига боғлиқ — ҳар бир ҳолат учун алоҳида ҳисобланади. Ҳисоблаш учун +998 93 375 27 02 га қўнғироқ қилинг.",
+  "uslugi.uhod-za-polami.faq2q": "Қандай полларни ишлов бера оласиз?",
+  "uslugi.uhod-za-polami.faq2a":
+    "Тош (мармар, гранит), ламинат, паркет ва ёғоч билан ишлаймиз. Ҳар бир тур учун технология ва воситалар танлаймиз.",
+  "uslugi.uhod-za-polami.faq3q": "Ҳимоя қопламаси нима беради?",
+  "uslugi.uhod-za-polami.faq3a":
+    "Ҳимоя таркиби ейилишни камайтиради, тозалашни осонлаштиради ва ялтироқликни сақлайди. Мармар ва гранитни сайқаллаш юзани тиклайди.",
+  "uslugi.kuhnya.h1": "Тошкентда ошхона тозалаш — 100 000 сўмдан",
+  "uslugi.kuhnya.seoTitle":
+    "Тошкентда ошхона тозалаш 100 000 сўмдан | Био тозалаш",
+  "uslugi.kuhnya.seoDesc":
+    "Тошкентда плита, музлатгич ва духовкани тозалаш 100 000 сўмдан. Ошхонани умумий тозалаш 700 000 сўм. Био-воситалар. Телефон: +998 93 375 27 02.",
+  "uslugi.kuhnya.intro":
+    "Тошкентда ошхонани профессионал тозалаш: плита, музлатгич, духовка, мойўтказгич. Био-воситалар ҳид ва агрессив кимёвий моддаларсиз ёғ ва куйгани эритади.",
+  "uslugi.kuhnya.faq1q": "Тошкентда ошхона тозалаш қанча туради?",
+  "uslugi.kuhnya.faq1a":
+    "Плита ёки музлатгични тозалаш — 100 000 сўм, ошхонани умумий тозалаш — 700 000 сўм. Қўнғироқ: +998 93 375 27 02.",
+  "uslugi.kuhnya.faq2q": "Ёғни кимёсиз эритасизми?",
+  "uslugi.kuhnya.faq2a":
+    "Ҳа, махсус био-таркиблар ёғ ва куйгани самарали эритади, соғлиқ учун хавфсиз ва ҳид қолдирмайди.",
+  "uslugi.kuhnya.faq3q": "Духовка ва мойўтказгични тозалаш мумкинми?",
+  "uslugi.kuhnya.faq3a":
+    "Ҳа, ошхонани умумий тозалашга плита, духовка, музлатгич ва мойўтказгични тозалаш киради. Аниқ рўйхатни +998 93 375 27 02 телефони орқали аниқланг.",
+  "uslugi.prochie-uslugi.h1":
+    "Тошкентда бошқа клининг хизматлари — дезинфекция, ҳидлар",
+  "uslugi.prochie-uslugi.seoTitle":
+    "Тошкентда дезинфекция ва ҳидларни бартараф этиш | Био",
+  "uslugi.prochie-uslugi.seoDesc":
+    "Тошкентда дезинфекция, ҳид ва моғорни бартараф этиш. Тунги клининг хизматлари. Нарх шартнома асосида. Қўнғироқ: +998 93 375 27 02.",
+  "uslugi.prochie-uslugi.intro":
+    "Тошкентда қўшимча клининг хизматлари: хоналарни дезинфекция қилиш, ҳид ва моғорни бартараф этиш, тунги тозалаш. Сертификатланган био-воситалар.",
+  "uslugi.prochie-uslugi.faq1q": "Тошкентда дезинфекция қанча туради?",
+  "uslugi.prochie-uslugi.faq1a":
+    "Нарх майдон ва ишлов усулига боғлиқ — ҳар бир ҳолат учун алоҳида ҳисобланади. Маълумот олиш учун +998 93 375 27 02 га қўнғироқ қилинг.",
+  "uslugi.prochie-uslugi.faq2q": "Ҳид ва моғорни бутунлай кетказиш мумкинми?",
+  "uslugi.prochie-uslugi.faq2a":
+    "Ҳид ва моғорнинг сабабини сертификатланган воситалар билан бартараф этамиз ва профилактика бўйича тавсиялар берамиз.",
+  "uslugi.prochie-uslugi.faq3q": "Тунги ишлайсизми?",
+  "uslugi.prochie-uslugi.faq3a":
+    "Ҳа, тунги хизматлар мавжуд — офис ва магазинлар учун қулай. Графикни +998 93 375 27 02 телефони орқали келишиб оламиз.",
 } as const;
 
 const uzLatin = {
@@ -876,6 +1215,180 @@ const uzLatin = {
   "trust.guaranteeDesc": "Biror narsa yoqmasa — bepul qayta bajaramiz",
   "trust.teamTitle": "Tajribali jamoa",
   "trust.teamDesc": "2 yildan ortiq tajribali ustalar",
+  "uslugi.seoTitle": "Toshkentda klining xizmatlari — narxlar | BIOUBORKA.UZ",
+  "uslugi.seoDesc":
+    "Toshkentda kvartira tozalash, oyna yuvish, gilam va mebelni kimyoviy tozalash. 25 000 so'mdan shaffof narxlar. Qo'ng'iroq: +998 93 375 27 02.",
+  "uslugi.h1": "Toshkentda klining xizmatlari",
+  "uslugi.subheading":
+    "Bio tozalashning to'liq narx ro'yxati: kvartira tozalash, gilam va mebelni kimyoviy tozalash, oyna yuvish, pollarga g'amxo'rlik. Xizmat kategoriyasini tanlang.",
+  "uslugi.cta": "Xizmatlarni ko'rish",
+  "uslugi.faqHeading": "Ko'p so'raladigan savollar",
+  "uslugi.otherHeading": "Boshqa xizmat kategoriyalari",
+  "uslugi.servicesHeading": "Xizmatlar va narxlar",
+  "uslugi.quickCta": "Tanlashda yordam kerakmi? Tez maslahatga buyurtma bering",
+  "uslugi.uborka.h1": "Toshkentda kvartiralarni tozalash — 25 000 so'mdan",
+  "uslugi.uborka.seoTitle":
+    "Toshkentda kvartira tozalash 25 000 so'mdan | Bio tozalash",
+  "uslugi.uborka.seoDesc":
+    "Toshkentda kvartira va ofislarni tozalash: umumiy, ta'mir va yong'indan keyin. 25 000 so'm/m² dan. Bio-vositalar. Telefon: +998 93 375 27 02.",
+  "uslugi.uborka.intro":
+    "Toshkentda kvartira, uy va ofislarni ekologik bio-vositalar bilan professional tozalash: umumiy tozalash, ta'mir, dezinfeksiya va yong'indan keyin tozalash, hududni tozalash. Murojaat kunida chiqamiz.",
+  "uslugi.uborka.faq1q": "Toshkentda kvartira tozalash qancha turadi?",
+  "uslugi.uborka.faq1a":
+    "Umumiy tozalash — 25 000 so'm/m² dan. Aniq narx maydon va ifloslanish darajasiga bog'liq. +998 93 375 27 02 ga qo'ng'iroq qiling — narxni 5 daqiqada aytamiz.",
+  "uslugi.uborka.faq2q": "Qanday tozalash turlarini bajarasiz?",
+  "uslugi.uborka.faq2a":
+    "Umumiy tozalash, ta'mirdan keyin, dezinfeksiya va yong'indan keyin tozalash, ofis va hududlarni tozalash. Barcha ishlar — xavfsiz bio-vositalar bilan.",
+  "uslugi.uborka.faq3q": "Toshkentda tozalashga qancha tez kelasiz?",
+  "uslugi.uborka.faq3a":
+    "Ko'p hollarda murojaat kunida chiqamiz. Saytda ariza qoldiring yoki +998 93 375 27 02 ga qo'ng'iroq qiling.",
+  "uslugi.moyka-okon.h1":
+    "Toshkentda oynalarni yuvish — biomoyka 20 000 so'mdan",
+  "uslugi.moyka-okon.seoTitle":
+    "Toshkentda oyna yuvish 20 000 so'mdan | Bio tozalash",
+  "uslugi.moyka-okon.seoDesc":
+    "Toshkentda oyna, balkon, vitraj va fasadlarni ekologik vositalar bilan yuvish. Tomchisiz biomoyka 20 000 so'm/m² dan. Qo'ng'iroq: +998 93 375 27 02.",
+  "uslugi.moyka-okon.intro":
+    "Toshkentda oyna, vitraj va fasadlarni ekologik vositalar bilan professional biomoyka qilish. Ram va oynalarni tomchisiz yuvamiz, balkon va vitrajlarni tozalaymiz, fasadlarni sanoat alpinizmi usulida yuvamiz.",
+  "uslugi.moyka-okon.faq1q": "Toshkentda oyna yuvish qancha turadi?",
+  "uslugi.moyka-okon.faq1a":
+    "Oynalarni yuvish — 25 000 so'm/m², balkon va fasadlar — 20 000 so'm/m² dan. Aniq narxni hajmni baholagandan keyin aytamiz. Qo'ng'iroq: +998 93 375 27 02.",
+  "uslugi.moyka-okon.faq2q": "Oyna biomoykasi nima?",
+  "uslugi.moyka-okon.faq2a":
+    "Bu agressiv kimyoviy moddalarsiz ekologik bioparchalanadigan vositalar bilan yuvish: oynalar tomchisiz toza bo'ladi, vositalar bolalar va uy hayvonlari uchun xavfsiz.",
+  "uslugi.moyka-okon.faq3q": "Balandlikdagi oynalarni yuvasizmi?",
+  "uslugi.moyka-okon.faq3a":
+    "Ha, balandlikdagi fasad va vitrajlarni sanoat alpinizmi usulida yuvamiz. Jihozlar sertifikatlangan, ehtiyotkor va xavfsiz ishlaymiz.",
+  "uslugi.ximchistka-kovrov.h1":
+    "Toshkentda gilamlarni kimyoviy tozalash — 25 000 so'm/m²",
+  "uslugi.ximchistka-kovrov.seoTitle":
+    "Toshkentda gilam kimyoviy tozalash 25 000 so'm/m²",
+  "uslugi.ximchistka-kovrov.seoDesc":
+    "Toshkentda uyda gilamlarni kimyoviy tozalash: 25 000 so'm/m². Ekstraktor bilan chuqur tozalash, dog' va allergenlarni ketkazish. Telefon: +998 93 375 27 02.",
+  "uslugi.ximchistka-kovrov.intro":
+    "Toshkentda uyda gilam va gilam qoplamalarni kimyoviy tozalash. Ekstraktor bilan chuqur tozalash chang, dog' va allergenlarni ketkazadi. Bolalar va hayvonlar uchun xavfsiz bio-shampunlar ishlatamiz.",
+  "uslugi.ximchistka-kovrov.faq1q":
+    "Toshkentda gilam kimyoviy tozalash qancha turadi?",
+  "uslugi.ximchistka-kovrov.faq1a":
+    "Gilamlarni kimyoviy tozalash — 25 000 so'm/m². Butun Toshkent bo'ylab uyingizga chiqamiz. Tafsilotni +998 93 375 27 02 telefoni orqali aniqlang.",
+  "uslugi.ximchistka-kovrov.faq2q":
+    "Gilam kimyoviy tozalashdan keyin qancha quriydi?",
+  "uslugi.ximchistka-kovrov.faq2a":
+    "Odatda 6–12 soat — tola turi va namlikka bog'liq. Usta quritishni tezlashtirish bo'yicha maslahat beradi.",
+  "uslugi.ximchistka-kovrov.faq3q":
+    "Kimyoviy tozalash allergiklar uchun xavfsizmi?",
+  "uslugi.ximchistka-kovrov.faq3a":
+    "Ha, biz agressiv kimyoviy moddalarsiz bio-shampunlar ishlatamiz, ekstraktor esa chang kanallari va allergenlarni chuqur ketkazadi — bolalar va allergiklar uchun xavfsiz.",
+  "uslugi.ximchistka-myagkoy-mebeli.h1":
+    "Toshkentda yumshoq mebelni kimyoviy tozalash — 100 000 so'mdan",
+  "uslugi.ximchistka-myagkoy-mebeli.seoTitle":
+    "Toshkentda divan kimyoviy tozalash 100 000 so'mdan",
+  "uslugi.ximchistka-myagkoy-mebeli.seoDesc":
+    "Toshkentda yumshoq mebelni kimyoviy tozalash: divan 100 000 so'mdan, kreslo 100 000 so'mdan. Uyga chiqish, bio-vositalar. Telefon: +998 93 375 27 02.",
+  "uslugi.ximchistka-myagkoy-mebeli.intro":
+    "Toshkentda uyda divan, kreslo va ofis stullarini kimyoviy tozalash. Bio-ko'pik va ekstraktor qoplamani chuqur tozalaydi, dog'larni ketkazadi va hidlarni neytrallaydi.",
+  "uslugi.ximchistka-myagkoy-mebeli.faq1q":
+    "Toshkentda divan kimyoviy tozalash qancha turadi?",
+  "uslugi.ximchistka-myagkoy-mebeli.faq1a":
+    "Divan — 100 000 so'm (o'tirish joyi uchun), kreslo — 100 000 so'mdan. Aniq narxni ko'zdan kechirishdan keyin aytamiz. Qo'ng'iroq: +998 93 375 27 02.",
+  "uslugi.ximchistka-myagkoy-mebeli.faq2q":
+    "Kimyoviy tozalashdan keyin mebel qancha quriydi?",
+  "uslugi.ximchistka-myagkoy-mebeli.faq2a":
+    "Odatda 4–8 soat. Biz kam namlik qoldiradigan professional ekstraktorlardan foydalanamiz.",
+  "uslugi.ximchistka-myagkoy-mebeli.faq3q":
+    "Kofe va vino dog'larini ketkazasizmi?",
+  "uslugi.ximchistka-myagkoy-mebeli.faq3a":
+    "Ha, bio-ko'pik bilan ekstraktorli tozalash kofe, choy, vino, shira kabi ko'pchilik dog'larni ketkazadi. Agar dog' ketmasa — oldindan halol ogohlantiramiz.",
+  "uslugi.ximchistka-matracev.h1":
+    "Toshkentda matraslarni kimyoviy tozalash — 300 000 so'mdan",
+  "uslugi.ximchistka-matracev.seoTitle":
+    "Toshkentda matras kimyoviy tozalash 300 000 so'mdan",
+  "uslugi.ximchistka-matracev.seoDesc":
+    "Toshkentda matraslarni kimyoviy tozalash: bir kishilik 300 000 so'mdan, ikki kishilik 600 000 so'm ikki tomondan. Uyga chiqish. Telefon: +998 93 375 27 02.",
+  "uslugi.ximchistka-matracev.intro":
+    "Toshkentda uyda matraslarni ikki tomondan kimyoviy tozalash. Dog'lar, chang kanallari, hid va allergenlarni ketkazamiz. Bio-vositalar bolalar va allergiklar uchun xavfsiz.",
+  "uslugi.ximchistka-matracev.faq1q":
+    "Toshkentda matras kimyoviy tozalash qancha turadi?",
+  "uslugi.ximchistka-matracev.faq1a":
+    "Bir kishilik matras — 300 000 so'm ikki tomondan, ikki kishilik — 600 000 so'm ikki tomondan. Yozilish uchun +998 93 375 27 02 ga qo'ng'iroq qiling.",
+  "uslugi.ximchistka-matracev.faq2q": "Matras kimyoviy tozalash qanday o'tadi?",
+  "uslugi.ximchistka-matracev.faq2a":
+    "Choyshablarni olamiz, matrasni ikki tomondan bio-tarkib bilan ishlaymiz, dog' va chang kanallarini ketkazamiz. Qurishi bir necha soat davom etadi.",
+  "uslugi.ximchistka-matracev.faq3q":
+    "Kimyoviy tozalashdan keyin darhol uxlash mumkinmi?",
+  "uslugi.ximchistka-matracev.faq3a":
+    "To'liq qurishini kutishni tavsiya qilamiz — odatda bir necha soat. Keyin matras yana foydalanishga tayyor.",
+  "uslugi.ximchistka-kozhanoy-mebeli.h1":
+    "Toshkentda charm mebelni kimyoviy tozalash — 25 000 so'mdan",
+  "uslugi.ximchistka-kozhanoy-mebeli.seoTitle":
+    "Toshkentda charm mebel kimyoviy tozalash | Bio tozalash",
+  "uslugi.ximchistka-kozhanoy-mebeli.seoDesc":
+    "Toshkentda charm divan, kreslo va stullarni kimyoviy tozalash: 25 000 so'mdan. Ehtiyotkor parvarish, terini oziqlantirish. Telefon: +998 93 375 27 02.",
+  "uslugi.ximchistka-kozhanoy-mebeli.intro":
+    "Toshkentda uyda charm mebelni ehtiyotkorlik bilan kimyoviy tozalash. Chok va yuzalardagi iflosliklarni ketkazamiz, terini oziqlantiramiz va himoya qatlamini tiklaymiz.",
+  "uslugi.ximchistka-kozhanoy-mebeli.faq1q":
+    "Charm mebel kimyoviy tozalash qancha turadi?",
+  "uslugi.ximchistka-kozhanoy-mebeli.faq1a":
+    "Charm divan — 400 000 so'mdan, kreslo — 150 000 so'mdan, stul — 25 000 so'mdan. Aniq narxni ko'zdan kechirishdan keyin aytamiz. Qo'ng'iroq: +998 93 375 27 02.",
+  "uslugi.ximchistka-kozhanoy-mebeli.faq2q":
+    "Kimyoviy tozalash teriga zarar yetkazadimi?",
+  "uslugi.ximchistka-kozhanoy-mebeli.faq2a":
+    "Yo'q. Tarkibni teri turiga qarab tanlaymiz, yumshoq tozalagich va oziqlantiruvchi vositalar ishlatamiz, himoya qatlamini tiklaymiz.",
+  "uslugi.ximchistka-kozhanoy-mebeli.faq3q":
+    "Charm mebelni qancha tez-tez tozalash kerak?",
+  "uslugi.ximchistka-kozhanoy-mebeli.faq3a":
+    "Har 6–12 oyda bir martani tavsiya qilamiz. Muntazam parvarish terining xizmat muddatini uzaytiradi va ko'rinishini saqlaydi.",
+  "uslugi.uhod-za-polami.h1":
+    "Toshkentda pollarga g'amxo'rlik — sayqallash va himoya qoplamalari",
+  "uslugi.uhod-za-polami.seoTitle":
+    "Toshkentda pollarga g'amxo'rlik | Bio tozalash",
+  "uslugi.uhod-za-polami.seoDesc":
+    "Toshkentda pollarga g'amxo'rlik: chuqur tozalash, marmar va granitni sayqallash, himoya qoplamalari. Narx shartnoma asosida. Telefon: +998 93 375 27 02.",
+  "uslugi.uhod-za-polami.intro":
+    "Toshkentda pollarga professional g'amxo'rlik: chuqur tozalash, marmar va granitni sayqallash, himoya qoplamalarini surtish. Qoplama turiga qarab texnologiya tanlaymiz.",
+  "uslugi.uhod-za-polami.faq1q":
+    "Toshkentda pollarga g'amxo'rlik qancha turadi?",
+  "uslugi.uhod-za-polami.faq1a":
+    "Narx qoplama turi, maydon va pol holatiga bog'liq — har bir holat uchun alohida hisoblanadi. Hisoblash uchun +998 93 375 27 02 ga qo'ng'iroq qiling.",
+  "uslugi.uhod-za-polami.faq2q": "Qanday pollarni ishlov bera olasiz?",
+  "uslugi.uhod-za-polami.faq2a":
+    "Tosh (marmar, granit), laminat, parket va yog'och bilan ishlaymiz. Har bir tur uchun texnologiya va vositalar tanlaymiz.",
+  "uslugi.uhod-za-polami.faq3q": "Himoya qoplamasi nima beradi?",
+  "uslugi.uhod-za-polami.faq3a":
+    "Himoya tarkibi eyilishni kamaytiradi, tozalashni osonlashtiradi va yaltiroqlikni saqlaydi. Marmar va granitni sayqallash yuzani tiklaydi.",
+  "uslugi.kuhnya.h1": "Toshkentda oshxona tozalash — 100 000 so'mdan",
+  "uslugi.kuhnya.seoTitle":
+    "Toshkentda oshxona tozalash 100 000 so'mdan | Bio tozalash",
+  "uslugi.kuhnya.seoDesc":
+    "Toshkentda plita, muzlatgich va duhovkani tozalash 100 000 so'mdan. Oshxonani umumiy tozalash 700 000 so'm. Bio-vositalar. Telefon: +998 93 375 27 02.",
+  "uslugi.kuhnya.intro":
+    "Toshkentda oshxonani professional tozalash: plita, muzlatgich, duhovka, moyo'tkazgich. Bio-vositalar hid va agressiv kimyoviy moddalarsiz yog' va kuyganni eritadi.",
+  "uslugi.kuhnya.faq1q": "Toshkentda oshxona tozalash qancha turadi?",
+  "uslugi.kuhnya.faq1a":
+    "Plita yoki muzlatgichni tozalash — 100 000 so'm, oshxonani umumiy tozalash — 700 000 so'm. Qo'ng'iroq: +998 93 375 27 02.",
+  "uslugi.kuhnya.faq2q": "Yog'ni kimyosiz eritasizmi?",
+  "uslugi.kuhnya.faq2a":
+    "Ha, maxsus bio-tarkiblar yog' va kuyganni samarali eritadi, salomatlik uchun xavfsiz va hid qoldirmaydi.",
+  "uslugi.kuhnya.faq3q": "Duhovka va moyo'tkazgichni tozalash mumkinmi?",
+  "uslugi.kuhnya.faq3a":
+    "Ha, oshxonani umumiy tozalashga plita, duhovka, muzlatgich va moyo'tkazgichni tozalash kiradi. Aniq ro'yxatni +998 93 375 27 02 telefoni orqali aniqlang.",
+  "uslugi.prochie-uslugi.h1":
+    "Toshkentda boshqa klining xizmatlari — dezinfeksiya, hidlar",
+  "uslugi.prochie-uslugi.seoTitle":
+    "Toshkentda dezinfeksiya va hidlarni bartaraf etish | Bio",
+  "uslugi.prochie-uslugi.seoDesc":
+    "Toshkentda dezinfeksiya, hid va mog'orni bartaraf etish. Tungi klining xizmatlari. Narx shartnoma asosida. Qo'ng'iroq: +998 93 375 27 02.",
+  "uslugi.prochie-uslugi.intro":
+    "Toshkentda qo'shimcha klining xizmatlari: xonalarni dezinfeksiya qilish, hid va mog'orni bartaraf etish, tungi tozalash. Sertifikatlangan bio-vositalar.",
+  "uslugi.prochie-uslugi.faq1q": "Toshkentda dezinfeksiya qancha turadi?",
+  "uslugi.prochie-uslugi.faq1a":
+    "Narx maydon va ishlov usuliga bog'liq — har bir holat uchun alohida hisoblanadi. Ma'lumot olish uchun +998 93 375 27 02 ga qo'ng'iroq qiling.",
+  "uslugi.prochie-uslugi.faq2q": "Hid va mog'orni butunlay ketkazish mumkinmi?",
+  "uslugi.prochie-uslugi.faq2a":
+    "Hid va mog'orning sababini sertifikatlangan vositalar bilan bartaraf etamiz va profilaktika bo'yicha tavsiyalar beramiz.",
+  "uslugi.prochie-uslugi.faq3q": "Tungi ishlaysizmi?",
+  "uslugi.prochie-uslugi.faq3a":
+    "Ha, tungi xizmatlar mavjud — ofis va magazinlar uchun qulay. Grafikni +998 93 375 27 02 telefoni orqali kelishib olamiz.",
 } as const;
 
 export type TranslationKey = keyof typeof ru;
