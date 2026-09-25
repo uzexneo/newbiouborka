@@ -38,11 +38,11 @@ export async function GET(request: NextRequest) {
     const photos = await getAllGalleryPhotos();
     return NextResponse.json(photos);
   } catch (error) {
-    console.error("Ошибка получения галереи:", error);
-    return NextResponse.json(
-      { error: "Ошибка получения галереи" },
-      { status: 500 }
+    console.error(
+      "Ошибка получения галереи, использую данные по умолчанию:",
+      error
     );
+    return NextResponse.json(galleryItems);
   }
 }
 

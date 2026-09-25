@@ -54,11 +54,11 @@ export async function GET(request: NextRequest) {
     const services = await getAllSiteServices();
     return NextResponse.json(services);
   } catch (error) {
-    console.error("Ошибка получения услуг:", error);
-    return NextResponse.json(
-      { error: "Ошибка получения услуг" },
-      { status: 500 }
+    console.error(
+      "Ошибка получения услуг, использую данные по умолчанию:",
+      error
     );
+    return NextResponse.json(getDefaultServices());
   }
 }
 

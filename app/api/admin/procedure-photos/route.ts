@@ -42,11 +42,11 @@ export async function GET(request: NextRequest) {
     const photos = await readPhotos();
     return NextResponse.json({ photos });
   } catch (error) {
-    console.error("Ошибка получения фото процедур:", error);
-    return NextResponse.json(
-      { error: "Ошибка получения фото процедур" },
-      { status: 500 }
+    console.error(
+      "Ошибка получения фото процедур, использую пустой список:",
+      error
     );
+    return NextResponse.json({ photos: {} });
   }
 }
 

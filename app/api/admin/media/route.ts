@@ -24,11 +24,11 @@ export async function GET(request: NextRequest) {
         : DEFAULT_BACKGROUND;
     return NextResponse.json({ src });
   } catch (error) {
-    console.error("Ошибка получения фонового изображения:", error);
-    return NextResponse.json(
-      { error: "Ошибка получения фонового изображения" },
-      { status: 500 }
+    console.error(
+      "Ошибка получения фонового изображения, использую значение по умолчанию:",
+      error
     );
+    return NextResponse.json({ src: DEFAULT_BACKGROUND });
   }
 }
 

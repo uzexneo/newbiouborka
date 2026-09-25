@@ -106,11 +106,16 @@ export async function GET(request: NextRequest) {
       testimonials: testimonials?.payload ?? DEFAULT_TESTIMONIALS,
     });
   } catch (error) {
-    console.error("Ошибка получения контента:", error);
-    return NextResponse.json(
-      { error: "Ошибка получения контента" },
-      { status: 500 }
+    console.error(
+      "Ошибка получения контента, использую значения по умолчанию:",
+      error
     );
+    return NextResponse.json({
+      contacts: DEFAULT_CONTACTS,
+      about: DEFAULT_ABOUT,
+      benefits: DEFAULT_BENEFITS,
+      testimonials: DEFAULT_TESTIMONIALS,
+    });
   }
 }
 

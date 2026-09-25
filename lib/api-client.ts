@@ -1,4 +1,4 @@
-const REQUEST_TIMEOUT_MS = 15_000;
+const REQUEST_TIMEOUT_MS = 25_000;
 
 export async function fetchJson<T>(
   input: string,

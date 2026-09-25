@@ -40,11 +40,11 @@ export async function GET(request: NextRequest) {
     const { src, size } = await readLogoPayload();
     return NextResponse.json({ src, size });
   } catch (error) {
-    console.error("Ошибка получения логотипа:", error);
-    return NextResponse.json(
-      { error: "Ошибка получения логотипа" },
-      { status: 500 }
+    console.error(
+      "Ошибка получения логотипа, использую значения по умолчанию:",
+      error
     );
+    return NextResponse.json({ src: null, size: null });
   }
 }
 
