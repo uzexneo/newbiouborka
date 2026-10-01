@@ -157,6 +157,10 @@ export function QuickOrderModal({ open, onOpenChange }: QuickOrderModalProps) {
               <Select
                 value={formData.service}
                 onValueChange={(value) => handleChange("service", value ?? "")}
+                items={allServices.map((service) => ({
+                  value: service.id,
+                  label: service.name,
+                }))}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue

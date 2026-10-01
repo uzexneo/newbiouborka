@@ -125,10 +125,24 @@ export async function GET() {
 
     return NextResponse.json(content);
   } catch (error) {
-    console.error("Ошибка получения контента сайта:", error);
-    return NextResponse.json(
-      { error: "Ошибка получения контента сайта" },
-      { status: 500 }
+    // Недоступность БД не должна ломать публичный API контента: фронтенд в этом
+    // случае использует статические данные по умолчанию. Логируем и возвращаем
+    // корректный ответ вместо 500.
+    console.error(
+      "Ошибка получения контента сайта, использую значения по умолчанию:",
+      error
     );
+    return NextResponse.json({
+      services: null,
+      contacts: null,
+      about: null,
+      benefits: null,
+      testimonials: null,
+      gallery: null,
+      background: DEFAULT_BACKGROUND,
+      logo: null,
+      logoSize: null,
+      procedurePhotos: null,
+    });
   }
 }

@@ -2,6 +2,10 @@ import type { Order } from "./models";
 
 const TELEGRAM_API = "https://api.telegram.org";
 
+// Таймаут на отправку в Telegram: зависший API мессенджера не должен
+// блокировать подтверждение заявки пользователю на сайте.
+const TELEGRAM_REQUEST_TIMEOUT_MS = 10_000;
+
 export function isTelegramConfigured(): boolean {
   return Boolean(
     process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID
@@ -52,6 +56,7 @@ async function postToTelegram(
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ chat_id: chatId, text }),
+    signal: AbortSignal.timeout(TELEGRAM_REQUEST_TIMEOUT_MS),
   });
 
   const raw = await response.text();

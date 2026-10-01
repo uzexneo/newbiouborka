@@ -18,6 +18,10 @@ export function LanguageSwitcher() {
     <Select
       value={locale}
       onValueChange={(value) => setLocale(value as Locale)}
+      items={languages.map((lang) => ({
+        value: lang.code,
+        label: lang.nativeName,
+      }))}
     >
       <SelectTrigger size="sm" aria-label={t("switch.label")}>
         <Globe className="size-4 text-muted-foreground" />

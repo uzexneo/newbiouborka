@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isDatabaseAvailable } from "@/lib/db";
+import type { Order } from "@/lib/models";
 import { createOrder } from "@/lib/models";
 import { sendTelegramNotification } from "@/lib/telegram";
 import { orderSchema } from "@/lib/validation";
@@ -7,13 +7,6 @@ import { orderSchema } from "@/lib/validation";
 export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
-  if (!(await isDatabaseAvailable())) {
-    return NextResponse.json(
-      { error: "Заявки недоступны в статическом режиме" },
-      { status: 503 }
-    );
-  }
-
   const parsed = orderSchema.safeParse(await request.json());
   if (!parsed.success) {
     return NextResponse.json(
@@ -22,25 +15,38 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  let order: Order;
+  let saved = false;
   try {
-    const order = await createOrder(parsed.data);
-
-    // Отправка уведомления в Telegram не должна ломать сохранение заявки.
-    try {
-      const sent = await sendTelegramNotification(order);
-      console.log(
-        `[telegram] Заявка ${order.id} сохранена; отправка уведомления: ${sent ? "успех" : "не удалась"}`
-      );
-    } catch (notifyError) {
-      console.error("Ошибка отправки уведомления в Telegram:", notifyError);
-    }
-
-    return NextResponse.json(order, { status: 201 });
+    const result = await createOrder(parsed.data);
+    order = result.order;
+    saved = result.saved;
   } catch (error) {
-    console.error("Ошибка сохранения заявки:", error);
-    return NextResponse.json(
-      { error: "Не удалось сохранить заявку" },
-      { status: 500 }
-    );
+    // Недоступность БД не должна ломать подачу заявки: логируем ошибку и всё
+    // равно подтверждаем пользователю, чтобы заявка не терялась на фронте
+    // (уведомление в Telegram при этом отправляется отдельно).
+    console.error("[orders] Ошибка сохранения заявки:", error);
+    order = {
+      ...parsed.data,
+      date: parsed.data.date ?? "",
+      time: parsed.data.time ?? "",
+      address: parsed.data.address ?? "",
+      comment: parsed.data.comment ?? "",
+      orderStatus: "application",
+      id: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
+    };
   }
+
+  // Отправка уведомления в Telegram не должна ломать сохранение заявки.
+  try {
+    const sent = await sendTelegramNotification(order);
+    console.log(
+      `[telegram] Заявка ${order.id} (saved=${saved}); отправка уведомления: ${sent ? "успех" : "не удалась"}`
+    );
+  } catch (notifyError) {
+    console.error("Ошибка отправки уведомления в Telegram:", notifyError);
+  }
+
+  return NextResponse.json({ ...order, saved }, { status: 201 });
 }

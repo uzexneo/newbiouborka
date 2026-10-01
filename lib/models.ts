@@ -325,7 +325,14 @@ export type OrderInput = Omit<
   comment?: string;
 };
 
-export async function createOrder(data: OrderInput): Promise<Order> {
+export interface CreateOrderResult {
+  order: Order;
+  saved: boolean;
+}
+
+export async function createOrder(
+  data: OrderInput
+): Promise<CreateOrderResult> {
   const order: Order = {
     ...data,
     date: data.date ?? "",
@@ -336,10 +343,18 @@ export async function createOrder(data: OrderInput): Promise<Order> {
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
   };
-  await docClient.send(
-    new PutCommand({ TableName: TableName.SITE_ORDERS, Item: order })
-  );
-  return order;
+  try {
+    await docClient.send(
+      new PutCommand({ TableName: TableName.SITE_ORDERS, Item: order })
+    );
+    return { order, saved: true };
+  } catch (error) {
+    // Недоступность DynamoDB/Yandex Document API не должна ронять подачу заявки:
+    // заявка всё равно считается созданной (для пользователя), а ошибка
+    // логируется, чтобы по логам было видно проблему с БД.
+    console.error("[orders] Ошибка сохранения заявки в DynamoDB:", error);
+    return { order, saved: false };
+  }
 }
 
 export async function getAllOrders(): Promise<Order[]> {

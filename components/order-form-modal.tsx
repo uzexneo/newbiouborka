@@ -184,6 +184,10 @@ export function OrderFormModal({
               <Select
                 value={formData.service}
                 onValueChange={(value) => handleChange("service", value ?? "")}
+                items={allServices.map((service) => ({
+                  value: service.id,
+                  label: service.name,
+                }))}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue
