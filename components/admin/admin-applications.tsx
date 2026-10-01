@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
   Inbox,
@@ -12,10 +12,13 @@ import {
   MessageSquare,
   Trash2,
   PackageCheck,
+  AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { fetchJson } from "@/lib/api-client";
+import { useLanguage } from "@/lib/i18n/language-provider";
+import { SERVICE_CATEGORIES } from "@/lib/i18n/content";
 
 type OrderStatus = "application" | "order";
 
@@ -30,6 +33,7 @@ interface Order {
   comment?: string;
   orderStatus?: OrderStatus;
   createdAt: string;
+  saved?: boolean;
 }
 
 function formatDate(iso: string): string {
@@ -45,8 +49,22 @@ function formatDate(iso: string): string {
 }
 
 export function AdminApplications() {
+  const { t } = useLanguage();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const serviceNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const category of SERVICE_CATEGORIES) {
+      for (const service of category.services) {
+        map.set(service.id, t(service.titleKey));
+      }
+    }
+    return map;
+  }, [t]);
+
+  const displayServiceName = (value: string): string =>
+    serviceNameById.get(value) ?? value;
 
   const load = useCallback(async () => {
     try {
@@ -166,7 +184,7 @@ export function AdminApplications() {
                 className="inline-flex items-center gap-1"
               >
                 <Wrench className="h-3 w-3" />
-                {order.service}
+                {displayServiceName(order.service)}
               </Badge>
               <Badge
                 variant={order.orderStatus === "order" ? "default" : "outline"}
@@ -175,6 +193,15 @@ export function AdminApplications() {
                 <PackageCheck className="h-3 w-3" />
                 {order.orderStatus === "order" ? "Заказ" : "Заявка"}
               </Badge>
+              {order.saved === false && (
+                <Badge
+                  variant="destructive"
+                  className="inline-flex items-center gap-1"
+                >
+                  <AlertTriangle className="h-3 w-3" />
+                  Не сохранена в БД
+                </Badge>
+              )}
               <Button
                 variant="outline"
                 size="sm"

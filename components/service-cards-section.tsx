@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { OrderFormModal } from "@/components/order-form-modal";
+import { ProcedurePhoto } from "@/components/procedure-photo";
 import {
   Home,
   Droplets,
@@ -103,12 +103,10 @@ export function ServiceCardsSection() {
                         </p>
                       </div>
                       <div className="relative h-48 w-full sm:h-auto sm:w-60 lg:w-64">
-                        <Image
+                        <ProcedurePhoto
                           src={procedurePhotos[category.id] ?? meta.photo}
                           alt={t(category.titleKey)}
-                          fill
                           sizes="(max-width: 640px) 100vw, 240px"
-                          className="object-cover"
                         />
                       </div>
                     </div>

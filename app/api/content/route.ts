@@ -3,6 +3,7 @@ import { isDatabaseAvailable } from "@/lib/db";
 import {
   createGalleryPhoto,
   getAllGalleryPhotos,
+  getAllProcedurePhotos,
   getAllSiteServices,
   getSiteContent,
 } from "@/lib/models";
@@ -90,13 +91,7 @@ export async function GET() {
             }
           : null
       ),
-      parseContent<{ photos?: Record<string, string> }>(
-        "procedurePhotos",
-        (p) =>
-          p && typeof p.photos === "object" && p.photos !== null
-            ? { photos: p.photos as Record<string, string> }
-            : null
-      ),
+      getAllProcedurePhotos(),
     ]);
 
     const gallery =
@@ -120,7 +115,10 @@ export async function GET() {
       background: background?.src ?? DEFAULT_BACKGROUND,
       logo: logo?.src ?? null,
       logoSize: logo?.size ?? null,
-      procedurePhotos: procedurePhotos?.photos ?? null,
+      procedurePhotos:
+        procedurePhotos && Object.keys(procedurePhotos).length > 0
+          ? procedurePhotos
+          : null,
     };
 
     return NextResponse.json(content);

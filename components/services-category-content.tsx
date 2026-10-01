@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { Info, Zap, Phone, HelpCircle, ChevronDown, Check } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/language-provider";
 import { useSiteContent } from "@/lib/site-content-provider";
@@ -14,6 +13,7 @@ import { OrderFormModal } from "@/components/order-form-modal";
 import { QuickOrderModal } from "@/components/quick-order-modal";
 import { ServicesBreadcrumbs } from "@/components/services-breadcrumbs";
 import { ServiceCategoryCard } from "@/components/service-category-card";
+import { ProcedurePhoto } from "@/components/procedure-photo";
 import {
   SERVICE_CATEGORY_ICONS,
   Sparkles,
@@ -127,12 +127,10 @@ export function ServicesCategoryContent({ slug }: { slug: string }) {
                 </p>
               </div>
               <div className="relative h-48 w-full sm:h-auto sm:w-60 lg:w-64">
-                <Image
+                <ProcedurePhoto
                   src={procedurePhotos[category.id] ?? category.photo}
                   alt={t(category.titleKey)}
-                  fill
                   sizes="(max-width: 640px) 100vw, 240px"
-                  className="object-cover"
                 />
               </div>
             </div>

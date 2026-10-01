@@ -3,14 +3,12 @@ import { z } from "zod";
 import { isDatabaseAvailable } from "@/lib/db";
 import { isAdminRequest } from "@/lib/admin-auth";
 import {
-  deleteSiteContent,
-  getSiteContent,
-  putSiteContent,
+  deleteProcedurePhoto,
+  getAllProcedurePhotos,
+  putProcedurePhoto,
 } from "@/lib/models";
 import { PROCEDURE_CATEGORY_IDS } from "@/lib/i18n/content";
 import { imageFileToDataUrl, isImageFile, MAX_UPLOAD_BYTES } from "@/lib/media";
-
-const contentId = "procedurePhotos";
 
 const categoryIdSchema = z.object({
   categoryId: z.enum(PROCEDURE_CATEGORY_IDS),
@@ -18,17 +16,6 @@ const categoryIdSchema = z.object({
 
 function unauthorized() {
   return NextResponse.json({ error: "Не авторизован" }, { status: 401 });
-}
-
-async function readPhotos(): Promise<Record<string, string>> {
-  const doc = await getSiteContent(contentId);
-  const payload =
-    doc && typeof doc.payload === "object" && doc.payload !== null
-      ? (doc.payload as Record<string, unknown>)
-      : {};
-  const photos = payload.photos;
-  if (!photos || typeof photos !== "object" || photos === null) return {};
-  return photos as Record<string, string>;
 }
 
 export async function GET(request: NextRequest) {
@@ -39,7 +26,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const photos = await readPhotos();
+    const photos = await getAllProcedurePhotos();
     return NextResponse.json({ photos });
   } catch (error) {
     console.error(
@@ -93,9 +80,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const src = await imageFileToDataUrl(file, 1024);
-    const photos = { ...(await readPhotos()), [parsed.data.categoryId]: src };
-    await putSiteContent(contentId, { photos });
+    const src = await imageFileToDataUrl(file, 800);
+    await putProcedurePhoto(parsed.data.categoryId, src);
+    const photos = await getAllProcedurePhotos();
 
     return NextResponse.json(
       { photos, categoryId: parsed.data.categoryId, src },
@@ -129,13 +116,8 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
-    const photos = await readPhotos();
-    delete photos[parsed.data.categoryId];
-    if (Object.keys(photos).length === 0) {
-      await deleteSiteContent(contentId);
-    } else {
-      await putSiteContent(contentId, { photos });
-    }
+    await deleteProcedurePhoto(parsed.data.categoryId);
+    const photos = await getAllProcedurePhotos();
     return NextResponse.json({ success: true, photos });
   } catch (error) {
     console.error("Ошибка сброса фото процедуры:", error);

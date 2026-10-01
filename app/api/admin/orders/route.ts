@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isDatabaseAvailable } from "@/lib/db";
 import { isAdminRequest } from "@/lib/admin-auth";
-import { deleteOrder, getAllOrders, updateOrderStatus } from "@/lib/models";
+import {
+  deleteOrder,
+  getAllOrders,
+  getUnsavedOrders,
+  updateOrderStatus,
+} from "@/lib/models";
 import { orderStatusSchema } from "@/lib/validation";
-import { mockOrders } from "@/lib/mock-data";
 
 function unauthorized() {
   return NextResponse.json({ error: "Не авторизован" }, { status: 401 });
@@ -12,15 +16,18 @@ function unauthorized() {
 export async function GET(request: NextRequest) {
   if (!isAdminRequest(request)) return unauthorized();
   if (!(await isDatabaseAvailable())) {
-    return NextResponse.json(mockOrders);
+    // База недоступна: показываем реальные заявки, подтверждённые пользователям
+    // и удержанные в памяти процесса, а не статические мок-заявки, которые
+    // только путают администратора.
+    return NextResponse.json(getUnsavedOrders());
   }
 
   try {
     const orders = await getAllOrders();
     return NextResponse.json(orders);
   } catch (error) {
-    console.error("Ошибка получения заявок, использую мок-данные:", error);
-    return NextResponse.json(mockOrders);
+    console.error("Ошибка получения заявок:", error);
+    return NextResponse.json(getUnsavedOrders());
   }
 }
 

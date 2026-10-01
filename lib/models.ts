@@ -298,6 +298,65 @@ export async function deleteGalleryPhoto(id: string): Promise<void> {
   );
 }
 
+// --- Фото процедур (блок «Как проходит процедура») ---
+// Каждое фото категории хранится отдельной записью site_content с id вида
+// "procedurePhoto:<categoryId>". Так размер одной записи не упирается в лимит
+// DynamoDB в 400 КБ (в старой схеме все фото лежали в одной записи и после
+// двух-трёх загрузок сохранение падало).
+
+const PROCEDURE_PHOTO_PREFIX = "procedurePhoto:";
+const LEGACY_PROCEDURE_PHOTOS_ID = "procedurePhotos";
+
+export async function putProcedurePhoto(
+  categoryId: string,
+  src: string
+): Promise<void> {
+  await putSiteContent(`${PROCEDURE_PHOTO_PREFIX}${categoryId}`, { src });
+}
+
+export async function deleteProcedurePhoto(categoryId: string): Promise<void> {
+  await deleteSiteContent(`${PROCEDURE_PHOTO_PREFIX}${categoryId}`);
+}
+
+export async function getAllProcedurePhotos(): Promise<Record<string, string>> {
+  const result = await docClient.send(
+    new ScanCommand({ TableName: TableName.SITE_CONTENT })
+  );
+  const photos: Record<string, string> = {};
+  let legacyDoc: SiteContentDoc | null = null;
+
+  for (const item of (result.Items ?? []) as SiteContentDoc[]) {
+    if (item.id.startsWith(PROCEDURE_PHOTO_PREFIX)) {
+      const categoryId = item.id.slice(PROCEDURE_PHOTO_PREFIX.length);
+      const payload = item.payload as Record<string, unknown>;
+      const src = typeof payload.src === "string" ? payload.src : "";
+      if (categoryId && src) photos[categoryId] = src;
+    } else if (item.id === LEGACY_PROCEDURE_PHOTOS_ID) {
+      legacyDoc = item;
+    }
+  }
+
+  // Миграция старого формата (одна запись со всеми фото) в новый: раскидываем
+  // по отдельным записям и удаляем устаревший документ.
+  if (legacyDoc) {
+    const payload = legacyDoc.payload as Record<string, unknown>;
+    const old = payload.photos as Record<string, unknown> | undefined;
+    let migrated = false;
+    if (old && typeof old === "object") {
+      for (const [categoryId, src] of Object.entries(old)) {
+        if (typeof src === "string" && src && !photos[categoryId]) {
+          await putProcedurePhoto(categoryId, src);
+          photos[categoryId] = src;
+          migrated = true;
+        }
+      }
+    }
+    if (migrated) await deleteSiteContent(LEGACY_PROCEDURE_PHOTOS_ID);
+  }
+
+  return photos;
+}
+
 // --- Заявки клиентов ---
 
 export type OrderStatus = "application" | "order";
@@ -313,6 +372,9 @@ export interface Order {
   comment?: string;
   orderStatus?: OrderStatus;
   createdAt: string;
+  // Флаг реального сохранения в БД: false — заявка подтверждена пользователю,
+  // но пока живёт только в памяти процесса (БД была недоступна при записи).
+  saved?: boolean;
 }
 
 export type OrderInput = Omit<
@@ -330,6 +392,58 @@ export interface CreateOrderResult {
   saved: boolean;
 }
 
+// Буфер заявок, которые не удалось записать в DynamoDB/Yandex Document API.
+// Позволяет не терять заявки: они подтверждаются пользователю, а в админ-панели
+// всё равно отображаются (см. getAllOrders) до тех пор, пока база не поднимется.
+// Ограничение по количеству защищает память процесса от неограниченного роста.
+const UNSAVED_ORDERS_LIMIT = 100;
+const unsavedOrders: Order[] = [];
+
+export function getUnsavedOrders(): Order[] {
+  return unsavedOrders.map((order) => ({ ...order, saved: false }));
+}
+
+function bufferUnsavedOrder(order: Order): void {
+  unsavedOrders.unshift({ ...order, saved: false });
+  if (unsavedOrders.length > UNSAVED_ORDERS_LIMIT) {
+    unsavedOrders.length = UNSAVED_ORDERS_LIMIT;
+  }
+}
+
+function removeUnsavedOrder(id: string): void {
+  const index = unsavedOrders.findIndex((order) => order.id === id);
+  if (index !== -1) unsavedOrders.splice(index, 1);
+}
+
+// Дописывает в БД заявки из буфера, когда база снова доступна (вызывается при
+// чтении заявок админом). Успешно записанные заявки уходят из буфера.
+async function flushUnsavedOrders(): Promise<void> {
+  if (unsavedOrders.length === 0) return;
+  const remaining: Order[] = [];
+  for (const order of unsavedOrders) {
+    const item: Record<string, unknown> = { ...order };
+    // Служебный флаг saved не должен попадать в БД.
+    delete item.saved;
+    try {
+      await docClient.send(
+        new PutCommand({ TableName: TableName.SITE_ORDERS, Item: item })
+      );
+    } catch (error) {
+      console.error(
+        "[orders] Не удалось дописать буферную заявку в DynamoDB:",
+        error
+      );
+      remaining.push(order);
+    }
+  }
+  if (remaining.length !== unsavedOrders.length) {
+    unsavedOrders.length = 0;
+    unsavedOrders.push(...remaining);
+  }
+}
+
+const ORDER_WRITE_ATTEMPTS = 2;
+
 export async function createOrder(
   data: OrderInput
 ): Promise<CreateOrderResult> {
@@ -343,51 +457,85 @@ export async function createOrder(
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
   };
-  try {
-    await docClient.send(
-      new PutCommand({ TableName: TableName.SITE_ORDERS, Item: order })
-    );
-    return { order, saved: true };
-  } catch (error) {
-    // Недоступность DynamoDB/Yandex Document API не должна ронять подачу заявки:
-    // заявка всё равно считается созданной (для пользователя), а ошибка
-    // логируется, чтобы по логам было видно проблему с БД.
-    console.error("[orders] Ошибка сохранения заявки в DynamoDB:", error);
-    return { order, saved: false };
+  for (let attempt = 1; attempt <= ORDER_WRITE_ATTEMPTS; attempt++) {
+    try {
+      await docClient.send(
+        new PutCommand({ TableName: TableName.SITE_ORDERS, Item: order })
+      );
+      return { order, saved: true };
+    } catch (error) {
+      // Ретраимся на случай кратковременного сбоя сети/БД. Логируем каждую
+      // попытку, чтобы по логам было видно проблему с сохранением.
+      console.error(
+        `[orders] Попытка ${attempt}/${ORDER_WRITE_ATTEMPTS} сохранения заявки в DynamoDB не удалась:`,
+        error
+      );
+    }
   }
+  // Если записать в БД так и не удалось — не теряем заявку: держим её в памяти,
+  // чтобы администратор увидел её в разделе «Заявки клиентов».
+  bufferUnsavedOrder(order);
+  return { order, saved: false };
 }
 
 export async function getAllOrders(): Promise<Order[]> {
   const result = await docClient.send(
     new ScanCommand({ TableName: TableName.SITE_ORDERS })
   );
-  return (result.Items as Order[]) ?? [];
+  const dbOrders = (result.Items as Order[]) ?? [];
+  // Если БД снова доступна — дописываем буферные заявки, чтобы они не
+  // потерялись после перезапуска процесса.
+  await flushUnsavedOrders();
+  // Объединяем сохранённые в БД заявки с буфером несохранённых, чтобы даже при
+  // частичном сбое записи админ видел все реальные обращения клиентов.
+  const byId = new Map<string, Order>();
+  for (const order of [...getUnsavedOrders(), ...dbOrders]) {
+    byId.set(
+      order.id,
+      order.saved === undefined ? { ...order, saved: true } : order
+    );
+  }
+  return Array.from(byId.values());
 }
 
 export async function updateOrderStatus(
   id: string,
   orderStatus: OrderStatus
 ): Promise<Order> {
-  const result = await docClient.send(
-    new UpdateCommand({
-      TableName: TableName.SITE_ORDERS,
-      Key: { id },
-      UpdateExpression: "set #orderStatus = :orderStatus",
-      ExpressionAttributeNames: { "#orderStatus": "orderStatus" },
-      ExpressionAttributeValues: { ":orderStatus": orderStatus },
-      ReturnValues: "ALL_NEW",
-    })
-  );
-  return result.Attributes as Order;
+  try {
+    const result = await docClient.send(
+      new UpdateCommand({
+        TableName: TableName.SITE_ORDERS,
+        Key: { id },
+        UpdateExpression: "set #orderStatus = :orderStatus",
+        ExpressionAttributeNames: { "#orderStatus": "orderStatus" },
+        ExpressionAttributeValues: { ":orderStatus": orderStatus },
+        ReturnValues: "ALL_NEW",
+      })
+    );
+    return result.Attributes as Order;
+  } catch (error) {
+    // Заявка могла быть не сохранена в БД (буфер) — обновляем её в памяти.
+    const index = unsavedOrders.findIndex((order) => order.id === id);
+    if (index !== -1) {
+      unsavedOrders[index] = { ...unsavedOrders[index], orderStatus };
+      return unsavedOrders[index];
+    }
+    throw error;
+  }
 }
 
 export async function deleteOrder(id: string): Promise<void> {
-  await docClient.send(
-    new DeleteCommand({
-      TableName: TableName.SITE_ORDERS,
-      Key: { id },
-    })
-  );
+  try {
+    await docClient.send(
+      new DeleteCommand({
+        TableName: TableName.SITE_ORDERS,
+        Key: { id },
+      })
+    );
+  } finally {
+    removeUnsavedOrder(id);
+  }
 }
 
 // --- Посещения (аналитика) ---

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isDatabaseAvailable, ensureSiteVisitsTable } from "@/lib/db";
 import { isAdminRequest } from "@/lib/admin-auth";
-import { getAllOrders, getAllVisits } from "@/lib/models";
-import { mockOrders, mockVisits } from "@/lib/mock-data";
+import { getAllOrders, getAllVisits, getUnsavedOrders } from "@/lib/models";
+import { mockVisits } from "@/lib/mock-data";
 
 function unauthorized() {
   return NextResponse.json({ error: "Не авторизован" }, { status: 401 });
@@ -188,7 +188,11 @@ export async function GET(request: NextRequest) {
       await ensureSiteVisitsTable();
     }
     const visits = await safeRead(dbAvailable, getAllVisits, mockVisits);
-    const orders = await safeRead(dbAvailable, getAllOrders, mockOrders);
+    const orders = await safeRead(
+      dbAvailable,
+      getAllOrders,
+      getUnsavedOrders()
+    );
 
     const toDate = new Date().toISOString().split("T")[0];
     const start = new Date(toDate + "T00:00:00Z");
