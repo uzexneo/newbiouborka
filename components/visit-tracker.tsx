@@ -2,15 +2,9 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
+import { isPublicAnalyticsPath } from "@/lib/analytics-paths";
 
 const VISITOR_KEY = "biouborka.visitorId";
-
-function shouldSkipTracking(pathname: string): boolean {
-  if (pathname === "/admin" || pathname.startsWith("/admin/")) return true;
-  if (pathname.startsWith("/_next/")) return true;
-  if (pathname === "/api" || pathname.startsWith("/api/")) return true;
-  return false;
-}
 
 function createId(): string {
   if (
@@ -41,7 +35,7 @@ export function VisitTracker() {
   const isNewRef = useRef(false);
 
   useEffect(() => {
-    if (shouldSkipTracking(pathname)) return;
+    if (!isPublicAnalyticsPath(pathname)) return;
 
     if (visitorIdRef.current === "") {
       const result = getOrCreateVisitorId();

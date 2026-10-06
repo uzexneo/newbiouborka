@@ -341,17 +341,17 @@ export async function getAllProcedurePhotos(): Promise<Record<string, string>> {
   if (legacyDoc) {
     const payload = legacyDoc.payload as Record<string, unknown>;
     const old = payload.photos as Record<string, unknown> | undefined;
-    let migrated = false;
     if (old && typeof old === "object") {
       for (const [categoryId, src] of Object.entries(old)) {
         if (typeof src === "string" && src && !photos[categoryId]) {
           await putProcedurePhoto(categoryId, src);
           photos[categoryId] = src;
-          migrated = true;
         }
       }
     }
-    if (migrated) await deleteSiteContent(LEGACY_PROCEDURE_PHOTOS_ID);
+    // Legacy-документ больше не нужен: все фото либо перенесены, либо уже были
+    // в новом формате. Удаляем его, чтобы он не занимал место при каждом Scan.
+    await deleteSiteContent(LEGACY_PROCEDURE_PHOTOS_ID);
   }
 
   return photos;

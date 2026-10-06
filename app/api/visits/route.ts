@@ -2,20 +2,25 @@ import { NextRequest, NextResponse } from "next/server";
 import { isDatabaseAvailable, ensureSiteVisitsTable } from "@/lib/db";
 import { createVisit } from "@/lib/models";
 import { visitSchema } from "@/lib/validation";
+import { isPublicAnalyticsPath } from "@/lib/analytics-paths";
 
 export async function POST(request: NextRequest) {
-  if (!(await isDatabaseAvailable())) {
-    return NextResponse.json(
-      { error: "Аналитика недоступна в статическом режиме" },
-      { status: 503 }
-    );
-  }
-
   const parsed = visitSchema.safeParse(await request.json());
   if (!parsed.success) {
     return NextResponse.json(
       { error: "Некорректные данные", details: parsed.error.flatten() },
       { status: 400 }
+    );
+  }
+
+  if (!isPublicAnalyticsPath(parsed.data.path)) {
+    return NextResponse.json({ ok: true, saved: false }, { status: 202 });
+  }
+
+  if (!(await isDatabaseAvailable())) {
+    return NextResponse.json(
+      { error: "Аналитика недоступна в статическом режиме" },
+      { status: 503 }
     );
   }
 

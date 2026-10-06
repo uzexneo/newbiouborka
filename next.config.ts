@@ -6,6 +6,21 @@ const basePath =
 const nextConfig: NextConfig = {
   output: process.env.OUTPUT_MODE === "export" ? "export" : undefined,
 
+  async redirects() {
+    return [
+      {
+        source: "/prais",
+        destination: "/#services",
+        permanent: true,
+      },
+      {
+        source: "/uborka",
+        destination: "/uslugi/uborka",
+        permanent: true,
+      },
+    ];
+  },
+
   images: {
     formats: ["image/avif", "image/webp"],
   },

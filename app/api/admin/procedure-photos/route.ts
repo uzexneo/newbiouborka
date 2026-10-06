@@ -8,7 +8,12 @@ import {
   putProcedurePhoto,
 } from "@/lib/models";
 import { PROCEDURE_CATEGORY_IDS } from "@/lib/i18n/content";
-import { imageFileToDataUrl, isImageFile, MAX_UPLOAD_BYTES } from "@/lib/media";
+import {
+  imageFileToDataUrl,
+  isImageFile,
+  MAX_DATA_URL_CHARS,
+  MAX_UPLOAD_BYTES,
+} from "@/lib/media";
 
 const categoryIdSchema = z.object({
   categoryId: z.enum(PROCEDURE_CATEGORY_IDS),
@@ -80,7 +85,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const src = await imageFileToDataUrl(file, 800);
+    // Сжимаем фото сильнее, чем галерею/фон: каждая запись procedurePhoto:<id>
+    // хранится в DynamoDB отдельно, и base64 data-URL должен оставаться заметно
+    // ниже лимита в 400 КБ, чтобы замена фото не падала на сохранении.
+    const src = await imageFileToDataUrl(file, 640, {
+      quality: 72,
+      maxDataUrlChars: MAX_DATA_URL_CHARS,
+    });
     await putProcedurePhoto(parsed.data.categoryId, src);
     const photos = await getAllProcedurePhotos();
 
@@ -90,6 +101,15 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error("Ошибка загрузки фото процедуры:", error);
+    if (error instanceof Error && error.message === "IMAGE_TOO_LARGE") {
+      return NextResponse.json(
+        {
+          error:
+            "Фото слишком большое даже после сжатия. Загрузите изображение меньшего размера.",
+        },
+        { status: 400 }
+      );
+    }
     return NextResponse.json(
       { error: "Ошибка загрузки фото процедуры" },
       { status: 500 }
@@ -122,7 +142,7 @@ export async function DELETE(request: NextRequest) {
   } catch (error) {
     console.error("Ошибка сброса фото процедуры:", error);
     return NextResponse.json(
-      { error: "Ошибка сброса фото процедуры" },
+      { error: "Не удалось сбросить фото. Попробуйте ещё раз." },
       { status: 500 }
     );
   }

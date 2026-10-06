@@ -39,14 +39,15 @@ export async function POST(request: NextRequest) {
   }
 
   // Отправка уведомления в Telegram не должна ломать сохранение заявки.
+  let telegramSent = false;
   try {
-    const sent = await sendTelegramNotification(order);
+    telegramSent = await sendTelegramNotification(order);
     console.log(
-      `[telegram] Заявка ${order.id} (saved=${saved}); отправка уведомления: ${sent ? "успех" : "не удалась"}`
+      `[telegram] Заявка ${order.id} (saved=${saved}); отправка уведомления: ${telegramSent ? "успех" : "не удалась"}`
     );
   } catch (notifyError) {
     console.error("Ошибка отправки уведомления в Telegram:", notifyError);
   }
 
-  return NextResponse.json({ ...order, saved }, { status: 201 });
+  return NextResponse.json({ ...order, saved, telegramSent }, { status: 201 });
 }

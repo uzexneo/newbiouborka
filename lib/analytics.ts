@@ -1,3 +1,5 @@
+import { isPublicAnalyticsPath } from "@/lib/analytics-paths";
+
 declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void;
@@ -16,6 +18,7 @@ export function trackGenerateLead({
   if (typeof window === "undefined" || typeof window.gtag !== "function") {
     return;
   }
+  if (!isPublicAnalyticsPath(window.location.pathname)) return;
   window.gtag("event", "generate_lead", {
     currency: "UZS",
     form_name: formName,

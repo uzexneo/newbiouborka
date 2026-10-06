@@ -27,6 +27,7 @@ function ProcedurePhotoCard({
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [fileInputKey, setFileInputKey] = useState(0);
 
   const current = src ?? category.photo;
   const hasCustom = src !== undefined;
@@ -48,14 +49,26 @@ function ProcedurePhotoCard({
         method: "POST",
         body: form,
       });
-      if (!response.ok) throw new Error("upload failed");
+      if (!response.ok) {
+        let message = "Не удалось загрузить фото";
+        try {
+          const data = (await response.json()) as { error?: string };
+          if (data.error) message = data.error;
+        } catch {
+          // Не JSON — оставляем сообщение по умолчанию
+        }
+        throw new Error(message);
+      }
 
       const data = (await response.json()) as { src: string };
       onUploaded(data.src);
       setFile(null);
+      setFileInputKey((key) => key + 1);
       toast.success("Фото обновлено");
-    } catch {
-      toast.error("Не удалось загрузить фото");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Не удалось загрузить фото"
+      );
     } finally {
       setUploading(false);
     }
@@ -73,6 +86,7 @@ function ProcedurePhotoCard({
       if (!response.ok) throw new Error("reset failed");
       onReset();
       setFile(null);
+      setFileInputKey((key) => key + 1);
       toast.success("Фото сброшено к фото по умолчанию");
     } catch {
       toast.error("Не удалось сбросить фото");
@@ -95,6 +109,7 @@ function ProcedurePhotoCard({
 
       <form onSubmit={handleUpload} className="space-y-2">
         <Input
+          key={fileInputKey}
           type="file"
           accept="image/*"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}

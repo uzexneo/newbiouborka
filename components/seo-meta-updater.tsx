@@ -63,12 +63,14 @@ export function SeoMetaUpdater() {
   const pathname = usePathname();
 
   useEffect(() => {
-    // Page-level metadata (title, description, canonical, hreflang) for
-    // nested routes such as /uslugi/* is already correct from generateMetadata.
-    // Only the homepage meta is updated here on locale switch.
+    // Leave service, admin and unmatched routes to their server metadata.
+    // A not-found boundary can also render at a known homepage URL.
     const homePath = localeToPath[locale];
     const path = pathname.replace(/\/$/, "") || "/";
-    if (path !== homePath) {
+    if (
+      path !== homePath ||
+      document.querySelector('[data-page-status="404"]')
+    ) {
       return;
     }
 

@@ -6,6 +6,11 @@ const TELEGRAM_API = "https://api.telegram.org";
 // блокировать подтверждение заявки пользователю на сайте.
 const TELEGRAM_REQUEST_TIMEOUT_MS = 10_000;
 
+// Уведомление о заявке должно доходить до владельца, поэтому при разовой
+// ошибке сети/Telegram делается повторная попытка с небольшой паузой.
+const TELEGRAM_MAX_ATTEMPTS = 2;
+const TELEGRAM_RETRY_DELAY_MS = 1_000;
+
 export function isTelegramConfigured(): boolean {
   return Boolean(
     process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID
@@ -90,27 +95,39 @@ export async function sendTelegramMessage(text: string): Promise<boolean> {
     return false;
   }
 
-  try {
-    // Одна попытка обычным текстом без parse_mode.
-    const result = await postToTelegram(token, chatId, text);
+  for (let attempt = 1; attempt <= TELEGRAM_MAX_ATTEMPTS; attempt++) {
+    try {
+      // Отправка обычным текстом без parse_mode (данные клиента могут содержать
+      // спецсимволы, которые ломают MarkdownV2).
+      const result = await postToTelegram(token, chatId, text);
 
-    if (isOk(result)) {
-      console.log(
-        `[telegram] Уведомление отправлено успешно: status=${result.response.status}, ` +
-          `response="${result.json?.description ?? result.raw}"`
+      if (isOk(result)) {
+        console.log(
+          `[telegram] Уведомление отправлено успешно (попытка ${attempt}/${TELEGRAM_MAX_ATTEMPTS}): ` +
+            `status=${result.response.status}, response="${result.json?.description ?? result.raw}"`
+        );
+        return true;
+      }
+
+      console.error(
+        `[telegram] Ошибка отправки уведомления (попытка ${attempt}/${TELEGRAM_MAX_ATTEMPTS}): ` +
+          `status=${result.response.status}, response="${result.json?.description ?? result.raw}"`
       );
-      return true;
+    } catch (error) {
+      console.error(
+        `[telegram] Ошибка отправки уведомления (попытка ${attempt}/${TELEGRAM_MAX_ATTEMPTS}):`,
+        error
+      );
     }
 
-    console.error(
-      `[telegram] Ошибка отправки уведомления: status=${result.response.status}, ` +
-        `response="${result.json?.description ?? result.raw}"`
-    );
-    return false;
-  } catch (error) {
-    console.error("[telegram] Ошибка отправки уведомления в Telegram:", error);
-    return false;
+    if (attempt < TELEGRAM_MAX_ATTEMPTS) {
+      await new Promise((resolve) =>
+        setTimeout(resolve, TELEGRAM_RETRY_DELAY_MS)
+      );
+    }
   }
+
+  return false;
 }
 
 export async function sendTelegramNotification(order: Order): Promise<boolean> {
