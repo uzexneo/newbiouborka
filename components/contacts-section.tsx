@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/field";
 import { useLanguage } from "@/lib/i18n/language-provider";
 import { useSiteContent } from "@/lib/site-content-provider";
+import { trackGenerateLead } from "@/lib/analytics";
 
 interface ValidationMessages {
   name: string;
@@ -24,9 +25,12 @@ interface ValidationMessages {
 
 function buildSchema(messages: ValidationMessages) {
   return z.object({
-    name: z.string().min(1, messages.name).max(100),
-    phone: z.string().min(1, messages.phone).max(30),
-    message: z.string().min(1, messages.message).max(2000),
+    name: z.string().trim().min(1, messages.name).max(100, messages.name),
+    phone: z.string().trim().max(30, messages.phone).refine(
+      (value) => /^\+?[\d\s().-]+$/.test(value) && value.replace(/\D/g, "").length >= 7 && value.replace(/\D/g, "").length <= 15,
+      messages.phone
+    ),
+    message: z.string().trim().min(1, messages.message).max(2000, messages.message),
   });
 }
 
@@ -53,6 +57,7 @@ export function ContactsSection() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
     setIsSubmitting(true);
 
     const schema = buildSchema({
@@ -80,13 +85,16 @@ export function ContactsSection() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(result.data),
+        signal: AbortSignal.timeout(45_000),
       });
 
-      if (!response.ok) {
+      const confirmation = await response.json().catch(() => null);
+      if (!response.ok || confirmation?.saved !== true) {
         throw new Error("Request failed");
       }
 
       toast.success(t("feedback.success"));
+      trackGenerateLead({ formName: "feedback", service: "Обратная связь" });
       setFormData({ name: "", phone: "", message: "" });
       setErrors({});
     } catch {
@@ -97,7 +105,7 @@ export function ContactsSection() {
   };
 
   return (
-    <section id="contacts" className="border-t bg-muted/30">
+    <section id="contacts" className="scroll-mt-20 border-t bg-muted/30">
       <div className="container mx-auto px-4 py-16 sm:py-20">
         <div className="max-w-5xl mx-auto">
           <div className="text-center space-y-3 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -204,8 +212,10 @@ export function ContactsSection() {
                 <form onSubmit={handleSubmit}>
                   <FieldGroup>
                     <Field>
-                      <FieldLabel>{t("field.name")}</FieldLabel>
+                      <FieldLabel htmlFor="feedback-name">{t("field.name")}</FieldLabel>
                       <Input
+                        id="feedback-name"
+                        autoComplete="name"
                         placeholder={t("field.namePlaceholder")}
                         value={formData.name}
                         onChange={(e) => handleChange("name", e.target.value)}
@@ -215,8 +225,11 @@ export function ContactsSection() {
                     </Field>
 
                     <Field>
-                      <FieldLabel>{t("field.phone")}</FieldLabel>
+                      <FieldLabel htmlFor="feedback-phone">{t("field.phone")}</FieldLabel>
                       <Input
+                        id="feedback-phone"
+                        type="tel"
+                        autoComplete="tel"
                         placeholder={t("field.phonePlaceholder")}
                         value={formData.phone}
                         onChange={(e) => handleChange("phone", e.target.value)}
@@ -226,8 +239,9 @@ export function ContactsSection() {
                     </Field>
 
                     <Field>
-                      <FieldLabel>{t("field.message")}</FieldLabel>
+                      <FieldLabel htmlFor="feedback-message">{t("field.message")}</FieldLabel>
                       <Textarea
+                        id="feedback-message"
                         placeholder={t("field.messagePlaceholder")}
                         value={formData.message}
                         onChange={(e) =>

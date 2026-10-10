@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/language-provider";
 import type { TranslationKey } from "@/lib/i18n/translations";
-import { VALUES, BENEFITS, TESTIMONIALS } from "@/lib/i18n/content";
+import { VALUES, BENEFITS } from "@/lib/i18n/content";
 import { useSiteContent } from "@/lib/site-content-provider";
 import { ServiceCardsSection } from "@/components/service-cards-section";
 import { PortfolioGallery } from "@/components/portfolio-gallery";
@@ -48,7 +48,8 @@ const TRUST_CARDS: TrustCardMeta[] = [
 
 export function HomeContent() {
   const { t } = useLanguage();
-  const { gallery, background, contacts } = useSiteContent();
+  const { gallery, background, contacts, about, benefits, testimonials } =
+    useSiteContent();
   const [quickOpen, setQuickOpen] = useState(false);
   const telHref = `tel:+${contacts.phone.replace(/[^\d]/g, "")}`;
   const isLocalBackground =
@@ -143,20 +144,20 @@ export function HomeContent() {
             </p>
           </div>
           <div className="grid gap-6 sm:grid-cols-3">
-            {BENEFITS.map((benefit, i) => {
-              const Icon = benefit.icon;
+            {benefits.map((benefit, i) => {
+              const Icon = BENEFITS[i]?.icon ?? Leaf;
               return (
                 <article
-                  key={benefit.titleKey}
+                  key={`${benefit.title}-${i}`}
                   className="card-hover rounded-xl border bg-card p-6 space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-500"
                   style={{ animationDelay: `${i * 100}ms` }}
                 >
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
                     <Icon className="h-5 w-5 text-primary" />
                   </div>
-                  <h3 className="font-semibold">{t(benefit.titleKey)}</h3>
+                  <h3 className="font-semibold">{benefit.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    {t(benefit.descKey)}
+                    {benefit.desc}
                   </p>
                 </article>
               );
@@ -212,7 +213,10 @@ export function HomeContent() {
 
       <ServiceCardsSection />
 
-      <section id="about" className="container mx-auto px-4 py-16 sm:py-20">
+      <section
+        id="about"
+        className="container mx-auto scroll-mt-20 px-4 py-16 sm:py-20"
+      >
         <div className="max-w-5xl mx-auto">
           <div className="grid gap-8 lg:grid-cols-2 lg:gap-12 items-center">
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -220,9 +224,9 @@ export function HomeContent() {
                 {t("about.heading")}
               </h2>
               <div className="space-y-4 text-muted-foreground leading-relaxed">
-                <p>{t("about.p1")}</p>
-                <p>{t("about.p2")}</p>
-                <p>{t("about.p3")}</p>
+                <p>{about.p1}</p>
+                {about.p2 && <p>{about.p2}</p>}
+                {about.p3 && <p>{about.p3}</p>}
               </div>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -263,9 +267,9 @@ export function HomeContent() {
               </p>
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {TESTIMONIALS.map((review, i) => (
+              {testimonials.map((review, i) => (
                 <article
-                  key={review.nameKey}
+                  key={`${review.name}-${i}`}
                   className="card-hover rounded-xl border bg-card p-6 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500"
                   style={{ animationDelay: `${i * 100}ms` }}
                 >
@@ -287,20 +291,18 @@ export function HomeContent() {
                   <div className="relative flex-1">
                     <Quote className="h-6 w-6 text-primary/20 absolute -top-1 -left-1" />
                     <p className="text-sm text-muted-foreground leading-relaxed pl-4 relative z-10">
-                      {t(review.textKey)}
+                      {review.text}
                     </p>
                   </div>
                   <div className="mt-4 pt-4 border-t">
                     <div className="flex items-center gap-3">
                       <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold text-xs">
-                        {t(review.nameKey).charAt(0)}
+                        {review.name.charAt(0)}
                       </div>
                       <div>
-                        <p className="text-sm font-medium">
-                          {t(review.nameKey)}
-                        </p>
+                        <p className="text-sm font-medium">{review.name}</p>
                         <p className="text-xs text-muted-foreground">
-                          {t(review.locationKey)}
+                          {review.location}
                         </p>
                       </div>
                     </div>
@@ -312,7 +314,10 @@ export function HomeContent() {
         </div>
       </section>
 
-      <section id="portfolio" className="container mx-auto px-4 py-16 sm:py-20">
+      <section
+        id="portfolio"
+        className="container mx-auto scroll-mt-20 px-4 py-16 sm:py-20"
+      >
         <div className="max-w-5xl mx-auto">
           <div className="text-center space-y-3 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">

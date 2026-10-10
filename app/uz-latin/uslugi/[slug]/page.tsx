@@ -28,7 +28,7 @@ export default async function UzLatinServiceCategoryPage({
   if (!page) {
     notFound();
   }
-  const jsonLd = getServiceCategoryJsonLdBySlug(slug);
+  const jsonLd = getServiceCategoryJsonLdBySlug(slug, "uzLatin");
   return (
     <>
       {jsonLd && (

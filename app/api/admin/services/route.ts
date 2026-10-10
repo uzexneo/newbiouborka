@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
+import {
+  siteServiceCreateSchema,
+  siteServiceUpdateSchema,
+} from "@/lib/validation/admin-content";
 import { isDatabaseAvailable } from "@/lib/db";
 import { isAdminRequest } from "@/lib/admin-auth";
 import {
@@ -7,58 +10,66 @@ import {
   deleteSiteService,
   getAllSiteServices,
   updateSiteService,
+  isSiteCollectionInitialized,
+  markSiteCollectionInitialized,
 } from "@/lib/models";
 import { getDefaultServices } from "@/lib/site-content";
-
-const serviceSchema = z.object({
-  categoryId: z.string().min(1).max(100),
-  categoryTitle: z.string().min(1).max(200),
-  name: z.string().min(1).max(200),
-  price: z.string().min(1).max(200),
-  sortOrder: z.number().int().min(0).optional(),
-});
-
-const updateServiceSchema = serviceSchema
-  .extend({ id: z.string().min(1) })
-  .partial();
 
 function unauthorized() {
   return NextResponse.json({ error: "Не авторизован" }, { status: 401 });
 }
 
 async function ensureServicesSeeded(): Promise<void> {
+  if (await isSiteCollectionInitialized("services")) return;
   const existing = await getAllSiteServices();
-  if (existing.length > 0) return;
+  if (existing.length > 0) {
+    await markSiteCollectionInitialized("services");
+    return;
+  }
   const defaults = getDefaultServices();
   for (let i = 0; i < defaults.length; i++) {
     const s = defaults[i];
-    await createSiteService({
-      id: s.id,
-      categoryId: s.categoryId,
-      categoryTitle: s.categoryTitle,
-      name: s.name,
-      price: s.price,
-      sortOrder: i,
-    });
+    await createSiteService(
+      {
+        id: s.id,
+        categoryId: s.categoryId,
+        categoryTitle: s.categoryTitle,
+        name: s.name,
+        price: s.price,
+        sortOrder: i,
+      },
+      true
+    );
   }
+  await markSiteCollectionInitialized("services");
 }
+
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   if (!isAdminRequest(request)) return unauthorized();
   if (!(await isDatabaseAvailable())) {
-    return NextResponse.json(getDefaultServices());
+    return NextResponse.json(
+      { error: "Подключение к базе данных не настроено" },
+      { status: 503 }
+    );
   }
 
   try {
     await ensureServicesSeeded();
     const services = await getAllSiteServices();
-    return NextResponse.json(services);
+    return NextResponse.json(services, {
+      headers: { "Cache-Control": "private, no-store" },
+    });
   } catch (error) {
     console.error(
-      "Ошибка получения услуг, использую данные по умолчанию:",
-      error
+      "Ошибка получения услуг:",
+      error instanceof Error ? error.name : "UnknownError"
     );
-    return NextResponse.json(getDefaultServices());
+    return NextResponse.json(
+      { error: "Не удалось загрузить сохранённые услуги" },
+      { status: 503 }
+    );
   }
 }
 
@@ -71,7 +82,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const parsed = serviceSchema.safeParse(await request.json());
+  const parsed = siteServiceCreateSchema.safeParse(
+    await request.json().catch(() => null)
+  );
   if (!parsed.success) {
     return NextResponse.json(
       { error: "Некорректные данные", details: parsed.error.flatten() },
@@ -80,11 +93,14 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    await ensureServicesSeeded();
     const existing = await getAllSiteServices();
     const service = await createSiteService({
       id: crypto.randomUUID(),
       ...parsed.data,
-      sortOrder: parsed.data.sortOrder ?? existing.length,
+      sortOrder:
+        parsed.data.sortOrder ??
+        Math.max(-1, ...existing.map((item) => item.sortOrder)) + 1,
     });
     return NextResponse.json(service, { status: 201 });
   } catch (error) {
@@ -105,7 +121,9 @@ export async function PUT(request: NextRequest) {
     );
   }
 
-  const parsed = updateServiceSchema.safeParse(await request.json());
+  const parsed = siteServiceUpdateSchema.safeParse(
+    await request.json().catch(() => null)
+  );
   if (!parsed.success || !parsed.data.id) {
     return NextResponse.json(
       { error: "Некорректные данные", details: parsed.error?.flatten() },
@@ -114,11 +132,24 @@ export async function PUT(request: NextRequest) {
   }
 
   try {
+    await ensureServicesSeeded();
     const { id, ...data } = parsed.data;
     const service = await updateSiteService(id, data);
     return NextResponse.json(service);
   } catch (error) {
-    console.error("Ошибка обновления услуги:", error);
+    if (
+      error instanceof Error &&
+      error.name === "ConditionalCheckFailedException"
+    ) {
+      return NextResponse.json(
+        { error: "Услуга уже удалена. Обновите список." },
+        { status: 404 }
+      );
+    }
+    console.error(
+      "Ошибка обновления услуги:",
+      error instanceof Error ? error.name : "UnknownError"
+    );
     return NextResponse.json(
       { error: "Ошибка обновления услуги" },
       { status: 500 }
@@ -144,6 +175,7 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
+    await ensureServicesSeeded();
     await deleteSiteService(id);
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -6,10 +6,17 @@ export async function fetchJson<T>(
 ): Promise<T> {
   const response = await fetch(input, {
     ...init,
+    cache: init?.cache ?? "no-store",
     signal: init?.signal ?? AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
   if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
+    const body: unknown = await response.json().catch(() => null);
+    const message =
+      typeof body === "object" && body !== null && "error" in body &&
+      typeof body.error === "string"
+        ? body.error
+        : `Не удалось загрузить данные (${response.status})`;
+    throw new Error(message);
   }
   return (await response.json()) as T;
 }

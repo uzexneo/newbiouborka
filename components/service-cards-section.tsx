@@ -38,7 +38,7 @@ const categoryMeta = new Map(SERVICE_CATEGORIES.map((c) => [c.id, c]));
 
 export function ServiceCardsSection() {
   const { t } = useLanguage();
-  const { procedurePhotos } = useSiteContent();
+  const { procedurePhotos, services } = useSiteContent();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<string | undefined>(
     undefined
@@ -51,7 +51,10 @@ export function ServiceCardsSection() {
 
   return (
     <>
-      <section id="services" className="container mx-auto px-4 py-16 sm:py-20">
+      <section
+        id="services"
+        className="container mx-auto scroll-mt-20 px-4 py-16 sm:py-20"
+      >
         <div className="max-w-5xl mx-auto">
           <div className="text-center space-y-3 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
@@ -63,10 +66,19 @@ export function ServiceCardsSection() {
           </div>
 
           <div className="space-y-12">
-            {SERVICE_CATEGORIES.map((category) => {
+            {services.map((category) => {
               const meta = categoryMeta.get(category.id);
               const Icon = iconMap[meta?.icon ?? ""] ?? Sparkles;
-              const note = meta ? t(meta.noteKey) : undefined;
+              const note =
+                meta &&
+                category.services.every((service) => {
+                  const original = meta.services.find(
+                    (item) => item.id === service.id
+                  );
+                  return original && service.price === t(original.priceKey);
+                })
+                  ? t(meta.noteKey)
+                  : undefined;
               return (
                 <div
                   key={category.id}
@@ -79,7 +91,7 @@ export function ServiceCardsSection() {
                     </div>
                     <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                       <h3 className="text-xl font-semibold tracking-tight sm:text-2xl">
-                        {t(category.titleKey)}
+                        {category.title}
                       </h3>
                       {note && (
                         <span className="text-sm font-medium text-primary">
@@ -105,7 +117,7 @@ export function ServiceCardsSection() {
                       <div className="relative h-48 w-full sm:h-auto sm:w-60 lg:w-64">
                         <ProcedurePhoto
                           src={procedurePhotos[category.id] ?? meta.photo}
-                          alt={t(category.titleKey)}
+                          alt={category.title}
                           sizes="(max-width: 640px) 100vw, 240px"
                         />
                       </div>
@@ -121,10 +133,10 @@ export function ServiceCardsSection() {
                         style={{ animationDelay: `${i * 60}ms` }}
                       >
                         <h4 className="font-medium leading-snug flex-1">
-                          {t(service.titleKey)}
+                          {service.name}
                         </h4>
                         <div className="text-base font-bold text-primary">
-                          {t(service.priceKey)}
+                          {service.price}
                         </div>
                         <button
                           type="button"

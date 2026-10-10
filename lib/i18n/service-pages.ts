@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { Locale } from "./config";
 import { dictionaries } from "./translations";
 import { getServicePageBySlug } from "./content";
-import { siteUrl } from "./seo";
+import { buildSocialMetadata, siteUrl } from "./seo";
 
 export function localePathPrefix(locale: Locale): string {
   if (locale === "uzKrill") return "/uz-krill";
@@ -27,12 +27,6 @@ function alternateLanguages(path: string) {
   };
 }
 
-function ogLocale(locale: Locale): string {
-  if (locale === "uzKrill") return "uz_Cyrl";
-  if (locale === "uzLatin") return "uz_Latn";
-  return "ru_RU";
-}
-
 export function buildServicesHubMetadata(locale: Locale): Metadata {
   const dict = dictionaries[locale];
   const path = servicesHubPath(locale);
@@ -44,13 +38,12 @@ export function buildServicesHubMetadata(locale: Locale): Metadata {
       canonical: url,
       languages: alternateLanguages("/uslugi"),
     },
-    openGraph: {
-      type: "website",
-      locale: ogLocale(locale),
-      title: dict["uslugi.seoTitle"],
-      description: dict["uslugi.seoDesc"],
+    ...buildSocialMetadata(
+      dict["uslugi.seoTitle"],
+      dict["uslugi.seoDesc"],
       url,
-    },
+      locale
+    ),
   };
 }
 
@@ -74,12 +67,6 @@ export function buildServiceCategoryMetadata(
       canonical: url,
       languages: alternateLanguages(`/uslugi/${page.slug}`),
     },
-    openGraph: {
-      type: "website",
-      locale: ogLocale(locale),
-      title,
-      description,
-      url,
-    },
+    ...buildSocialMetadata(title, description, url, locale),
   };
 }

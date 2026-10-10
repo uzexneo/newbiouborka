@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { isPublicAnalyticsPath } from "@/lib/analytics-paths";
+import { visitSchema } from "@/lib/validation";
 
 const VISITOR_KEY = "biouborka.visitorId";
 
@@ -33,9 +34,14 @@ export function VisitTracker() {
   const pathname = usePathname();
   const visitorIdRef = useRef<string>("");
   const isNewRef = useRef(false);
+  const lastTrackedPathRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!isPublicAnalyticsPath(pathname)) return;
+    if (!isPublicAnalyticsPath(pathname)) {
+      lastTrackedPathRef.current = null;
+      return;
+    }
+    if (lastTrackedPathRef.current === pathname) return;
 
     if (visitorIdRef.current === "") {
       const result = getOrCreateVisitorId();
@@ -43,23 +49,34 @@ export function VisitTracker() {
       isNewRef.current = result.isNew;
     }
 
-    const send = () => {
-      const payload = {
+    const send = async () => {
+      const parsed = visitSchema.safeParse({
         visitorId: visitorIdRef.current,
-        path: window.location.pathname + window.location.search,
-        referrer: document.referrer || undefined,
+        path: (window.location.pathname + window.location.search).slice(0, 500),
+        referrer: document.referrer.slice(0, 1000) || undefined,
         isNewVisitor: isNewRef.current,
-      };
+      });
+      if (!parsed.success) return;
 
-      fetch("/api/visits", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-        keepalive: true,
-      }).catch(() => {});
+      try {
+        const response = await fetch("/api/visits", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(parsed.data),
+          keepalive: true,
+          signal: AbortSignal.timeout(25_000),
+        });
+        if (!response.ok) {
+          console.warn("[visits] Посещение не сохранено:", response.status);
+        }
+      } catch {
+        console.warn("[visits] Посещение не сохранено: запрос не завершён");
+      }
     };
 
-    send();
+    lastTrackedPathRef.current = pathname;
+    void send();
+    isNewRef.current = false;
   }, [pathname]);
 
   return null;

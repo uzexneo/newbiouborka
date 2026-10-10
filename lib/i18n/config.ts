@@ -10,17 +10,16 @@ export interface Language {
 
 export const languages: Language[] = [
   { code: "ru", label: "RU", nativeName: "Русский", htmlLang: "ru" },
-  { code: "uzKrill", label: "ЎЗ", nativeName: "Ўзбекча", htmlLang: "uz" },
+  { code: "uzKrill", label: "ЎЗ", nativeName: "Ўзбекча", htmlLang: "uz-Cyrl" },
   {
     code: "uzLatin",
     label: "UZ",
     nativeName: "O'zbekcha",
-    htmlLang: "uz-latn",
+    htmlLang: "uz-Latn",
   },
 ];
 
 export const defaultLocale: Locale = "ru";
-export const LOCALE_STORAGE_KEY = "biouborka.locale";
 
 export const localeToPath: Record<Locale, string> = {
   ru: "/",
@@ -46,6 +45,25 @@ export function localizePathname(pathname: string, locale: Locale): string {
   return rest === "/" ? target : `${target}${rest}`;
 }
 
+export function canLocalizePathname(pathname: string): boolean {
+  const path =
+    localizePathname(pathname, defaultLocale).replace(/\/$/, "") || "/";
+  return path === "/" || path === "/uslugi" || path.startsWith("/uslugi/");
+}
+
+export function localizeHref(
+  pathname: string,
+  locale: Locale,
+  search = "",
+  hash = ""
+): string {
+  const params = new URLSearchParams(search);
+  // Legacy language query parameters must not redirect a new language choice.
+  params.delete("lang");
+  const query = params.toString();
+  return `${localizePathname(pathname, locale)}${query ? `?${query}` : ""}${hash}`;
+}
+
 export function localeFromPath(pathname: string | null): Locale | null {
   if (!pathname) {
     return null;
@@ -57,7 +75,7 @@ export function localeFromPath(pathname: string | null): Locale | null {
   if (path === "/uz-latin" || path.startsWith("/uz-latin/")) {
     return "uzLatin";
   }
-  return null;
+  return defaultLocale;
 }
 
 export function isLocale(value: unknown): value is Locale {

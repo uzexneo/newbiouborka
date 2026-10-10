@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { z } from "zod";
+import { contactsFormSchema } from "@/lib/validation/admin-content";
 import { toast } from "sonner";
 import { Phone, Loader2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,16 +15,10 @@ import {
 } from "@/components/ui/field";
 import { DEFAULT_CONTACTS, type SiteContacts } from "@/lib/site-content";
 import { fetchJson } from "@/lib/api-client";
+import { AdminLoadError } from "@/components/admin/admin-load-error";
+import { refreshPublicContent } from "@/lib/site-content-events";
 
-const contactsSchema = z.object({
-  phone: z.string().min(1, "Введите телефон").max(40),
-  instagram: z.string().min(1, "Введите ссылку на Instagram").max(500),
-  telegram: z.string().min(1, "Введите ссылку на Telegram").max(500),
-  email: z.string().email("Введите корректный email").max(200),
-  address: z.string().min(1, "Введите адрес").max(300),
-});
-
-type ContactsFormData = z.infer<typeof contactsSchema>;
+type ContactsFormData = z.infer<typeof contactsFormSchema>;
 
 export function AdminContacts() {
   const [formData, setFormData] = useState<ContactsFormData>(DEFAULT_CONTACTS);
@@ -31,24 +26,31 @@ export function AdminContacts() {
     Partial<Record<keyof ContactsFormData, string>>
   >({});
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const data = await fetchJson<{ contacts?: Partial<SiteContacts> }>(
-          "/api/admin/content"
-        );
-        if (data.contacts) {
-          setFormData({ ...DEFAULT_CONTACTS, ...data.contacts });
-        }
-      } catch {
-        toast.error("Не удалось загрузить контакты");
-      } finally {
-        setLoading(false);
+  const load = useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const data = await fetchJson<{ contacts?: Partial<SiteContacts> }>(
+        "/api/admin/content"
+      );
+      if (data.contacts) {
+        setFormData({ ...DEFAULT_CONTACTS, ...data.contacts });
       }
-    })();
+    } catch (error) {
+      setLoadError(
+        error instanceof Error ? error.message : "Не удалось загрузить контакты"
+      );
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const handleChange = (field: keyof ContactsFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -58,7 +60,7 @@ export function AdminContacts() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const parsed = contactsSchema.safeParse(formData);
+    const parsed = contactsFormSchema.safeParse(formData);
     if (!parsed.success) {
       const fieldErrors: Partial<Record<keyof ContactsFormData, string>> = {};
       for (const issue of parsed.error.issues) {
@@ -71,15 +73,17 @@ export function AdminContacts() {
 
     setSaving(true);
     try {
-      const response = await fetch("/api/admin/content", {
+      await fetchJson("/api/admin/content", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "contacts", ...parsed.data }),
       });
-      if (!response.ok) throw new Error("save failed");
+      refreshPublicContent();
       toast.success("Контакты сохранены");
-    } catch {
-      toast.error("Не удалось сохранить контакты");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Не удалось сохранить контакты"
+      );
     } finally {
       setSaving(false);
     }
@@ -93,6 +97,16 @@ export function AdminContacts() {
       </div>
     );
   }
+
+  if (loadError)
+    return (
+      <AdminLoadError
+        message={loadError}
+        onRetry={() => {
+          void load();
+        }}
+      />
+    );
 
   return (
     <form onSubmit={handleSubmit} className="max-w-md space-y-6">

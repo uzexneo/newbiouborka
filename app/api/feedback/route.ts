@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
+import { feedbackSchema } from "@/lib/validation";
+import { isDatabaseAvailable } from "@/lib/db";
+import { createOrder } from "@/lib/models";
 
-const feedbackSchema = z.object({
-  name: z.string().min(1, "Введите имя").max(100),
-  phone: z.string().min(1, "Введите телефон").max(30),
-  message: z.string().min(1, "Введите сообщение").max(2000),
-});
+export const runtime = "nodejs";
+export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
-  const parsed = feedbackSchema.safeParse(await request.json());
+  const parsed = feedbackSchema.safeParse(await request.json().catch(() => null));
 
   if (!parsed.success) {
     return NextResponse.json(
@@ -17,5 +16,19 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  return NextResponse.json({ success: true });
+  if (!isDatabaseAvailable()) {
+    return NextResponse.json({ error: "Не удалось сохранить обращение", saved: false }, { status: 503 });
+  }
+  try {
+    const { order } = await createOrder({
+      name: parsed.data.name,
+      phone: parsed.data.phone,
+      service: "Обратная связь",
+      comment: parsed.data.message,
+    });
+    return NextResponse.json({ success: true, saved: true, id: order.id }, { status: 201 });
+  } catch (error) {
+    console.error("[feedback] Обращение не сохранено:", error instanceof Error ? error.name : "UnknownError");
+    return NextResponse.json({ error: "Не удалось сохранить обращение", saved: false }, { status: 503 });
+  }
 }

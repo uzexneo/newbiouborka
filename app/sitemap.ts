@@ -1,9 +1,5 @@
 import type { MetadataRoute } from "next";
-import {
-  SERVICE_CATEGORIES,
-  ALL_SERVICES,
-  SERVICE_PAGES,
-} from "@/lib/i18n/content";
+import { SERVICE_PAGES } from "@/lib/i18n/content";
 
 const baseUrl = "https://biouborka.uz";
 
@@ -31,7 +27,6 @@ function entry(
   }
   return {
     url,
-    lastModified: new Date(),
     changeFrequency,
     priority,
     alternates: { languages: localizedUrl(path) },
@@ -53,27 +48,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     items.push(entry(`${baseUrl}/uslugi/${page.slug}`, 0.8, "weekly"));
     items.push(entry(`${baseUrl}/uz-krill/uslugi/${page.slug}`, 0.8, "weekly"));
     items.push(entry(`${baseUrl}/uz-latin/uslugi/${page.slug}`, 0.8, "weekly"));
-  });
-
-  const sections: Array<{ anchor: string; priority: number }> = [
-    { anchor: "#services", priority: 0.9 },
-    { anchor: "#about", priority: 0.8 },
-    { anchor: "#portfolio", priority: 0.8 },
-    { anchor: "#faq", priority: 0.7 },
-    { anchor: "#contacts", priority: 0.8 },
-  ];
-  sections.forEach((section) => {
-    items.push(
-      entry(`${baseUrl}${section.anchor}`, section.priority, "monthly")
-    );
-  });
-
-  SERVICE_CATEGORIES.forEach((category) => {
-    items.push(entry(`${baseUrl}#${category.id}`, 0.7, "monthly"));
-  });
-
-  ALL_SERVICES.forEach((service) => {
-    items.push(entry(`${baseUrl}#${service.id}`, 0.6, "monthly"));
   });
 
   return items;

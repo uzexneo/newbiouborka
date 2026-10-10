@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { LocalizedHomeLink } from "@/components/localized-home-link";
+import { LocaleDocument } from "@/components/locale-document";
 import "./globals.css";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
@@ -8,7 +9,6 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { HeaderNav } from "@/components/header-nav";
 import { LanguageProvider } from "@/lib/i18n/language-provider";
 import { SiteContentProvider } from "@/lib/site-content-provider";
-import { SeoMetaUpdater } from "@/components/seo-meta-updater";
 import { VisitTracker } from "@/components/visit-tracker";
 import { GoogleAnalytics } from "@/components/google-analytics";
 import { SiteFooter } from "@/components/site-footer";
@@ -82,19 +82,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" className={cn("font-sans", geist.variable)}>
+    <LocaleDocument className={cn("font-sans", geist.variable)}>
       <body className="antialiased min-h-screen bg-background flex flex-col">
         <GoogleAnalytics />
         <BridgeProvider />
         <VisitTracker />
         <LanguageProvider>
-          <SeoMetaUpdater />
           <SiteContentProvider>
             <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
-              <div className="container mx-auto px-4 h-14 flex items-center justify-between gap-4">
-                <Link href="/" className="flex items-center">
+              <div className="container mx-auto px-4 min-h-14 py-2 flex items-center justify-between gap-4">
+                <LocalizedHomeLink>
                   <SiteLogo showName={appName} />
-                </Link>
+                </LocalizedHomeLink>
                 <div className="flex items-center gap-4">
                   <HeaderNav />
                   <LanguageSwitcher />
@@ -108,6 +107,6 @@ export default function RootLayout({
           </SiteContentProvider>
         </LanguageProvider>
       </body>
-    </html>
+    </LocaleDocument>
   );
 }

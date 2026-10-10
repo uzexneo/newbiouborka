@@ -1,6 +1,7 @@
 "use client";
 
 import { Globe } from "lucide-react";
+import { usePathname } from "next/navigation";
 import {
   Select,
   SelectContent,
@@ -8,16 +9,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { languages, type Locale } from "@/lib/i18n/config";
+import { canLocalizePathname, isLocale, languages } from "@/lib/i18n/config";
 import { useLanguage } from "@/lib/i18n/language-provider";
 
 export function LanguageSwitcher() {
-  const { locale, setLocale, t } = useLanguage();
+  const { locale, setLocale, isChangingLocale, t } = useLanguage();
+  const pathname = usePathname();
+
+  if (!canLocalizePathname(pathname)) {
+    return null;
+  }
 
   return (
     <Select
       value={locale}
-      onValueChange={(value) => setLocale(value as Locale)}
+      disabled={isChangingLocale}
+      onValueChange={(value) => {
+        if (isLocale(value)) setLocale(value);
+      }}
       items={languages.map((lang) => ({
         value: lang.code,
         label: lang.nativeName,

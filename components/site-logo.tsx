@@ -6,17 +6,17 @@ import { useSiteContent } from "@/lib/site-content-provider";
 
 export function SiteLogo({ showName }: { showName?: string }) {
   const { logo, logoSize } = useSiteContent();
-  const [failed, setFailed] = useState(false);
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
 
-  if (logo && !failed) {
+  if (logo && logo !== failedSrc) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
         src={logo}
-        alt="Логотип компании"
+        alt={showName ?? "BIOUBORKA.UZ"}
         style={{ height: logoSize, width: "auto" }}
         className="object-contain"
-        onError={() => setFailed(true)}
+        onError={() => setFailedSrc(logo)}
       />
     );
   }

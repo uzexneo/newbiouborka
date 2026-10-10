@@ -21,7 +21,7 @@ import {
 
 export function ServicesCategoryContent({ slug }: { slug: string }) {
   const { t } = useLanguage();
-  const { procedurePhotos, contacts } = useSiteContent();
+  const { procedurePhotos, contacts, services } = useSiteContent();
   const [orderOpen, setOrderOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<string | undefined>(
     undefined
@@ -36,6 +36,13 @@ export function ServicesCategoryContent({ slug }: { slug: string }) {
   }
 
   const Icon = SERVICE_CATEGORY_ICONS[category.icon] ?? Sparkles;
+  const currentCategory = services.find((item) => item.id === category.id);
+  const showPriceNote =
+    !!currentCategory?.services.length &&
+    currentCategory.services.every((service) => {
+      const original = category.services.find((item) => item.id === service.id);
+      return original && service.price === t(original.priceKey);
+    });
   const telHref = `tel:+${contacts.phone.replace(/[^\d]/g, "")}`;
   const otherCategories = SERVICE_PAGES.filter((p) => p.slug !== slug);
 
@@ -51,10 +58,12 @@ export function ServicesCategoryContent({ slug }: { slug: string }) {
       <section className="container mx-auto px-4 py-10 sm:py-14">
         <div className="mx-auto max-w-5xl space-y-12">
           <div className="max-w-3xl space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="inline-flex items-center gap-2 rounded-full border bg-primary/5 px-3 py-1 text-sm font-medium text-primary">
-              <Icon className="h-4 w-4" />
-              {t(category.noteKey)}
-            </div>
+            {showPriceNote && (
+              <div className="inline-flex items-center gap-2 rounded-full border bg-primary/5 px-3 py-1 text-sm font-medium text-primary">
+                <Icon className="h-4 w-4" />
+                {t(category.noteKey)}
+              </div>
+            )}
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
               {t(page.h1Key)}
             </h1>
@@ -74,17 +83,17 @@ export function ServicesCategoryContent({ slug }: { slug: string }) {
               {t("uslugi.servicesHeading")}
             </h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {category.services.map((service, i) => (
+              {(currentCategory?.services ?? []).map((service, i) => (
                 <article
                   key={service.id}
                   className="card-hover flex flex-col gap-3 rounded-xl border bg-card p-5 animate-in fade-in slide-in-from-bottom-4 duration-500"
                   style={{ animationDelay: `${i * 60}ms` }}
                 >
                   <h3 className="flex-1 font-medium leading-snug">
-                    {t(service.titleKey)}
+                    {service.name}
                   </h3>
                   <div className="text-base font-bold text-primary">
-                    {t(service.priceKey)}
+                    {service.price}
                   </div>
                   <button
                     type="button"

@@ -8,7 +8,10 @@ export function FaqSection() {
   const { t } = useLanguage();
 
   return (
-    <section id="faq" className="container mx-auto px-4 py-16 sm:py-20">
+    <section
+      id="faq"
+      className="container mx-auto scroll-mt-20 px-4 py-16 sm:py-20"
+    >
       <div className="max-w-3xl mx-auto">
         <div className="text-center space-y-3 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">

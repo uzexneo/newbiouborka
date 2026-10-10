@@ -1,16 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { isDatabaseAvailable, ensureSiteVisitsTable } from "@/lib/db";
 import { isAdminRequest } from "@/lib/admin-auth";
-import { getAllOrders, getAllVisits, getUnsavedOrders } from "@/lib/models";
-import { mockVisits } from "@/lib/mock-data";
+import { getAllOrders, getAllVisits } from "@/lib/models";
+import { isPublicAnalyticsPath } from "@/lib/analytics-paths";
+import {
+  ANALYTICS_TIME_ZONE,
+  analyticsDate,
+  analyticsDateRange,
+} from "@/lib/analytics-dates";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+const responseHeaders = { "Cache-Control": "private, no-store" };
+const periodSchema = z.coerce.number().int().min(1).max(365);
 
 function unauthorized() {
-  return NextResponse.json({ error: "Не авторизован" }, { status: 401 });
+  return NextResponse.json(
+    { error: "Не авторизован" },
+    { status: 401, headers: responseHeaders }
+  );
 }
 
 interface VisitLite {
   visitorId: string;
+  path: string;
   date: string;
+  createdAt?: string;
   referrer?: string;
 }
 
@@ -44,32 +61,38 @@ export interface AnalyticsResponse {
   funnel: FunnelData;
   byService: BreakdownItem[];
   bySource: BreakdownItem[];
+  period: {
+    from: string;
+    to: string;
+    timeZone: typeof ANALYTICS_TIME_ZONE;
+  };
 }
 
-function buildDateRange(days: number): string[] {
-  const today = new Date().toISOString().split("T")[0];
-  const start = new Date(today + "T00:00:00Z");
-  start.setUTCDate(start.getUTCDate() - (days - 1));
-  const dates: string[] = [];
-  for (let i = 0; i < days; i++) {
-    const d = new Date(start.toISOString());
-    d.setUTCDate(d.getUTCDate() + i);
-    dates.push(d.toISOString().split("T")[0]);
+function categorizeSource(visit: VisitLite): string {
+  const params = new URL(visit.path, "https://biouborka.uz").searchParams;
+  const source = params.get("utm_source")?.trim();
+  if (source) {
+    const medium = params.get("utm_medium")?.trim();
+    return medium ? `${source} / ${medium}` : source;
   }
-  return dates;
-}
-
-function categorizeSource(referrer?: string): string {
-  if (!referrer) return "Прямые заходы";
+  if (["gclid", "gbraid", "wbraid"].some((key) => params.has(key))) {
+    return "Google Реклама";
+  }
+  if (!visit.referrer) return "Прямые заходы / источник не определён";
   try {
-    const host = new URL(referrer).hostname.toLowerCase();
-    if (host.includes("instagram.com")) return "Instagram";
-    if (host.includes("t.me") || host.includes("telegram.org"))
-      return "Telegram";
-    if (host.includes("google.")) return "Google";
-    return "Другие сайты";
+    const host = new URL(visit.referrer).hostname.toLowerCase();
+    const matchesHost = (domain: string) =>
+      host === domain || host.endsWith(`.${domain}`);
+    if (matchesHost("biouborka.uz")) return "Переходы внутри сайта";
+    if (matchesHost("instagram.com")) return "Instagram";
+    if (matchesHost("t.me") || matchesHost("telegram.org")) return "Telegram";
+    if (/^(?:.+\.)?google\.[a-z.]+$/.test(host)) return "Google";
+    if (/^(?:.+\.)?yandex\.[a-z.]+$/.test(host)) return "Яндекс";
+    if (matchesHost("bing.com")) return "Bing";
+    if (matchesHost("chatgpt.com")) return "ChatGPT";
+    return host || "Другие сайты";
   } catch {
-    return "Другие сайты";
+    return "Источник не определён";
   }
 }
 
@@ -79,23 +102,19 @@ function aggregate(
   fromDate: string,
   toDate: string
 ): AnalyticsResponse {
-  const inRangeVisits = visits.filter(
-    (v) => v.date >= fromDate && v.date <= toDate
-  );
+  const inRangeVisits = visits.flatMap((visit) => {
+    if (!isPublicAnalyticsPath(visit.path)) return [];
+    // Older rows stored the UTC date. Their timestamp gives the correct
+    // calendar day in Tashkent, including visits around midnight.
+    const date = visit.createdAt ? analyticsDate(visit.createdAt) : visit.date;
+    if (!date || date < fromDate || date > toDate) return [];
+    return [{ ...visit, date }];
+  });
 
   const uniqueVisitors = new Set(inRangeVisits.map((v) => v.visitorId)).size;
 
   const byDay = new Map<string, { visits: number; visitors: Set<string> }>();
-  const dates = buildDateRange(
-    Math.max(
-      1,
-      Math.floor(
-        (new Date(toDate + "T00:00:00Z").getTime() -
-          new Date(fromDate + "T00:00:00Z").getTime()) /
-          86_400_000
-      ) + 1
-    )
-  );
+  const dates = analyticsDateRange(fromDate, toDate);
   for (const date of dates) {
     byDay.set(date, { visits: 0, visitors: new Set() });
   }
@@ -117,8 +136,8 @@ function aggregate(
   });
 
   const inRangeOrders = orders.filter((o) => {
-    const date = o.createdAt.slice(0, 10);
-    return date >= fromDate && date <= toDate;
+    const date = analyticsDate(o.createdAt);
+    return date !== null && date >= fromDate && date <= toDate;
   });
   const applications = inRangeOrders.length;
   const ordersCount = inRangeOrders.filter(
@@ -135,7 +154,7 @@ function aggregate(
 
   const sourceMap = new Map<string, number>();
   for (const v of inRangeVisits) {
-    const source = categorizeSource(v.referrer);
+    const source = categorizeSource(v);
     sourceMap.set(source, (sourceMap.get(source) ?? 0) + 1);
   }
   const bySource: BreakdownItem[] = [...sourceMap.entries()]
@@ -153,58 +172,47 @@ function aggregate(
     },
     byService,
     bySource,
+    period: { from: fromDate, to: toDate, timeZone: ANALYTICS_TIME_ZONE },
   };
 }
 
 export async function GET(request: NextRequest) {
   if (!isAdminRequest(request)) return unauthorized();
 
-  const rawDays = new URL(request.url).searchParams.get("days");
-  const days = Math.min(
-    365,
-    Math.max(1, Number.parseInt(rawDays ?? "30", 10) || 30)
-  );
-
-  async function safeRead<T>(
-    enabled: boolean,
-    read: () => Promise<T>,
-    fallback: T
-  ): Promise<T> {
-    if (!enabled) return fallback;
-    try {
-      return await read();
-    } catch (error) {
-      console.warn(
-        "Не удалось прочитать данные аналитики из базы, использую моки:",
-        error
-      );
-      return fallback;
-    }
+  const rawDays = new URL(request.url).searchParams.get("days") ?? "30";
+  const parsed = periodSchema.safeParse(rawDays);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Выберите период от 1 до 365 дней" },
+      { status: 400, headers: responseHeaders }
+    );
+  }
+  if (!isDatabaseAvailable()) {
+    return NextResponse.json(
+      { error: "Статистика временно недоступна" },
+      { status: 503, headers: responseHeaders }
+    );
   }
 
   try {
-    const dbAvailable = await isDatabaseAvailable();
-    if (dbAvailable) {
-      await ensureSiteVisitsTable();
-    }
-    const visits = await safeRead(dbAvailable, getAllVisits, mockVisits);
-    const orders = await safeRead(
-      dbAvailable,
-      getAllOrders,
-      getUnsavedOrders()
-    );
-
-    const toDate = new Date().toISOString().split("T")[0];
+    await ensureSiteVisitsTable();
+    const [visits, orders] = await Promise.all([getAllVisits(), getAllOrders()]);
+    const toDate = analyticsDate(new Date())!;
     const start = new Date(toDate + "T00:00:00Z");
-    start.setUTCDate(start.getUTCDate() - (days - 1));
+    start.setUTCDate(start.getUTCDate() - (parsed.data - 1));
     const fromDate = start.toISOString().split("T")[0];
 
-    return NextResponse.json(aggregate(visits, orders, fromDate, toDate));
+    return NextResponse.json(aggregate(visits, orders, fromDate, toDate), {
+      headers: responseHeaders,
+    });
   } catch (error) {
-    console.error("Ошибка получения аналитики:", error);
+    console.error(
+      "[analytics] Не удалось прочитать статистику:",
+      error instanceof Error ? error.name : "UnknownError"
+    );
     return NextResponse.json(
-      { error: "Ошибка получения аналитики" },
-      { status: 500 }
+      { error: "Статистика временно недоступна" },
+      { status: 503, headers: responseHeaders }
     );
   }
 }

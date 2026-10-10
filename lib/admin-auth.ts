@@ -4,11 +4,9 @@ import type { NextRequest } from "next/server";
 export const SESSION_COOKIE = "admin_session";
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 дней
 
-function getSessionSecret(): string {
+function getSessionSecret(): string | undefined {
   return (
-    process.env.ADMIN_SESSION_SECRET ??
-    process.env.ADMIN_PASSWORD ??
-    "biouborka-dev-secret"
+    process.env.ADMIN_SESSION_SECRET || process.env.ADMIN_PASSWORD || undefined
   );
 }
 
@@ -25,8 +23,10 @@ export function verifyAdminPassword(password: string): boolean {
 }
 
 function signPayload(payload: string): string {
+  const secret = getSessionSecret();
+  if (!secret) throw new Error("Пароль администратора не настроен");
   return crypto
-    .createHmac("sha256", getSessionSecret())
+    .createHmac("sha256", secret)
     .update(payload)
     .digest("base64url");
 }
@@ -38,13 +38,16 @@ export function createSessionToken(): string {
 }
 
 export function verifySessionToken(token: string | undefined): boolean {
-  if (!token) return false;
-  const [payload, signature] = token.split(".");
-  if (!payload || !signature) return false;
+  if (!token || !process.env.ADMIN_PASSWORD || !getSessionSecret())
+    return false;
+  const parts = token.split(".");
+  if (parts.length !== 2) return false;
+  const [payload, signature] = parts;
+  if (!payload || !signature || !/^\d+$/.test(payload)) return false;
   if (!safeEqual(signature, signPayload(payload))) return false;
   const expires = Number(payload);
   if (!Number.isFinite(expires)) return false;
-  return Date.now() < expires;
+  return Date.now() < expires && expires <= Date.now() + SESSION_MAX_AGE * 1000;
 }
 
 export function isAdminRequest(request: NextRequest): boolean {

@@ -37,9 +37,12 @@ interface ValidationMessages {
 
 function buildSchema(messages: ValidationMessages) {
   return z.object({
-    name: z.string().min(1, messages.name),
-    phone: z.string().min(1, messages.phone),
-    service: z.string().min(1, messages.service),
+    name: z.string().trim().min(1, messages.name).max(100, messages.name),
+    phone: z.string().trim().max(30, messages.phone).refine(
+      (value) => /^\+?[\d\s().-]+$/.test(value) && value.replace(/\D/g, "").length >= 7 && value.replace(/\D/g, "").length <= 15,
+      messages.phone
+    ),
+    service: z.string().trim().min(1, messages.service).max(200, messages.service),
   });
 }
 
@@ -74,6 +77,7 @@ export function QuickOrderModal({ open, onOpenChange }: QuickOrderModalProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
     setIsSubmitting(true);
 
     const schema = buildSchema({
@@ -100,10 +104,15 @@ export function QuickOrderModal({ open, onOpenChange }: QuickOrderModalProps) {
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(result.data),
+        body: JSON.stringify({
+          ...result.data,
+          service: allServices.find((service) => service.id === result.data.service)?.name ?? result.data.service,
+        }),
+        signal: AbortSignal.timeout(45_000),
       });
 
-      if (!response.ok) {
+      const confirmation = await response.json().catch(() => null);
+      if (!response.ok || confirmation?.saved !== true) {
         throw new Error("save failed");
       }
 
@@ -130,8 +139,10 @@ export function QuickOrderModal({ open, onOpenChange }: QuickOrderModalProps) {
         <form onSubmit={handleSubmit}>
           <FieldGroup>
             <Field>
-              <FieldLabel>{t("field.name")}</FieldLabel>
+              <FieldLabel htmlFor="quick-name">{t("field.name")}</FieldLabel>
               <Input
+                id="quick-name"
+                autoComplete="name"
                 placeholder={t("field.namePlaceholder")}
                 value={formData.name}
                 onChange={(e) => handleChange("name", e.target.value)}
@@ -141,9 +152,11 @@ export function QuickOrderModal({ open, onOpenChange }: QuickOrderModalProps) {
             </Field>
 
             <Field>
-              <FieldLabel>{t("field.phone")}</FieldLabel>
+              <FieldLabel htmlFor="quick-phone">{t("field.phone")}</FieldLabel>
               <Input
+                id="quick-phone"
                 type="tel"
+                autoComplete="tel"
                 placeholder={t("field.phonePlaceholder")}
                 value={formData.phone}
                 onChange={(e) => handleChange("phone", e.target.value)}
@@ -153,7 +166,7 @@ export function QuickOrderModal({ open, onOpenChange }: QuickOrderModalProps) {
             </Field>
 
             <Field>
-              <FieldLabel>{t("order.fieldService")}</FieldLabel>
+              <FieldLabel htmlFor="quick-service">{t("order.fieldService")}</FieldLabel>
               <Select
                 value={formData.service}
                 onValueChange={(value) => handleChange("service", value ?? "")}
@@ -162,7 +175,7 @@ export function QuickOrderModal({ open, onOpenChange }: QuickOrderModalProps) {
                   label: service.name,
                 }))}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger id="quick-service" className="w-full">
                   <SelectValue
                     placeholder={t("order.fieldServicePlaceholder")}
                   />

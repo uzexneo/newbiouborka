@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { z } from "zod";
+import { serviceFormSchema } from "@/lib/validation/admin-content";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Package, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -28,13 +29,8 @@ import {
 } from "@/components/ui/field";
 import { groupServicesByCategory, type SiteService } from "@/lib/site-content";
 import { fetchJson } from "@/lib/api-client";
-
-const serviceFormSchema = z.object({
-  name: z.string().min(1, "Введите название услуги").max(200),
-  price: z.string().min(1, "Введите цену").max(200),
-  categoryId: z.string().min(1, "Выберите категорию").max(100),
-  categoryTitle: z.string().min(1, "Введите название категории").max(200),
-});
+import { AdminLoadError } from "@/components/admin/admin-load-error";
+import { refreshPublicContent } from "@/lib/site-content-events";
 
 type ServiceFormData = z.infer<typeof serviceFormSchema>;
 
@@ -54,6 +50,7 @@ function slugify(value: string): string {
 export function AdminServices() {
   const [services, setServices] = useState<SiteService[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Editing | null>(null);
   const [isNewCategory, setIsNewCategory] = useState(false);
@@ -63,11 +60,15 @@ export function AdminServices() {
   const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
     try {
       const data = await fetchJson<SiteService[]>("/api/admin/services");
       setServices(data);
-    } catch {
-      toast.error("Не удалось загрузить услуги");
+    } catch (error) {
+      setLoadError(
+        error instanceof Error ? error.message : "Не удалось загрузить услуги"
+      );
     } finally {
       setLoading(false);
     }
@@ -119,7 +120,13 @@ export function AdminServices() {
     e.preventDefault();
     if (!editing) return;
 
-    const parsed = serviceFormSchema.safeParse(editing.data);
+    const parsed = serviceFormSchema.safeParse({
+      ...editing.data,
+      categoryId: isNewCategory
+        ? slugify(editing.data.categoryTitle) ||
+          `category-${crypto.randomUUID()}`
+        : editing.data.categoryId,
+    });
     if (!parsed.success) {
       const fieldErrors: Partial<Record<keyof ServiceFormData, string>> = {};
       for (const issue of parsed.error.issues) {
@@ -135,29 +142,30 @@ export function AdminServices() {
       editing.id === undefined
         ? {
             ...data,
-            categoryId: isNewCategory
-              ? slugify(data.categoryTitle) || data.categoryId
-              : data.categoryId,
+            categoryId: data.categoryId,
           }
         : { id: editing.id, ...data };
 
     setSaving(true);
     try {
-      const response = await fetch("/api/admin/services", {
+      const saved = await fetchJson<SiteService>("/api/admin/services", {
         method: editing.id === undefined ? "POST" : "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      if (!response.ok) throw new Error("save failed");
+      refreshPublicContent();
       toast.success(
         editing.id === undefined ? "Услуга добавлена" : "Услуга обновлена"
       );
       setDialogOpen(false);
-      setServices([]);
-      setLoading(true);
-      await load();
-    } catch {
-      toast.error("Не удалось сохранить услугу");
+      setServices((previous) => {
+        const next = previous.filter((item) => item.id !== saved.id);
+        return [...next, saved].sort((a, b) => a.sortOrder - b.sortOrder);
+      });
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Не удалось сохранить услугу"
+      );
     } finally {
       setSaving(false);
     }
@@ -169,15 +177,19 @@ export function AdminServices() {
         label: "Удалить",
         onClick: async () => {
           try {
-            const response = await fetch(
+            await fetchJson(
               `/api/admin/services?id=${encodeURIComponent(service.id)}`,
               { method: "DELETE" }
             );
-            if (!response.ok) throw new Error("delete failed");
+            refreshPublicContent();
             toast.success("Услуга удалена");
             setServices((prev) => prev.filter((s) => s.id !== service.id));
-          } catch {
-            toast.error("Не удалось удалить услугу");
+          } catch (error) {
+            toast.error(
+              error instanceof Error
+                ? error.message
+                : "Не удалось удалить услугу"
+            );
           }
         },
       },
@@ -193,6 +205,16 @@ export function AdminServices() {
       </div>
     );
   }
+
+  if (loadError)
+    return (
+      <AdminLoadError
+        message={loadError}
+        onRetry={() => {
+          void load();
+        }}
+      />
+    );
 
   return (
     <div className="space-y-6">

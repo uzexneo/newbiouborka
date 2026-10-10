@@ -5,10 +5,50 @@ import { toast } from "sonner";
 import { Camera, Loader2, RefreshCw, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/lib/i18n/language-provider";
 import { SERVICE_CATEGORIES } from "@/lib/i18n/content";
 import type { ServiceCategoryMeta } from "@/lib/i18n/content";
-import { fetchJson } from "@/lib/api-client";
+import { prepareProcedurePhoto } from "@/lib/procedure-photo-upload";
+import {
+  procedurePhotoResetResultSchema,
+  procedurePhotoUploadResultSchema,
+  procedurePhotoUploadSchema,
+  procedurePhotosResultSchema,
+} from "@/lib/validation/procedure-photos";
+
+async function photoRequest(url: string, init?: RequestInit): Promise<unknown> {
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      ...init,
+      cache: "no-store",
+      signal: init?.signal
+        ? AbortSignal.any([init.signal, AbortSignal.timeout(30_000)])
+        : AbortSignal.timeout(30_000),
+    });
+  } catch (error) {
+    if (init?.signal?.aborted) throw error;
+    if (error instanceof DOMException && error.name === "TimeoutError") {
+      throw new Error("Сервер не ответил вовремя. Обновите страницу, чтобы проверить сохранение.");
+    }
+    throw new Error("Не удалось связаться с сервером. Попробуйте ещё раз.");
+  }
+  let data;
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error("Сервер не подтвердил результат. Обновите страницу и попробуйте ещё раз.");
+  }
+  if (!response.ok) {
+    throw new Error(typeof data?.error === "string" ? data.error : "Не удалось выполнить запрос");
+  }
+  return data;
+}
+
+function refreshPublicContent() {
+  window.dispatchEvent(new Event("biouborka:content-updated"));
+}
 
 interface ProcedurePhotoCardProps {
   category: ServiceCategoryMeta;
@@ -31,37 +71,34 @@ function ProcedurePhotoCard({
 
   const current = src ?? category.photo;
   const hasCustom = src !== undefined;
+  const busy = uploading || resetting;
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file) {
-      toast.error("Выберите файл изображения");
+    if (busy) return;
+    const parsed = procedurePhotoUploadSchema.safeParse({ categoryId: category.id, file });
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message ?? "Выберите файл изображения");
       return;
     }
 
     setUploading(true);
     try {
+      const prepared = await prepareProcedurePhoto(parsed.data.file);
       const form = new FormData();
       form.append("categoryId", category.id);
-      form.append("file", file);
+      form.append("file", prepared);
 
-      const response = await fetch("/api/admin/procedure-photos", {
+      const response = await photoRequest("/api/admin/procedure-photos", {
         method: "POST",
         body: form,
       });
-      if (!response.ok) {
-        let message = "Не удалось загрузить фото";
-        try {
-          const data = (await response.json()) as { error?: string };
-          if (data.error) message = data.error;
-        } catch {
-          // Не JSON — оставляем сообщение по умолчанию
-        }
-        throw new Error(message);
+      const result = procedurePhotoUploadResultSchema.safeParse(response);
+      if (!result.success) {
+        throw new Error("Сервер не подтвердил сохранение. Обновите страницу, чтобы проверить фото.");
       }
-
-      const data = (await response.json()) as { src: string };
-      onUploaded(data.src);
+      onUploaded(result.data.src);
+      refreshPublicContent();
       setFile(null);
       setFileInputKey((key) => key + 1);
       toast.success("Фото обновлено");
@@ -75,21 +112,25 @@ function ProcedurePhotoCard({
   };
 
   const handleReset = async () => {
+    if (busy) return;
     setResetting(true);
     try {
-      const response = await fetch(
+      const response = await photoRequest(
         `/api/admin/procedure-photos?categoryId=${encodeURIComponent(
           category.id
         )}`,
         { method: "DELETE" }
       );
-      if (!response.ok) throw new Error("reset failed");
+      if (!procedurePhotoResetResultSchema.safeParse(response).success) {
+        throw new Error("Сервер не подтвердил сброс. Обновите страницу, чтобы проверить фото.");
+      }
       onReset();
+      refreshPublicContent();
       setFile(null);
       setFileInputKey((key) => key + 1);
       toast.success("Фото сброшено к фото по умолчанию");
-    } catch {
-      toast.error("Не удалось сбросить фото");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Не удалось сбросить фото");
     } finally {
       setResetting(false);
     }
@@ -112,9 +153,23 @@ function ProcedurePhotoCard({
           key={fileInputKey}
           type="file"
           accept="image/*"
-          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          disabled={busy}
+          onChange={(e) => {
+            const selected = e.target.files?.[0] ?? null;
+            if (selected) {
+              const result = procedurePhotoUploadSchema.safeParse({ categoryId: category.id, file: selected });
+              if (!result.success) {
+                setFile(null);
+                setFileInputKey((key) => key + 1);
+                toast.error(result.error.issues[0]?.message ?? "Некорректное изображение");
+                return;
+              }
+            }
+            setFile(selected);
+          }}
         />
-        <Button type="submit" disabled={uploading || !file} className="w-full">
+        <p className="text-xs text-muted-foreground">Изображение до 10 МБ. После выбора нажмите «Сохранить фото».</p>
+        <Button type="submit" disabled={busy || !file} className="w-full">
           {uploading ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -123,7 +178,7 @@ function ProcedurePhotoCard({
           ) : (
             <>
               <Upload className="h-4 w-4" />
-              Загрузить фото
+              Сохранить фото
             </>
           )}
         </Button>
@@ -134,7 +189,7 @@ function ProcedurePhotoCard({
           type="button"
           variant="outline"
           onClick={handleReset}
-          disabled={resetting}
+          disabled={busy}
           className="w-full"
         >
           {resetting ? (
@@ -152,29 +207,54 @@ function ProcedurePhotoCard({
 export function AdminProcedurePhotos() {
   const [photos, setPhotos] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (signal?: AbortSignal) => {
+    setLoading(true);
+    setLoadError(null);
     try {
-      const data = await fetchJson<{ photos: Record<string, string> }>(
-        "/api/admin/procedure-photos"
-      );
-      setPhotos(data.photos ?? {});
-    } catch {
-      toast.error("Не удалось загрузить фото процедур");
+      const response = await photoRequest("/api/admin/procedure-photos", { signal });
+      const result = procedurePhotosResultSchema.safeParse(response);
+      if (!result.success) {
+        throw new Error("Не удалось прочитать фото процедур. Попробуйте ещё раз.");
+      }
+      if (signal?.aborted) return;
+      setPhotos(result.data.photos);
+    } catch (error) {
+      if (signal?.aborted) return;
+      setLoadError(error instanceof Error ? error.message : "Не удалось загрузить фото процедур");
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    load();
+    const controller = new AbortController();
+    void load(controller.signal);
+    return () => controller.abort();
   }, [load]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center gap-3 py-16 text-muted-foreground">
-        <Loader2 className="h-5 w-5 animate-spin" />
-        <span className="text-sm">Загрузка фото процедур...</span>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Загрузка фото процедур" aria-busy="true">
+        {SERVICE_CATEGORIES.map((category) => (
+          <div key={category.id} className="space-y-3 rounded-xl border p-4">
+            <Skeleton className="h-5 w-2/3" />
+            <Skeleton className="aspect-[16/10] w-full" />
+            <Skeleton className="h-9 w-full" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="space-y-3 rounded-xl border p-6">
+        <p role="alert" className="text-sm text-destructive">{loadError}</p>
+        <Button type="button" variant="outline" onClick={() => void load()}>
+          <RefreshCw className="h-4 w-4" /> Попробовать ещё раз
+        </Button>
       </div>
     );
   }

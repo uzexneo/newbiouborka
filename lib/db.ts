@@ -1,4 +1,9 @@
-import { DynamoDBClient, CreateTableCommand } from "@aws-sdk/client-dynamodb";
+import {
+  DynamoDBClient,
+  CreateTableCommand,
+  DescribeTableCommand,
+  waitUntilTableExists,
+} from "@aws-sdk/client-dynamodb";
 import type { DynamoDBClientConfig } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { NodeHttpHandler } from "@smithy/node-http-handler";
@@ -33,7 +38,9 @@ function dbClientConfig(): DynamoDBClientConfig {
 function createDocClient() {
   const client = new DynamoDBClient(dbClientConfig());
 
-  return DynamoDBDocumentClient.from(client);
+  return DynamoDBDocumentClient.from(client, {
+    marshallOptions: { removeUndefinedValues: true },
+  });
 }
 
 export const docClient = globalForDb.docClient ?? createDocClient();
@@ -52,39 +59,79 @@ export function isDatabaseAvailable(): boolean {
   );
 }
 
-export function ensureSiteVisitsTable(): Promise<void> {
+const readyTables = new Map<TableName, Promise<void>>();
+
+function errorName(error: unknown): unknown {
+  return typeof error === "object" && error !== null && "name" in error
+    ? error.name
+    : undefined;
+}
+
+async function prepareTable(tableName: TableName): Promise<void> {
   if (!isDatabaseAvailable()) {
-    return Promise.resolve();
+    throw new Error("Подключение к базе данных не настроено");
   }
-
-  const schema = TABLE_SCHEMAS[TableName.SITE_VISITS];
-
+  const schema = TABLE_SCHEMAS[tableName];
   const client = new DynamoDBClient(dbClientConfig());
-
-  return client
-    .send(
-      new CreateTableCommand({
-        TableName: schema.name,
-        KeySchema: schema.keySchema,
-        AttributeDefinitions: schema.attributeDefinitions,
-        BillingMode: "PAY_PER_REQUEST",
-      })
-    )
-    .then(() => {
-      console.info("[visits] Таблица site_visits создана автоматически");
-    })
-    .catch((error: unknown) => {
-      const name =
-        typeof error === "object" && error !== null && "name" in error
-          ? (error as { name?: unknown }).name
-          : undefined;
-
-      if (name === "ResourceInUseException") {
-        console.info("[visits] Таблица site_visits уже существует");
+  try {
+    try {
+      const result = await client.send(
+        new DescribeTableCommand({ TableName: schema.name })
+      );
+      if (result.Table?.TableStatus === "ACTIVE") {
         return;
       }
+    } catch (error: unknown) {
+      if (errorName(error) !== "ResourceNotFoundException") throw error;
+      try {
+        await client.send(
+          new CreateTableCommand({
+            TableName: schema.name,
+            KeySchema: schema.keySchema,
+            AttributeDefinitions: schema.attributeDefinitions,
+            BillingMode: "PAY_PER_REQUEST",
+          })
+        );
+      } catch (createError: unknown) {
+        if (errorName(createError) !== "ResourceInUseException") throw createError;
+      }
+    }
+    await waitUntilTableExists(
+      { client, maxWaitTime: 20, minDelay: 1, maxDelay: 2 },
+      { TableName: schema.name }
+    );
+  } finally {
+    client.destroy();
+  }
+}
 
-      console.warn("[visits] Не удалось создать таблицу site_visits:", error);
-    })
-    .finally(() => client.destroy());
+function ensureTable(tableName: TableName): Promise<void> {
+  const existing = readyTables.get(tableName);
+  if (existing) return existing;
+  const preparation = prepareTable(tableName).catch((error: unknown) => {
+    readyTables.delete(tableName);
+    throw error;
+  });
+  readyTables.set(tableName, preparation);
+  return preparation;
+}
+
+export function ensureSiteOrdersTable(): Promise<void> {
+  return ensureTable(TableName.SITE_ORDERS);
+}
+
+export function ensureSiteContentTable(): Promise<void> {
+  return ensureTable(TableName.SITE_CONTENT);
+}
+
+export function ensureSiteVisitsTable(): Promise<void> {
+  return ensureTable(TableName.SITE_VISITS);
+}
+
+export function ensureSiteServicesTable(): Promise<void> {
+  return ensureTable(TableName.SITE_SERVICES);
+}
+
+export function ensureSiteGalleryTable(): Promise<void> {
+  return ensureTable(TableName.SITE_GALLERY);
 }

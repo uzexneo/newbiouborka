@@ -26,15 +26,26 @@ export function ServicesBreadcrumbs({
             {t("nav.home")}
           </Link>
         </li>
-        <ChevronRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+        <li aria-hidden="true">
+          <ChevronRight className="h-4 w-4 shrink-0" />
+        </li>
         <li>
-          <Link href={hub} className="transition-colors hover:text-foreground">
-            {t("nav.services")}
-          </Link>
+          {categoryName ? (
+            <Link
+              href={hub}
+              className="transition-colors hover:text-foreground"
+            >
+              {t("nav.services")}
+            </Link>
+          ) : (
+            <span aria-current="page">{t("nav.services")}</span>
+          )}
         </li>
         {categoryName && (
           <>
-            <ChevronRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+            <li aria-hidden="true">
+              <ChevronRight className="h-4 w-4 shrink-0" />
+            </li>
             <li aria-current="page" className="font-medium text-foreground">
               {categoryName}
             </li>

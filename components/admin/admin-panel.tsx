@@ -25,6 +25,7 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
+import { fetchJson } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 import { AdminServices } from "@/components/admin/admin-services";
 import { AdminContacts } from "@/components/admin/admin-contacts";
@@ -57,7 +58,7 @@ export function AdminPanel() {
 
   const handleLogout = async () => {
     try {
-      await fetch("/api/admin/logout", { method: "POST" });
+      await fetchJson("/api/admin/logout", { method: "POST" });
       toast.success("Вы вышли из панели управления");
       router.refresh();
     } catch {
@@ -115,7 +116,7 @@ export function AdminPanel() {
             </CardTitle>
             <CardDescription>
               {active === "overview"
-                ? "Разделы панели управления будут доступны по мере реализации."
+                ? "Выберите раздел для редактирования сайта и просмотра заявок."
                 : active === "analytics"
                   ? "Статистика посещаемости сайта за выбранный период."
                   : "Изменения сохраняются в базу данных и мгновенно отражаются на сайте."}

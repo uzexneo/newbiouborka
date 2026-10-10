@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
 import { isDatabaseAvailable } from "@/lib/db";
 import { isAdminRequest } from "@/lib/admin-auth";
 import {
@@ -7,11 +6,11 @@ import {
   getSiteContent,
   putSiteContent,
 } from "@/lib/models";
-import { imageFileToDataUrl, isImageFile, MAX_UPLOAD_BYTES } from "@/lib/media";
-
-const logoSizeSchema = z.object({
-  size: z.number().int().min(20).max(200).nullable(),
-});
+import { imageFileToDataUrl } from "@/lib/media";
+import {
+  imageUploadSchema,
+  logoSizeSchema,
+} from "@/lib/validation/admin-content";
 
 function unauthorized() {
   return NextResponse.json({ error: "Не авторизован" }, { status: 401 });
@@ -29,22 +28,34 @@ async function readLogoPayload() {
   return { src, size, payload };
 }
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   if (!isAdminRequest(request)) return unauthorized();
 
   if (!(await isDatabaseAvailable())) {
-    return NextResponse.json({ src: null, size: null });
+    return NextResponse.json(
+      { error: "Подключение к базе данных не настроено" },
+      { status: 503 }
+    );
   }
 
   try {
     const { src, size } = await readLogoPayload();
-    return NextResponse.json({ src, size });
+    return NextResponse.json(
+      { src, size },
+      { headers: { "Cache-Control": "private, no-store" } }
+    );
   } catch (error) {
     console.error(
-      "Ошибка получения логотипа, использую значения по умолчанию:",
-      error
+      "Ошибка получения логотипа:",
+      error instanceof Error ? error.name : "UnknownError"
     );
-    return NextResponse.json({ src: null, size: null });
+    return NextResponse.json(
+      { error: "Не удалось загрузить сохранённое изображение" },
+      { status: 503 }
+    );
   }
 }
 
@@ -61,34 +72,32 @@ export async function POST(request: NextRequest) {
     const form = await request.formData();
     const file = form.get("file");
 
-    if (!(file instanceof File)) {
+    const parsed = imageUploadSchema.safeParse({ file });
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Файл изображения обязателен" },
+        {
+          error: parsed.error.issues[0]?.message ?? "Некорректное изображение",
+        },
         { status: 400 }
       );
     }
 
-    if (!isImageFile(file)) {
-      return NextResponse.json(
-        { error: "Можно загружать только изображения" },
-        { status: 400 }
-      );
-    }
-
-    if (file.size > MAX_UPLOAD_BYTES) {
-      return NextResponse.json(
-        { error: "Файл слишком большой (максимум 10 МБ)" },
-        { status: 400 }
-      );
-    }
-
-    const src = await imageFileToDataUrl(file, 512);
+    const src = await imageFileToDataUrl(parsed.data.file, 512);
     const { payload } = await readLogoPayload();
     const size = typeof payload.size === "number" ? payload.size : null;
     await putSiteContent("logo", { src, size });
 
     return NextResponse.json({ src, size }, { status: 201 });
   } catch (error) {
+    if (error instanceof Error && error.message.startsWith("IMAGE_")) {
+      return NextResponse.json(
+        {
+          error:
+            "Не удалось обработать изображение. Выберите JPEG, PNG или WebP меньшего размера.",
+        },
+        { status: 400 }
+      );
+    }
     console.error("Ошибка загрузки логотипа:", error);
     return NextResponse.json(
       { error: "Ошибка загрузки логотипа" },

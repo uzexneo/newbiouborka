@@ -1,4 +1,4 @@
-import { docClient } from "./db";
+import { docClient, ensureSiteOrdersTable, ensureSiteContentTable, ensureSiteServicesTable, ensureSiteGalleryTable } from "./db";
 import {
   GetCommand,
   PutCommand,
@@ -8,6 +8,8 @@ import {
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { TableName, IndexName } from "./schema";
+import { PROCEDURE_CATEGORY_IDS } from "./i18n/content";
+import { MAX_DATA_URL_CHARS } from "./media-limits";
 
 export interface Service {
   id: string;
@@ -156,20 +158,34 @@ export interface SiteContentDoc {
 }
 
 export async function getAllSiteServices(): Promise<SiteService[]> {
-  const result = await docClient.send(
-    new ScanCommand({ TableName: TableName.SITE_SERVICES })
-  );
-  return (result.Items as SiteService[]) ?? [];
+  await ensureSiteServicesTable();
+  const services: SiteService[] = [];
+  let lastKey: Record<string, unknown> | undefined;
+  do {
+    const result = await docClient.send(new ScanCommand({
+      TableName: TableName.SITE_SERVICES, ConsistentRead: true, ExclusiveStartKey: lastKey,
+    }));
+    services.push(...((result.Items as SiteService[]) ?? []));
+    lastKey = result.LastEvaluatedKey;
+  } while (lastKey);
+  return services.sort((a, b) => a.sortOrder - b.sortOrder || a.id.localeCompare(b.id));
 }
 
 export async function createSiteService(
-  data: Omit<SiteService, "createdAt" | "updatedAt">
+  data: Omit<SiteService, "createdAt" | "updatedAt">,
+  onlyIfAbsent = false
 ): Promise<SiteService> {
+  await ensureSiteServicesTable();
   const now = new Date().toISOString();
   const service: SiteService = { ...data, createdAt: now, updatedAt: now };
-  await docClient.send(
-    new PutCommand({ TableName: TableName.SITE_SERVICES, Item: service })
-  );
+  try {
+    await docClient.send(new PutCommand({
+      TableName: TableName.SITE_SERVICES, Item: service,
+      ConditionExpression: onlyIfAbsent ? "attribute_not_exists(id)" : undefined,
+    }));
+  } catch (error) {
+    if (!onlyIfAbsent || !(error instanceof Error) || error.name !== "ConditionalCheckFailedException") throw error;
+  }
   return service;
 }
 
@@ -182,6 +198,7 @@ export async function updateSiteService(
     >
   >
 ): Promise<SiteService> {
+  await ensureSiteServicesTable();
   const updateExpr: string[] = [];
   const exprValues: Record<string, unknown> = {};
   const exprNames: Record<string, string> = {};
@@ -207,6 +224,7 @@ export async function updateSiteService(
     new UpdateCommand({
       TableName: TableName.SITE_SERVICES,
       Key: { id },
+      ConditionExpression: "attribute_exists(id)",
       UpdateExpression: `set ${updateExpr.join(", ")}`,
       ExpressionAttributeValues: exprValues,
       ExpressionAttributeNames: exprNames,
@@ -218,6 +236,7 @@ export async function updateSiteService(
 }
 
 export async function deleteSiteService(id: string): Promise<void> {
+  await ensureSiteServicesTable();
   await docClient.send(
     new DeleteCommand({
       TableName: TableName.SITE_SERVICES,
@@ -229,10 +248,12 @@ export async function deleteSiteService(id: string): Promise<void> {
 export async function getSiteContent(
   id: string
 ): Promise<SiteContentDoc | null> {
+  await ensureSiteContentTable();
   const result = await docClient.send(
     new GetCommand({
       TableName: TableName.SITE_CONTENT,
       Key: { id },
+      ConsistentRead: true,
     })
   );
   return (result.Item as SiteContentDoc) ?? null;
@@ -242,6 +263,7 @@ export async function putSiteContent(
   id: string,
   payload: Record<string, unknown>
 ): Promise<SiteContentDoc> {
+  await ensureSiteContentTable();
   const doc: SiteContentDoc = {
     id,
     payload,
@@ -254,6 +276,7 @@ export async function putSiteContent(
 }
 
 export async function deleteSiteContent(id: string): Promise<void> {
+  await ensureSiteContentTable();
   await docClient.send(
     new DeleteCommand({
       TableName: TableName.SITE_CONTENT,
@@ -273,29 +296,52 @@ export interface GalleryPhoto {
 }
 
 export async function getAllGalleryPhotos(): Promise<GalleryPhoto[]> {
-  const result = await docClient.send(
-    new ScanCommand({ TableName: TableName.SITE_GALLERY })
-  );
-  return (result.Items as GalleryPhoto[]) ?? [];
+  await ensureSiteGalleryTable();
+  const photos: GalleryPhoto[] = [];
+  let lastKey: Record<string, unknown> | undefined;
+  do {
+    const result = await docClient.send(new ScanCommand({
+      TableName: TableName.SITE_GALLERY, ConsistentRead: true, ExclusiveStartKey: lastKey,
+    }));
+    photos.push(...((result.Items as GalleryPhoto[]) ?? []));
+    lastKey = result.LastEvaluatedKey;
+  } while (lastKey);
+  return photos.sort((a, b) => b.createdAt.localeCompare(a.createdAt) || a.id.localeCompare(b.id));
 }
 
 export async function createGalleryPhoto(
-  data: Omit<GalleryPhoto, "createdAt">
+  data: Omit<GalleryPhoto, "createdAt">,
+  onlyIfAbsent = false
 ): Promise<GalleryPhoto> {
+  await ensureSiteGalleryTable();
   const photo: GalleryPhoto = { ...data, createdAt: new Date().toISOString() };
-  await docClient.send(
-    new PutCommand({ TableName: TableName.SITE_GALLERY, Item: photo })
-  );
+  try {
+    await docClient.send(new PutCommand({
+      TableName: TableName.SITE_GALLERY, Item: photo,
+      ConditionExpression: onlyIfAbsent ? "attribute_not_exists(id)" : undefined,
+    }));
+  } catch (error) {
+    if (!onlyIfAbsent || !(error instanceof Error) || error.name !== "ConditionalCheckFailedException") throw error;
+  }
   return photo;
 }
 
 export async function deleteGalleryPhoto(id: string): Promise<void> {
+  await ensureSiteGalleryTable();
   await docClient.send(
     new DeleteCommand({
       TableName: TableName.SITE_GALLERY,
       Key: { id },
     })
   );
+}
+
+export async function isSiteCollectionInitialized(collection: "services" | "gallery"): Promise<boolean> {
+  return Boolean((await getSiteContent(`collection:${collection}`))?.payload.initialized);
+}
+
+export async function markSiteCollectionInitialized(collection: "services" | "gallery"): Promise<void> {
+  await putSiteContent(`collection:${collection}`, { initialized: true });
 }
 
 // --- Фото процедур (блок «Как проходит процедура») ---
@@ -311,48 +357,48 @@ export async function putProcedurePhoto(
   categoryId: string,
   src: string
 ): Promise<void> {
+  if (src.length > MAX_DATA_URL_CHARS) {
+    throw new Error("IMAGE_TOO_LARGE");
+  }
   await putSiteContent(`${PROCEDURE_PHOTO_PREFIX}${categoryId}`, { src });
 }
 
 export async function deleteProcedurePhoto(categoryId: string): Promise<void> {
-  await deleteSiteContent(`${PROCEDURE_PHOTO_PREFIX}${categoryId}`);
+  // Keep a reset marker so a legacy photo cannot reappear on the next read.
+  await putSiteContent(`${PROCEDURE_PHOTO_PREFIX}${categoryId}`, { src: null });
 }
 
 export async function getAllProcedurePhotos(): Promise<Record<string, string>> {
-  const result = await docClient.send(
-    new ScanCommand({ TableName: TableName.SITE_CONTENT })
+  const ids = [
+    LEGACY_PROCEDURE_PHOTOS_ID,
+    ...PROCEDURE_CATEGORY_IDS.map((id) => `${PROCEDURE_PHOTO_PREFIX}${id}`),
+  ];
+  // A single Scan stops after 1 MiB and can omit several saved base64 photos.
+  const docs = await Promise.all(
+    ids.map(async (id) => {
+      const result = await docClient.send(
+        new GetCommand({
+          TableName: TableName.SITE_CONTENT,
+          Key: { id },
+          ConsistentRead: true,
+        })
+      );
+      return result.Item as SiteContentDoc | undefined;
+    })
   );
   const photos: Record<string, string> = {};
-  let legacyDoc: SiteContentDoc | null = null;
+  const legacy = docs[0]?.payload?.photos;
+  const old = legacy && typeof legacy === "object" && !Array.isArray(legacy)
+    ? legacy as Record<string, unknown>
+    : {};
 
-  for (const item of (result.Items ?? []) as SiteContentDoc[]) {
-    if (item.id.startsWith(PROCEDURE_PHOTO_PREFIX)) {
-      const categoryId = item.id.slice(PROCEDURE_PHOTO_PREFIX.length);
-      const payload = item.payload as Record<string, unknown>;
-      const src = typeof payload.src === "string" ? payload.src : "";
-      if (categoryId && src) photos[categoryId] = src;
-    } else if (item.id === LEGACY_PROCEDURE_PHOTOS_ID) {
-      legacyDoc = item;
-    }
-  }
-
-  // Миграция старого формата (одна запись со всеми фото) в новый: раскидываем
-  // по отдельным записям и удаляем устаревший документ.
-  if (legacyDoc) {
-    const payload = legacyDoc.payload as Record<string, unknown>;
-    const old = payload.photos as Record<string, unknown> | undefined;
-    if (old && typeof old === "object") {
-      for (const [categoryId, src] of Object.entries(old)) {
-        if (typeof src === "string" && src && !photos[categoryId]) {
-          await putProcedurePhoto(categoryId, src);
-          photos[categoryId] = src;
-        }
-      }
-    }
-    // Legacy-документ больше не нужен: все фото либо перенесены, либо уже были
-    // в новом формате. Удаляем его, чтобы он не занимал место при каждом Scan.
-    await deleteSiteContent(LEGACY_PROCEDURE_PHOTOS_ID);
-  }
+  PROCEDURE_CATEGORY_IDS.forEach((categoryId, index) => {
+    const doc = docs[index + 1];
+    // Reads never migrate or delete data. A current record, including a reset
+    // marker, always takes priority over the legacy format.
+    const src = doc ? doc.payload?.src : old[categoryId];
+    if (typeof src === "string" && src) photos[categoryId] = src;
+  });
 
   return photos;
 }
@@ -372,9 +418,6 @@ export interface Order {
   comment?: string;
   orderStatus?: OrderStatus;
   createdAt: string;
-  // Флаг реального сохранения в БД: false — заявка подтверждена пользователю,
-  // но пока живёт только в памяти процесса (БД была недоступна при записи).
-  saved?: boolean;
 }
 
 export type OrderInput = Omit<
@@ -389,64 +432,13 @@ export type OrderInput = Omit<
 
 export interface CreateOrderResult {
   order: Order;
-  saved: boolean;
+  saved: true;
 }
-
-// Буфер заявок, которые не удалось записать в DynamoDB/Yandex Document API.
-// Позволяет не терять заявки: они подтверждаются пользователю, а в админ-панели
-// всё равно отображаются (см. getAllOrders) до тех пор, пока база не поднимется.
-// Ограничение по количеству защищает память процесса от неограниченного роста.
-const UNSAVED_ORDERS_LIMIT = 100;
-const unsavedOrders: Order[] = [];
-
-export function getUnsavedOrders(): Order[] {
-  return unsavedOrders.map((order) => ({ ...order, saved: false }));
-}
-
-function bufferUnsavedOrder(order: Order): void {
-  unsavedOrders.unshift({ ...order, saved: false });
-  if (unsavedOrders.length > UNSAVED_ORDERS_LIMIT) {
-    unsavedOrders.length = UNSAVED_ORDERS_LIMIT;
-  }
-}
-
-function removeUnsavedOrder(id: string): void {
-  const index = unsavedOrders.findIndex((order) => order.id === id);
-  if (index !== -1) unsavedOrders.splice(index, 1);
-}
-
-// Дописывает в БД заявки из буфера, когда база снова доступна (вызывается при
-// чтении заявок админом). Успешно записанные заявки уходят из буфера.
-async function flushUnsavedOrders(): Promise<void> {
-  if (unsavedOrders.length === 0) return;
-  const remaining: Order[] = [];
-  for (const order of unsavedOrders) {
-    const item: Record<string, unknown> = { ...order };
-    // Служебный флаг saved не должен попадать в БД.
-    delete item.saved;
-    try {
-      await docClient.send(
-        new PutCommand({ TableName: TableName.SITE_ORDERS, Item: item })
-      );
-    } catch (error) {
-      console.error(
-        "[orders] Не удалось дописать буферную заявку в DynamoDB:",
-        error
-      );
-      remaining.push(order);
-    }
-  }
-  if (remaining.length !== unsavedOrders.length) {
-    unsavedOrders.length = 0;
-    unsavedOrders.push(...remaining);
-  }
-}
-
-const ORDER_WRITE_ATTEMPTS = 2;
 
 export async function createOrder(
   data: OrderInput
 ): Promise<CreateOrderResult> {
+  await ensureSiteOrdersTable();
   const order: Order = {
     ...data,
     date: data.date ?? "",
@@ -457,85 +449,59 @@ export async function createOrder(
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
   };
-  for (let attempt = 1; attempt <= ORDER_WRITE_ATTEMPTS; attempt++) {
-    try {
-      await docClient.send(
-        new PutCommand({ TableName: TableName.SITE_ORDERS, Item: order })
-      );
-      return { order, saved: true };
-    } catch (error) {
-      // Ретраимся на случай кратковременного сбоя сети/БД. Логируем каждую
-      // попытку, чтобы по логам было видно проблему с сохранением.
-      console.error(
-        `[orders] Попытка ${attempt}/${ORDER_WRITE_ATTEMPTS} сохранения заявки в DynamoDB не удалась:`,
-        error
-      );
-    }
-  }
-  // Если записать в БД так и не удалось — не теряем заявку: держим её в памяти,
-  // чтобы администратор увидел её в разделе «Заявки клиентов».
-  bufferUnsavedOrder(order);
-  return { order, saved: false };
+  // SDK повторяет временно неудачные запросы. Успех подтверждаем только после
+  // завершения записи в постоянное хранилище; память Vercel не является очередью.
+  await docClient.send(
+    new PutCommand({ TableName: TableName.SITE_ORDERS, Item: order })
+  );
+  return { order, saved: true };
 }
 
 export async function getAllOrders(): Promise<Order[]> {
-  const result = await docClient.send(
-    new ScanCommand({ TableName: TableName.SITE_ORDERS })
-  );
-  const dbOrders = (result.Items as Order[]) ?? [];
-  // Если БД снова доступна — дописываем буферные заявки, чтобы они не
-  // потерялись после перезапуска процесса.
-  await flushUnsavedOrders();
-  // Объединяем сохранённые в БД заявки с буфером несохранённых, чтобы даже при
-  // частичном сбое записи админ видел все реальные обращения клиентов.
-  const byId = new Map<string, Order>();
-  for (const order of [...getUnsavedOrders(), ...dbOrders]) {
-    byId.set(
-      order.id,
-      order.saved === undefined ? { ...order, saved: true } : order
+  await ensureSiteOrdersTable();
+  const orders: Order[] = [];
+  let lastKey: Record<string, unknown> | undefined;
+  do {
+    const result = await docClient.send(
+      new ScanCommand({
+        TableName: TableName.SITE_ORDERS,
+        ConsistentRead: true,
+        ExclusiveStartKey: lastKey,
+      })
     );
-  }
-  return Array.from(byId.values());
+    orders.push(...((result.Items as Order[]) ?? []));
+    lastKey = result.LastEvaluatedKey;
+  } while (lastKey);
+  return orders;
 }
 
 export async function updateOrderStatus(
   id: string,
   orderStatus: OrderStatus
 ): Promise<Order> {
-  try {
-    const result = await docClient.send(
-      new UpdateCommand({
-        TableName: TableName.SITE_ORDERS,
-        Key: { id },
-        UpdateExpression: "set #orderStatus = :orderStatus",
-        ExpressionAttributeNames: { "#orderStatus": "orderStatus" },
-        ExpressionAttributeValues: { ":orderStatus": orderStatus },
-        ReturnValues: "ALL_NEW",
-      })
-    );
-    return result.Attributes as Order;
-  } catch (error) {
-    // Заявка могла быть не сохранена в БД (буфер) — обновляем её в памяти.
-    const index = unsavedOrders.findIndex((order) => order.id === id);
-    if (index !== -1) {
-      unsavedOrders[index] = { ...unsavedOrders[index], orderStatus };
-      return unsavedOrders[index];
-    }
-    throw error;
-  }
+  await ensureSiteOrdersTable();
+  const result = await docClient.send(
+    new UpdateCommand({
+      TableName: TableName.SITE_ORDERS,
+      Key: { id },
+      ConditionExpression: "attribute_exists(id)",
+      UpdateExpression: "set #orderStatus = :orderStatus",
+      ExpressionAttributeNames: { "#orderStatus": "orderStatus" },
+      ExpressionAttributeValues: { ":orderStatus": orderStatus },
+      ReturnValues: "ALL_NEW",
+    })
+  );
+  return result.Attributes as Order;
 }
 
 export async function deleteOrder(id: string): Promise<void> {
-  try {
-    await docClient.send(
-      new DeleteCommand({
-        TableName: TableName.SITE_ORDERS,
-        Key: { id },
-      })
-    );
-  } finally {
-    removeUnsavedOrder(id);
-  }
+  await ensureSiteOrdersTable();
+  await docClient.send(
+    new DeleteCommand({
+      TableName: TableName.SITE_ORDERS,
+      Key: { id },
+    })
+  );
 }
 
 // --- Посещения (аналитика) ---
@@ -565,10 +531,20 @@ export async function createVisit(data: VisitInput): Promise<Visit> {
 }
 
 export async function getAllVisits(): Promise<Visit[]> {
-  const result = await docClient.send(
+  let result = await docClient.send(
     new ScanCommand({ TableName: TableName.SITE_VISITS })
   );
-  return (result.Items as Visit[]) ?? [];
+  const visits = [...((result.Items as Visit[]) ?? [])];
+  while (result.LastEvaluatedKey) {
+    result = await docClient.send(
+      new ScanCommand({
+        TableName: TableName.SITE_VISITS,
+        ExclusiveStartKey: result.LastEvaluatedKey,
+      })
+    );
+    visits.push(...((result.Items as Visit[]) ?? []));
+  }
+  return visits;
 }
 
 export async function deleteVisit(id: string): Promise<void> {

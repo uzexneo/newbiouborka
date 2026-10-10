@@ -8,7 +8,7 @@ export function proxy(request: NextRequest) {
   if (lang === "uzKrill" || lang === "uzLatin") {
     const url = request.nextUrl.clone();
     url.pathname = lang === "uzKrill" ? "/uz-krill" : "/uz-latin";
-    url.search = "";
+    url.searchParams.delete("lang");
     return NextResponse.redirect(url, 301);
   }
   return NextResponse.next();

@@ -6,18 +6,15 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useState,
-  useSyncExternalStore,
+  useTransition,
 } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   defaultLocale,
-  isLocale,
+  canLocalizePathname,
   languages,
   localeFromPath,
-  localizePathname,
-  localeToPath,
-  LOCALE_STORAGE_KEY,
+  localizeHref,
   type Locale,
 } from "./config";
 import { dictionaries, type TranslationKey } from "./translations";
@@ -25,6 +22,7 @@ import { dictionaries, type TranslationKey } from "./translations";
 interface LanguageContextValue {
   locale: Locale;
   setLocale: (locale: Locale) => void;
+  isChangingLocale: boolean;
   t: (key: TranslationKey) => string;
 }
 
@@ -32,60 +30,31 @@ const LanguageContext = createContext<LanguageContextValue | undefined>(
   undefined
 );
 
-const emptySubscribe = () => () => {};
-
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const [storedLocale, setStoredLocale] = useState<Locale | null>(null);
-
-  useEffect(() => {
-    const stored = localStorage.getItem(LOCALE_STORAGE_KEY);
-    if (!isLocale(stored)) {
-      return;
-    }
-    const id = requestAnimationFrame(() => setStoredLocale(stored));
-    return () => cancelAnimationFrame(id);
-  }, []);
-
-  // The language is taken from the URL first (priority), and only falls back
-  // to the previously saved choice. getServerSnapshot keeps SSR output stable
-  // (default locale) so hydration never mismatches, while the client snapshot
-  // is applied synchronously right after hydration without a visible flash.
-  const locale = useSyncExternalStore(
-    emptySubscribe,
-    () => localeFromPath(pathname) ?? storedLocale ?? defaultLocale,
-    () => defaultLocale
-  );
-
-  useEffect(() => {
-    const fromPath = localeFromPath(pathname);
-    if (fromPath) {
-      try {
-        localStorage.setItem(LOCALE_STORAGE_KEY, fromPath);
-      } catch {
-        // localStorage may be unavailable (e.g. private mode); ignore.
-      }
-    }
-  }, [pathname]);
+  const [isChangingLocale, startTransition] = useTransition();
+  // The URL determines both server-rendered content and client navigation,
+  // including browser Back/Forward. Saved choices must not override RU URLs.
+  const locale = localeFromPath(pathname) ?? defaultLocale;
 
   const setLocale = useCallback(
     (next: Locale) => {
-      try {
-        localStorage.setItem(LOCALE_STORAGE_KEY, next);
-      } catch {
-        // localStorage may be unavailable (e.g. private mode); ignore.
-      }
-      setStoredLocale(next);
       const currentPath = window.location.pathname;
-      const target = localizePathname(currentPath, next);
-      const isHome =
-        localeToPath[next] === "/"
-          ? target === "/"
-          : target === localeToPath[next];
-      if (target !== currentPath) {
-        router.push(target + (isHome ? window.location.hash : ""));
+      if (!canLocalizePathname(currentPath)) {
+        return;
+      }
+      const target = localizeHref(
+        currentPath,
+        next,
+        window.location.search,
+        window.location.hash
+      );
+      const currentHref =
+        currentPath + window.location.search + window.location.hash;
+      if (target !== currentHref) {
+        startTransition(() => router.push(target, { scroll: false }));
       }
     },
     [router]
@@ -103,8 +72,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   );
 
   const value = useMemo(
-    () => ({ locale, setLocale, t }),
-    [locale, setLocale, t]
+    () => ({ locale, setLocale, isChangingLocale, t }),
+    [locale, setLocale, isChangingLocale, t]
   );
 
   return (

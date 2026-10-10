@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
-import { isDatabaseAvailable } from "@/lib/db";
+import { ensureSiteContentTable, isDatabaseAvailable } from "@/lib/db";
 import {
-  createGalleryPhoto,
   getAllGalleryPhotos,
   getAllProcedurePhotos,
   getAllSiteServices,
   getSiteContent,
+  isSiteCollectionInitialized,
 } from "@/lib/models";
-import { galleryItems } from "@/lib/gallery-data";
 import { DEFAULT_BACKGROUND } from "@/lib/site-content";
 import type {
   PublicContent,
@@ -17,21 +16,31 @@ import type {
   SiteTestimonial,
 } from "@/lib/site-content";
 
-async function ensureGallerySeeded(): Promise<void> {
-  const existing = await getAllGalleryPhotos();
-  if (existing.length > 0) return;
-  for (const item of galleryItems) {
-    await createGalleryPhoto({ ...item, id: item.id });
-  }
-}
+export const dynamic = "force-dynamic";
+const responseHeaders = { "Cache-Control": "no-store" };
+const sectionKeys = [
+  ["services"],
+  ["contacts"],
+  ["about"],
+  ["benefits"],
+  ["testimonials"],
+  ["gallery"],
+  ["background"],
+  ["logo", "logoSize"],
+  ["procedurePhotos"],
+] as const;
 
 function parseContent<T>(
   id: string,
   fallback: (payload: Record<string, unknown>) => T | null
 ): Promise<T | null> {
-  return getSiteContent(id).then((doc) =>
+  return ensureSiteContentTable().then(() => getSiteContent(id)).then((doc) =>
     doc ? fallback(doc.payload as Record<string, unknown>) : null
   );
+}
+
+function settledValue<T>(result: PromiseSettledResult<T>): T | null {
+  return result.status === "fulfilled" ? result.value : null;
 }
 
 export async function GET() {
@@ -40,23 +49,12 @@ export async function GET() {
   if (!dbAvailable) {
     return NextResponse.json(
       { error: "Database is unavailable in static mode" },
-      { status: 503 }
+      { status: 503, headers: responseHeaders }
     );
   }
 
-  try {
-    const [
-      services,
-      contacts,
-      about,
-      benefits,
-      testimonials,
-      galleryDoc,
-      background,
-      logo,
-      procedurePhotos,
-    ] = await Promise.all([
-      getAllSiteServices(),
+    const results = await Promise.allSettled([
+      getAllSiteServices().then(async (items) => items.length > 0 || await isSiteCollectionInitialized("services") ? items : null),
       parseContent<SiteContacts>("contacts", (p) =>
         p && typeof p.phone === "string"
           ? {
@@ -79,7 +77,7 @@ export async function GET() {
       parseContent<SiteTestimonial[]>("testimonials", (p) =>
         Array.isArray(p.items) ? (p.items as SiteTestimonial[]) : null
       ),
-      ensureGallerySeeded().then(() => getAllGalleryPhotos()),
+      getAllGalleryPhotos().then(async (items) => items.length > 0 || await isSiteCollectionInitialized("gallery") ? items : null),
       parseContent<{ src?: string }>("background", (p) =>
         p && typeof p.src === "string" && p.src ? { src: p.src } : null
       ),
@@ -91,11 +89,34 @@ export async function GET() {
             }
           : null
       ),
-      getAllProcedurePhotos(),
+      ensureSiteContentTable().then(() => getAllProcedurePhotos()),
     ]);
 
+    if (results.some((result) => result.status === "rejected")) {
+      console.error("[content] Часть контента недоступна; сохранены успешно прочитанные разделы");
+    }
+    if (results.every((result) => result.status === "rejected")) {
+      return NextResponse.json(
+        { error: "Контент временно недоступен" },
+        { status: 503, headers: responseHeaders }
+      );
+    }
+
+    const services = settledValue(results[0]);
+    const contacts = settledValue(results[1]);
+    const about = settledValue(results[2]);
+    const benefits = settledValue(results[3]);
+    const testimonials = settledValue(results[4]);
+    const galleryDoc = settledValue(results[5]);
+    const background = settledValue(results[6]);
+    const logo = settledValue(results[7]);
+    const procedurePhotos = settledValue(results[8]);
+    const unavailableSections = results.flatMap((result, index) =>
+      result.status === "rejected" ? [...(sectionKeys[index] ?? [])] : []
+    );
+
     const gallery =
-      galleryDoc && galleryDoc.length > 0
+      galleryDoc != null
         ? galleryDoc.map((photo) => ({
             id: photo.id,
             title: photo.title,
@@ -104,13 +125,12 @@ export async function GET() {
           }))
         : null;
 
-    const content: PublicContent = {
-      services: services.length > 0 ? services : null,
+    const content: PublicContent & { unavailableSections: (keyof PublicContent)[] } = {
+      services,
       contacts,
       about,
-      benefits: benefits && benefits.length > 0 ? benefits : null,
-      testimonials:
-        testimonials && testimonials.length > 0 ? testimonials : null,
+      benefits,
+      testimonials,
       gallery,
       background: background?.src ?? DEFAULT_BACKGROUND,
       logo: logo?.src ?? null,
@@ -119,28 +139,8 @@ export async function GET() {
         procedurePhotos && Object.keys(procedurePhotos).length > 0
           ? procedurePhotos
           : null,
+      unavailableSections,
     };
 
-    return NextResponse.json(content);
-  } catch (error) {
-    // Недоступность БД не должна ломать публичный API контента: фронтенд в этом
-    // случае использует статические данные по умолчанию. Логируем и возвращаем
-    // корректный ответ вместо 500.
-    console.error(
-      "Ошибка получения контента сайта, использую значения по умолчанию:",
-      error
-    );
-    return NextResponse.json({
-      services: null,
-      contacts: null,
-      about: null,
-      benefits: null,
-      testimonials: null,
-      gallery: null,
-      background: DEFAULT_BACKGROUND,
-      logo: null,
-      logoSize: null,
-      procedurePhotos: null,
-    });
-  }
+    return NextResponse.json(content, { headers: responseHeaders });
 }

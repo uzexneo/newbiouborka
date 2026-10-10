@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { useLanguage } from "@/lib/i18n/language-provider";
+import { localizeSiteServices } from "@/lib/i18n/site-content";
 import { BENEFITS, SERVICE_CATEGORIES, TESTIMONIALS } from "@/lib/i18n/content";
 import type { TranslationKey } from "@/lib/i18n/translations";
 import { galleryItems } from "@/lib/gallery-data";
@@ -43,6 +44,23 @@ interface SiteContentValue {
   isDynamic: boolean;
 }
 
+type ContentResponse = PublicContent & {
+  unavailableSections?: (keyof PublicContent)[];
+};
+
+const contentKeys: (keyof PublicContent)[] = [
+  "services",
+  "contacts",
+  "about",
+  "benefits",
+  "testimonials",
+  "gallery",
+  "background",
+  "logo",
+  "logoSize",
+  "procedurePhotos",
+];
+
 const SiteContentContext = createContext<SiteContentValue | null>(null);
 
 export function useSiteContent(): SiteContentValue {
@@ -73,29 +91,67 @@ function buildStaticServices(
 }
 
 export function SiteContentProvider({ children }: { children: ReactNode }) {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
 
   const [dynamic, setDynamic] = useState<PublicContent | null>(null);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/content")
-      .then((res) => {
-        if (!res.ok) throw new Error("content unavailable");
-        return res.json() as Promise<PublicContent>;
-      })
-      .then((data) => {
-        if (!cancelled) {
-          setDynamic(data);
-          setLoaded(true);
+    let controller: AbortController | null = null;
+    let requestId = 0;
+
+    const load = async () => {
+      controller?.abort();
+      controller = new AbortController();
+      const currentId = ++requestId;
+      try {
+        const response = await fetch("/api/content", {
+          cache: "no-store",
+          signal: AbortSignal.any([
+            controller.signal,
+            AbortSignal.timeout(30_000),
+          ]),
+        });
+        if (!response.ok) throw new Error("content unavailable");
+        const data = (await response.json()) as ContentResponse;
+        if (!cancelled && currentId === requestId) {
+          setDynamic((previous) => {
+            if (!previous || !Array.isArray(data.unavailableSections))
+              return data;
+            const preserved = Object.fromEntries(
+              data.unavailableSections
+                .filter((key) => contentKeys.includes(key))
+                .map((key) => [key, previous[key]])
+            ) as Partial<PublicContent>;
+            return { ...data, ...preserved };
+          });
         }
-      })
-      .catch(() => {
-        if (!cancelled) setLoaded(true);
-      });
+      } catch {
+        // Keep the most recent content when a refresh fails.
+      } finally {
+        if (!cancelled && currentId === requestId) setLoaded(true);
+      }
+    };
+
+    const refresh = () => {
+      void load();
+    };
+    const refreshVisible = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
+    refresh();
+    window.addEventListener("biouborka:content-updated", refresh);
+    window.addEventListener("focus", refreshVisible);
+    window.addEventListener("pageshow", refreshVisible);
+    document.addEventListener("visibilitychange", refreshVisible);
     return () => {
       cancelled = true;
+      controller?.abort();
+      window.removeEventListener("biouborka:content-updated", refresh);
+      window.removeEventListener("focus", refreshVisible);
+      window.removeEventListener("pageshow", refreshVisible);
+      document.removeEventListener("visibilitychange", refreshVisible);
     };
   }, []);
 
@@ -103,8 +159,8 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
   const staticCategories = groupServicesByCategory(staticServices);
 
   const services: SiteCategory[] =
-    dynamic?.services && dynamic.services.length > 0
-      ? groupServicesByCategory(dynamic.services)
+    dynamic?.services != null
+      ? groupServicesByCategory(localizeSiteServices(dynamic.services, locale))
       : staticCategories;
 
   const contacts: SiteContacts = dynamic?.contacts
@@ -116,14 +172,16 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
     p2: t("about.p2"),
     p3: t("about.p3"),
   };
-  const about: SiteAbout = dynamic?.about ?? staticAbout;
+  const about: SiteAbout =
+    locale === "ru" ? (dynamic?.about ?? staticAbout) : staticAbout;
 
   const staticBenefits: SiteBenefit[] = BENEFITS.map((b) => ({
     title: t(b.titleKey),
     desc: t(b.descKey),
   }));
   const benefits: SiteBenefit[] =
-    dynamic?.benefits && dynamic.benefits.length > 0
+    dynamic?.benefits != null &&
+    (locale === "ru" || dynamic.benefits.length === 0)
       ? dynamic.benefits
       : staticBenefits;
 
@@ -134,14 +192,13 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
     rating: r.rating,
   }));
   const testimonials: SiteTestimonial[] =
-    dynamic?.testimonials && dynamic.testimonials.length > 0
+    dynamic?.testimonials != null &&
+    (locale === "ru" || dynamic.testimonials.length === 0)
       ? dynamic.testimonials
       : staticTestimonials;
 
   const gallery: GalleryItem[] =
-    dynamic?.gallery && dynamic.gallery.length > 0
-      ? dynamic.gallery
-      : galleryItems;
+    dynamic?.gallery != null ? dynamic.gallery : galleryItems;
 
   const background: string = dynamic?.background ?? DEFAULT_BACKGROUND;
 

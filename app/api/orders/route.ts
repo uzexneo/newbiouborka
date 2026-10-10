@@ -1,13 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import type { Order } from "@/lib/models";
 import { createOrder } from "@/lib/models";
+import { isDatabaseAvailable } from "@/lib/db";
 import { sendTelegramNotification } from "@/lib/telegram";
 import { orderSchema } from "@/lib/validation";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
-  const parsed = orderSchema.safeParse(await request.json());
+  const parsed = orderSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json(
       { error: "Некорректные данные", details: parsed.error.flatten() },
@@ -15,39 +17,38 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  if (!isDatabaseAvailable()) {
+    return NextResponse.json(
+      { error: "Не удалось сохранить заявку. Попробуйте ещё раз или позвоните нам.", saved: false },
+      { status: 503, headers: { "Retry-After": "30" } }
+    );
+  }
+
   let order: Order;
-  let saved = false;
   try {
     const result = await createOrder(parsed.data);
     order = result.order;
-    saved = result.saved;
   } catch (error) {
-    // Недоступность БД не должна ломать подачу заявки: логируем ошибку и всё
-    // равно подтверждаем пользователю, чтобы заявка не терялась на фронте
-    // (уведомление в Telegram при этом отправляется отдельно).
-    console.error("[orders] Ошибка сохранения заявки:", error);
-    order = {
-      ...parsed.data,
-      date: parsed.data.date ?? "",
-      time: parsed.data.time ?? "",
-      address: parsed.data.address ?? "",
-      comment: parsed.data.comment ?? "",
-      orderStatus: "application",
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-    };
-  }
-
-  // Отправка уведомления в Telegram не должна ломать сохранение заявки.
-  let telegramSent = false;
-  try {
-    telegramSent = await sendTelegramNotification(order);
-    console.log(
-      `[telegram] Заявка ${order.id} (saved=${saved}); отправка уведомления: ${telegramSent ? "успех" : "не удалась"}`
+    console.error("[orders] Ошибка сохранения заявки:", error instanceof Error ? error.name : "UnknownError");
+    return NextResponse.json(
+      { error: "Не удалось сохранить заявку. Попробуйте ещё раз или позвоните нам.", saved: false },
+      { status: 503, headers: { "Retry-After": "30" } }
     );
-  } catch (notifyError) {
-    console.error("Ошибка отправки уведомления в Telegram:", notifyError);
   }
 
-  return NextResponse.json({ ...order, saved, telegramSent }, { status: 201 });
+  // Заявка уже сохранена. Next.js поддерживает выполнение уведомления после
+  // ответа и продлевает жизнь серверного запроса через waitUntil на Vercel.
+  after(async () => {
+    try {
+      const sent = await sendTelegramNotification(order);
+      console.info(`[telegram] Уведомление о сохранённой заявке: ${sent ? "успех" : "не удалась"}`);
+    } catch (error) {
+      console.error("[telegram] Ошибка уведомления:", error instanceof Error ? error.name : "UnknownError");
+    }
+  });
+
+  return NextResponse.json(
+    { ...order, saved: true, telegramStatus: "pending" },
+    { status: 201 }
+  );
 }

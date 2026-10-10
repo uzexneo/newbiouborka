@@ -12,7 +12,13 @@ const loginSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
-  const parsed = loginSchema.safeParse(await request.json());
+  if (!process.env.ADMIN_PASSWORD) {
+    return NextResponse.json(
+      { error: "Вход администратора не настроен" },
+      { status: 503 }
+    );
+  }
+  const parsed = loginSchema.safeParse(await request.json().catch(() => null));
 
   if (!parsed.success) {
     return NextResponse.json(

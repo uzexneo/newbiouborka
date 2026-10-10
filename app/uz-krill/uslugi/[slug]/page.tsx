@@ -28,7 +28,7 @@ export default async function UzKrillServiceCategoryPage({
   if (!page) {
     notFound();
   }
-  const jsonLd = getServiceCategoryJsonLdBySlug(slug);
+  const jsonLd = getServiceCategoryJsonLdBySlug(slug, "uzKrill");
   return (
     <>
       {jsonLd && (

@@ -1,56 +1,78 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Image as ImageIcon, Loader2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { fetchJson } from "@/lib/api-client";
+import { imageUploadSchema } from "@/lib/validation/admin-content";
+import { prepareImageUpload } from "@/lib/procedure-photo-upload";
+import { AdminLoadError } from "@/components/admin/admin-load-error";
+import { refreshPublicContent } from "@/lib/site-content-events";
 
 export function AdminMedia() {
   const [src, setSrc] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [fileInputKey, setFileInputKey] = useState(0);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const data = await fetchJson<{ src: string }>("/api/admin/media");
+      setSrc(data.src);
+    } catch (error) {
+      setLoadError(
+        error instanceof Error
+          ? error.message
+          : "Не удалось загрузить фоновое изображение"
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const data = await fetchJson<{ src: string }>("/api/admin/media");
-        setSrc(data.src);
-      } catch {
-        toast.error("Не удалось загрузить фоновое изображение");
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+    void load();
+  }, [load]);
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file) {
-      toast.error("Выберите файл изображения");
+    if (uploading) return;
+    const image = imageUploadSchema.safeParse({ file });
+    if (!image.success) {
+      toast.error(
+        image.error.issues[0]?.message ?? "Выберите файл изображения"
+      );
       return;
     }
 
     setUploading(true);
     try {
+      const prepared = await prepareImageUpload(image.data.file, 1920);
       const form = new FormData();
-      form.append("file", file);
+      form.append("file", prepared);
 
-      const response = await fetch("/api/admin/media", {
+      const data = await fetchJson<{ src: string }>("/api/admin/media", {
         method: "POST",
         body: form,
       });
-      if (!response.ok) throw new Error("upload failed");
-
-      const data = (await response.json()) as { src: string };
       setSrc(data.src);
       setFile(null);
+      setFileInputKey((value) => value + 1);
+      refreshPublicContent();
       toast.success("Фоновое изображение обновлено");
-    } catch {
-      toast.error("Не удалось загрузить фоновое изображение");
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Не удалось загрузить фоновое изображение"
+      );
     } finally {
       setUploading(false);
     }
@@ -65,6 +87,16 @@ export function AdminMedia() {
     );
   }
 
+  if (loadError)
+    return (
+      <AdminLoadError
+        message={loadError}
+        onRetry={() => {
+          void load();
+        }}
+      />
+    );
+
   return (
     <div className="space-y-6">
       <form onSubmit={handleUpload} className="max-w-md space-y-4">
@@ -76,7 +108,9 @@ export function AdminMedia() {
         <div className="space-y-2">
           <Label>Новое фоновое изображение</Label>
           <Input
+            key={fileInputKey}
             type="file"
+            disabled={uploading}
             accept="image/*"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           />

@@ -1,7 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { z } from "zod";
+import {
+  galleryFormSchema,
+  imageUploadSchema,
+} from "@/lib/validation/admin-content";
+import { prepareImageUpload } from "@/lib/procedure-photo-upload";
 import { toast } from "sonner";
 import { Plus, Trash2, Images, Loader2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,11 +19,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { fetchJson } from "@/lib/api-client";
-
-const gallerySchema = z.object({
-  title: z.string().min(1, "Введите название фото").max(300),
-  category: z.string().min(1, "Выберите категорию"),
-});
+import { AdminLoadError } from "@/components/admin/admin-load-error";
+import { refreshPublicContent } from "@/lib/site-content-events";
 
 const CATEGORIES = [
   { value: "apartment", label: "Квартиры" },
@@ -38,8 +39,10 @@ interface Photo {
 export function AdminGallery() {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [fileInputKey, setFileInputKey] = useState(0);
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [errors, setErrors] = useState<{ title?: string; category?: string }>(
@@ -47,11 +50,15 @@ export function AdminGallery() {
   );
 
   const load = useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
     try {
       const data = await fetchJson<Photo[]>("/api/admin/gallery");
       setPhotos(data);
-    } catch {
-      toast.error("Не удалось загрузить галерею");
+    } catch (error) {
+      setLoadError(
+        error instanceof Error ? error.message : "Не удалось загрузить галерею"
+      );
     } finally {
       setLoading(false);
     }
@@ -64,7 +71,7 @@ export function AdminGallery() {
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const parsed = gallerySchema.safeParse({ title, category });
+    const parsed = galleryFormSchema.safeParse({ title, category });
     if (!parsed.success) {
       const fieldErrors: { title?: string; category?: string } = {};
       for (const issue of parsed.error.issues) {
@@ -75,31 +82,39 @@ export function AdminGallery() {
       return;
     }
 
-    if (!file) {
-      toast.error("Выберите файл изображения");
+    if (uploading) return;
+    const image = imageUploadSchema.safeParse({ file });
+    if (!image.success) {
+      toast.error(
+        image.error.issues[0]?.message ?? "Выберите файл изображения"
+      );
       return;
     }
 
     setUploading(true);
     try {
+      const prepared = await prepareImageUpload(image.data.file, 1280);
       const form = new FormData();
-      form.append("file", file);
+      form.append("file", prepared);
       form.append("title", parsed.data.title);
       form.append("category", parsed.data.category);
 
-      const response = await fetch("/api/admin/gallery", {
+      const saved = await fetchJson<Photo>("/api/admin/gallery", {
         method: "POST",
         body: form,
       });
-      if (!response.ok) throw new Error("upload failed");
 
+      refreshPublicContent();
       toast.success("Фото добавлено в галерею");
       setFile(null);
+      setFileInputKey((value) => value + 1);
       setTitle("");
       setCategory("");
-      await load();
-    } catch {
-      toast.error("Не удалось загрузить фото");
+      setPhotos((previous) => [saved, ...previous]);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Не удалось загрузить фото"
+      );
     } finally {
       setUploading(false);
     }
@@ -111,15 +126,17 @@ export function AdminGallery() {
         label: "Удалить",
         onClick: async () => {
           try {
-            const response = await fetch(
+            await fetchJson(
               `/api/admin/gallery?id=${encodeURIComponent(photo.id)}`,
               { method: "DELETE" }
             );
-            if (!response.ok) throw new Error("delete failed");
+            refreshPublicContent();
             toast.success("Фото удалено");
             setPhotos((prev) => prev.filter((p) => p.id !== photo.id));
-          } catch {
-            toast.error("Не удалось удалить фото");
+          } catch (error) {
+            toast.error(
+              error instanceof Error ? error.message : "Не удалось удалить фото"
+            );
           }
         },
       },
@@ -135,6 +152,16 @@ export function AdminGallery() {
       </div>
     );
   }
+
+  if (loadError)
+    return (
+      <AdminLoadError
+        message={loadError}
+        onRetry={() => {
+          void load();
+        }}
+      />
+    );
 
   return (
     <div className="space-y-6">
@@ -193,7 +220,9 @@ export function AdminGallery() {
         <div className="space-y-2">
           <Label>Файл изображения</Label>
           <Input
+            key={fileInputKey}
             type="file"
+            disabled={uploading}
             accept="image/*"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           />

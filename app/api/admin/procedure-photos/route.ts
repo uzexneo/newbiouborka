@@ -1,149 +1,108 @@
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
-import { isDatabaseAvailable } from "@/lib/db";
+import { ensureSiteContentTable, isDatabaseAvailable } from "@/lib/db";
 import { isAdminRequest } from "@/lib/admin-auth";
 import {
   deleteProcedurePhoto,
   getAllProcedurePhotos,
   putProcedurePhoto,
 } from "@/lib/models";
-import { PROCEDURE_CATEGORY_IDS } from "@/lib/i18n/content";
+import { imageFileToDataUrl, MAX_DATA_URL_CHARS } from "@/lib/media";
 import {
-  imageFileToDataUrl,
-  isImageFile,
-  MAX_DATA_URL_CHARS,
-  MAX_UPLOAD_BYTES,
-} from "@/lib/media";
+  procedurePhotoCategorySchema,
+  procedurePhotoUploadSchema,
+} from "@/lib/validation/procedure-photos";
 
-const categoryIdSchema = z.object({
-  categoryId: z.enum(PROCEDURE_CATEGORY_IDS),
-});
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-function unauthorized() {
-  return NextResponse.json({ error: "Не авторизован" }, { status: 401 });
+function json(data: unknown, status = 200) {
+  return NextResponse.json(data, {
+    status,
+    headers: { "Cache-Control": "no-store" },
+  });
 }
 
 export async function GET(request: NextRequest) {
-  if (!isAdminRequest(request)) return unauthorized();
-
-  if (!(await isDatabaseAvailable())) {
-    return NextResponse.json({ photos: {} });
+  if (!isAdminRequest(request)) return json({ error: "Не авторизован" }, 401);
+  if (!isDatabaseAvailable()) {
+    return json({ error: "База данных недоступна. Фото не загружены." }, 503);
   }
 
   try {
+    await ensureSiteContentTable();
     const photos = await getAllProcedurePhotos();
-    return NextResponse.json({ photos });
-  } catch (error) {
-    console.error(
-      "Ошибка получения фото процедур, использую пустой список:",
-      error
-    );
-    return NextResponse.json({ photos: {} });
+    return json({ photos });
+  } catch {
+    console.error("[procedure-photos] Не удалось прочитать фотографии");
+    return json({ error: "Не удалось загрузить фото процедур. Попробуйте ещё раз." }, 503);
   }
 }
 
 export async function POST(request: NextRequest) {
-  if (!isAdminRequest(request)) return unauthorized();
-  if (!(await isDatabaseAvailable())) {
-    return NextResponse.json(
-      { error: "База данных недоступна в статическом режиме" },
-      { status: 503 }
-    );
+  if (!isAdminRequest(request)) return json({ error: "Не авторизован" }, 401);
+  if (!isDatabaseAvailable()) {
+    return json({ error: "База данных недоступна. Фото не сохранено." }, 503);
   }
 
+  let form: FormData;
   try {
-    const form = await request.formData();
-    const file = form.get("file");
-    const categoryRaw = String(form.get("categoryId") ?? "");
+    form = await request.formData();
+  } catch {
+    return json({ error: "Не удалось прочитать файл. Выберите изображение ещё раз." }, 400);
+  }
 
-    const parsed = categoryIdSchema.safeParse({ categoryId: categoryRaw });
-    if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Некорректная категория", details: parsed.error.flatten() },
-        { status: 400 }
-      );
-    }
+  const parsed = procedurePhotoUploadSchema.safeParse({
+    categoryId: form.get("categoryId"),
+    file: form.get("file"),
+  });
+  if (!parsed.success) {
+    return json({ error: parsed.error.issues[0]?.message ?? "Некорректное изображение" }, 400);
+  }
 
-    if (!(file instanceof File)) {
-      return NextResponse.json(
-        { error: "Файл изображения обязателен" },
-        { status: 400 }
-      );
-    }
-
-    if (!isImageFile(file)) {
-      return NextResponse.json(
-        { error: "Можно загружать только изображения" },
-        { status: 400 }
-      );
-    }
-
-    if (file.size > MAX_UPLOAD_BYTES) {
-      return NextResponse.json(
-        { error: "Файл слишком большой (максимум 10 МБ)" },
-        { status: 400 }
-      );
-    }
-
-    // Сжимаем фото сильнее, чем галерею/фон: каждая запись procedurePhoto:<id>
-    // хранится в DynamoDB отдельно, и base64 data-URL должен оставаться заметно
-    // ниже лимита в 400 КБ, чтобы замена фото не падала на сохранении.
-    const src = await imageFileToDataUrl(file, 640, {
+  let src: string;
+  try {
+    src = await imageFileToDataUrl(parsed.data.file, 640, {
       quality: 72,
       maxDataUrlChars: MAX_DATA_URL_CHARS,
     });
-    await putProcedurePhoto(parsed.data.categoryId, src);
-    const photos = await getAllProcedurePhotos();
-
-    return NextResponse.json(
-      { photos, categoryId: parsed.data.categoryId, src },
-      { status: 201 }
-    );
   } catch (error) {
-    console.error("Ошибка загрузки фото процедуры:", error);
-    if (error instanceof Error && error.message === "IMAGE_TOO_LARGE") {
-      return NextResponse.json(
-        {
-          error:
-            "Фото слишком большое даже после сжатия. Загрузите изображение меньшего размера.",
-        },
-        { status: 400 }
-      );
-    }
-    return NextResponse.json(
-      { error: "Ошибка загрузки фото процедуры" },
-      { status: 500 }
-    );
+    const tooLarge = error instanceof Error && error.message === "IMAGE_TOO_LARGE";
+    return json({
+      error: tooLarge
+        ? "Фото слишком большое даже после сжатия. Выберите изображение меньшего размера."
+        : "Не удалось обработать изображение. Попробуйте фото в формате JPEG, PNG или WebP.",
+    }, 400);
+  }
+
+  try {
+    await ensureSiteContentTable();
+    await putProcedurePhoto(parsed.data.categoryId, src);
+    // Return the confirmed write without a second read that could fail after
+    // the image was saved, or return an older value.
+    return json({ categoryId: parsed.data.categoryId, src }, 201);
+  } catch {
+    console.error("[procedure-photos] Не удалось сохранить фотографию");
+    return json({ error: "Не удалось сохранить фото. Попробуйте ещё раз." }, 503);
   }
 }
 
 export async function DELETE(request: NextRequest) {
-  if (!isAdminRequest(request)) return unauthorized();
-  if (!(await isDatabaseAvailable())) {
-    return NextResponse.json(
-      { error: "База данных недоступна в статическом режиме" },
-      { status: 503 }
-    );
+  if (!isAdminRequest(request)) return json({ error: "Не авторизован" }, 401);
+  if (!isDatabaseAvailable()) {
+    return json({ error: "База данных недоступна. Фото не сброшено." }, 503);
   }
 
-  const categoryRaw = new URL(request.url).searchParams.get("categoryId");
-  const parsed = categoryIdSchema.safeParse({ categoryId: categoryRaw ?? "" });
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: "Некорректная категория", details: parsed.error.flatten() },
-      { status: 400 }
-    );
-  }
+  const parsed = procedurePhotoCategorySchema.safeParse({
+    categoryId: request.nextUrl.searchParams.get("categoryId"),
+  });
+  if (!parsed.success) return json({ error: "Некорректная категория" }, 400);
 
   try {
+    await ensureSiteContentTable();
     await deleteProcedurePhoto(parsed.data.categoryId);
-    const photos = await getAllProcedurePhotos();
-    return NextResponse.json({ success: true, photos });
-  } catch (error) {
-    console.error("Ошибка сброса фото процедуры:", error);
-    return NextResponse.json(
-      { error: "Не удалось сбросить фото. Попробуйте ещё раз." },
-      { status: 500 }
-    );
+    return json({ success: true, categoryId: parsed.data.categoryId });
+  } catch {
+    console.error("[procedure-photos] Не удалось сбросить фотографию");
+    return json({ error: "Не удалось сбросить фото. Попробуйте ещё раз." }, 503);
   }
 }

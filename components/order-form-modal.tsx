@@ -41,13 +41,16 @@ interface ValidationMessages {
 
 function buildSchema(messages: ValidationMessages) {
   return z.object({
-    name: z.string().min(1, messages.name),
-    phone: z.string().min(1, messages.phone),
-    service: z.string().min(1, messages.service),
-    date: z.string().min(1, messages.date),
-    time: z.string().min(1, messages.time),
-    address: z.string().min(1, messages.address),
-    comment: z.string().optional(),
+    name: z.string().trim().min(1, messages.name).max(100, messages.name),
+    phone: z.string().trim().max(30, messages.phone).refine(
+      (value) => /^\+?[\d\s().-]+$/.test(value) && value.replace(/\D/g, "").length >= 7 && value.replace(/\D/g, "").length <= 15,
+      messages.phone
+    ),
+    service: z.string().trim().min(1, messages.service).max(200, messages.service),
+    date: z.string().min(1, messages.date).max(20, messages.date),
+    time: z.string().min(1, messages.time).max(20, messages.time),
+    address: z.string().trim().min(1, messages.address).max(500, messages.address),
+    comment: z.string().max(2000).optional(),
   });
 }
 
@@ -59,7 +62,11 @@ interface OrderFormModalProps {
   preselectedService?: string;
 }
 
-export function OrderFormModal({
+export function OrderFormModal(props: OrderFormModalProps) {
+  return <OrderFormContent key={props.preselectedService ?? "default"} {...props} />;
+}
+
+function OrderFormContent({
   open,
   onOpenChange,
   preselectedService,
@@ -91,6 +98,7 @@ export function OrderFormModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
     setIsSubmitting(true);
 
     const schema = buildSchema({
@@ -120,10 +128,15 @@ export function OrderFormModal({
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(result.data),
+        body: JSON.stringify({
+          ...result.data,
+          service: allServices.find((service) => service.id === result.data.service)?.name ?? result.data.service,
+        }),
+        signal: AbortSignal.timeout(45_000),
       });
 
-      if (!response.ok) {
+      const confirmation = await response.json().catch(() => null);
+      if (!response.ok || confirmation?.saved !== true) {
         throw new Error("save failed");
       }
 
@@ -132,7 +145,7 @@ export function OrderFormModal({
       setFormData({
         name: "",
         phone: "",
-        service: "",
+        service: preselectedService ?? "",
         date: "",
         time: "",
         address: "",
@@ -158,8 +171,10 @@ export function OrderFormModal({
         <form onSubmit={handleSubmit}>
           <FieldGroup>
             <Field>
-              <FieldLabel>{t("field.name")}</FieldLabel>
+              <FieldLabel htmlFor="order-name">{t("field.name")}</FieldLabel>
               <Input
+                id="order-name"
+                autoComplete="name"
                 placeholder={t("field.namePlaceholder")}
                 value={formData.name}
                 onChange={(e) => handleChange("name", e.target.value)}
@@ -169,8 +184,11 @@ export function OrderFormModal({
             </Field>
 
             <Field>
-              <FieldLabel>{t("field.phone")}</FieldLabel>
+              <FieldLabel htmlFor="order-phone">{t("field.phone")}</FieldLabel>
               <Input
+                id="order-phone"
+                type="tel"
+                autoComplete="tel"
                 placeholder={t("field.phonePlaceholder")}
                 value={formData.phone}
                 onChange={(e) => handleChange("phone", e.target.value)}
@@ -180,7 +198,7 @@ export function OrderFormModal({
             </Field>
 
             <Field>
-              <FieldLabel>{t("order.fieldService")}</FieldLabel>
+              <FieldLabel htmlFor="order-service">{t("order.fieldService")}</FieldLabel>
               <Select
                 value={formData.service}
                 onValueChange={(value) => handleChange("service", value ?? "")}
@@ -189,7 +207,7 @@ export function OrderFormModal({
                   label: service.name,
                 }))}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger id="order-service" className="w-full">
                   <SelectValue
                     placeholder={t("order.fieldServicePlaceholder")}
                   />
@@ -207,8 +225,9 @@ export function OrderFormModal({
 
             <div className="flex gap-3">
               <Field className="flex-1">
-                <FieldLabel>{t("order.fieldDate")}</FieldLabel>
+                <FieldLabel htmlFor="order-date">{t("order.fieldDate")}</FieldLabel>
                 <Input
+                  id="order-date"
                   type="date"
                   value={formData.date}
                   onChange={(e) => handleChange("date", e.target.value)}
@@ -218,8 +237,9 @@ export function OrderFormModal({
               </Field>
 
               <Field className="flex-1">
-                <FieldLabel>{t("order.fieldTime")}</FieldLabel>
+                <FieldLabel htmlFor="order-time">{t("order.fieldTime")}</FieldLabel>
                 <Input
+                  id="order-time"
                   type="time"
                   value={formData.time}
                   onChange={(e) => handleChange("time", e.target.value)}
@@ -230,8 +250,10 @@ export function OrderFormModal({
             </div>
 
             <Field>
-              <FieldLabel>{t("order.fieldAddress")}</FieldLabel>
+              <FieldLabel htmlFor="order-address">{t("order.fieldAddress")}</FieldLabel>
               <Input
+                id="order-address"
+                autoComplete="street-address"
                 placeholder={t("order.fieldAddressPlaceholder")}
                 value={formData.address}
                 onChange={(e) => handleChange("address", e.target.value)}
@@ -241,8 +263,9 @@ export function OrderFormModal({
             </Field>
 
             <Field>
-              <FieldLabel>{t("order.fieldComment")}</FieldLabel>
+              <FieldLabel htmlFor="order-comment">{t("order.fieldComment")}</FieldLabel>
               <Textarea
+                id="order-comment"
                 placeholder={t("order.fieldCommentPlaceholder")}
                 value={formData.comment}
                 onChange={(e) => handleChange("comment", e.target.value)}

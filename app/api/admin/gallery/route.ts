@@ -1,48 +1,61 @@
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
+import { galleryUploadSchema } from "@/lib/validation/admin-content";
 import { isDatabaseAvailable } from "@/lib/db";
 import { isAdminRequest } from "@/lib/admin-auth";
 import {
   createGalleryPhoto,
   deleteGalleryPhoto,
   getAllGalleryPhotos,
+  isSiteCollectionInitialized,
+  markSiteCollectionInitialized,
 } from "@/lib/models";
 import { galleryItems } from "@/lib/gallery-data";
-import { imageFileToDataUrl, isImageFile, MAX_UPLOAD_BYTES } from "@/lib/media";
-
-const uploadSchema = z.object({
-  title: z.string().min(1, "Введите название фото").max(300),
-  category: z.string().min(1, "Выберите категорию").max(100),
-});
+import { imageFileToDataUrl } from "@/lib/media";
 
 function unauthorized() {
   return NextResponse.json({ error: "Не авторизован" }, { status: 401 });
 }
 
 async function ensureGallerySeeded(): Promise<void> {
+  if (await isSiteCollectionInitialized("gallery")) return;
   const existing = await getAllGalleryPhotos();
-  if (existing.length > 0) return;
-  for (const item of galleryItems) {
-    await createGalleryPhoto({ ...item, id: item.id });
+  if (existing.length > 0) {
+    await markSiteCollectionInitialized("gallery");
+    return;
   }
+  for (const item of galleryItems) {
+    await createGalleryPhoto({ ...item, id: item.id }, true);
+  }
+  await markSiteCollectionInitialized("gallery");
 }
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   if (!isAdminRequest(request)) return unauthorized();
   if (!(await isDatabaseAvailable())) {
-    return NextResponse.json(galleryItems);
+    return NextResponse.json(
+      { error: "Подключение к базе данных не настроено" },
+      { status: 503 }
+    );
   }
 
   try {
     await ensureGallerySeeded();
     const photos = await getAllGalleryPhotos();
-    return NextResponse.json(photos);
+    return NextResponse.json(photos, {
+      headers: { "Cache-Control": "private, no-store" },
+    });
   } catch (error) {
     console.error(
-      "Ошибка получения галереи, использую данные по умолчанию:",
-      error
+      "Ошибка получения галереи:",
+      error instanceof Error ? error.name : "UnknownError"
     );
-    return NextResponse.json(galleryItems);
+    return NextResponse.json(
+      { error: "Не удалось загрузить сохранённую галерею" },
+      { status: 503 }
+    );
   }
 }
 
@@ -61,7 +74,8 @@ export async function POST(request: NextRequest) {
     const titleRaw = String(form.get("title") ?? "");
     const categoryRaw = String(form.get("category") ?? "");
 
-    const parsed = uploadSchema.safeParse({
+    const parsed = galleryUploadSchema.safeParse({
+      file,
       title: titleRaw,
       category: categoryRaw,
     });
@@ -72,28 +86,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!(file instanceof File)) {
-      return NextResponse.json(
-        { error: "Файл изображения обязателен" },
-        { status: 400 }
-      );
-    }
-
-    if (!isImageFile(file)) {
-      return NextResponse.json(
-        { error: "Можно загружать только изображения" },
-        { status: 400 }
-      );
-    }
-
-    if (file.size > MAX_UPLOAD_BYTES) {
-      return NextResponse.json(
-        { error: "Файл слишком большой (максимум 10 МБ)" },
-        { status: 400 }
-      );
-    }
-
-    const src = await imageFileToDataUrl(file);
+    const src = await imageFileToDataUrl(parsed.data.file);
+    await ensureGallerySeeded();
     const photo = await createGalleryPhoto({
       id: crypto.randomUUID(),
       title: parsed.data.title,
@@ -103,7 +97,19 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(photo, { status: 201 });
   } catch (error) {
-    console.error("Ошибка загрузки фото:", error);
+    if (error instanceof Error && error.message.startsWith("IMAGE_")) {
+      return NextResponse.json(
+        {
+          error:
+            "Не удалось обработать изображение. Выберите JPEG, PNG или WebP меньшего размера.",
+        },
+        { status: 400 }
+      );
+    }
+    console.error(
+      "Ошибка загрузки фото:",
+      error instanceof Error ? error.name : "UnknownError"
+    );
     return NextResponse.json(
       { error: "Ошибка загрузки фото" },
       { status: 500 }
@@ -129,6 +135,7 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
+    await ensureGallerySeeded();
     await deleteGalleryPhoto(id);
     return NextResponse.json({ success: true });
   } catch (error) {

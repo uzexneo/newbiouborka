@@ -48,8 +48,7 @@ export function buildOrderNotification(order: Order): string {
 
 interface TelegramSendResult {
   response: Response;
-  json: { ok?: boolean; description?: string } | null;
-  raw: string;
+  json: { ok?: boolean; error_code?: number } | null;
 }
 
 async function postToTelegram(
@@ -64,29 +63,18 @@ async function postToTelegram(
     signal: AbortSignal.timeout(TELEGRAM_REQUEST_TIMEOUT_MS),
   });
 
-  const raw = await response.text();
-  let json: { ok?: boolean; description?: string } | null = null;
-  try {
-    json = JSON.parse(raw);
-  } catch {
-    json = null;
-  }
+  const json = (await response.json().catch(() => null)) as TelegramSendResult["json"];
 
-  return { response, json, raw };
+  return { response, json };
 }
 
 function isOk(result: TelegramSendResult): boolean {
-  return result.response.ok && result.json?.ok !== false;
+  return result.response.ok && result.json?.ok === true;
 }
 
 export async function sendTelegramMessage(text: string): Promise<boolean> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
-
-  console.log(
-    `[telegram] sendTelegramMessage: isTelegramConfigured=${isTelegramConfigured()}, ` +
-      `tokenSet=${Boolean(token)}, chatIdSet=${Boolean(chatId)}`
-  );
 
   if (!token || !chatId) {
     console.warn(
@@ -104,19 +92,19 @@ export async function sendTelegramMessage(text: string): Promise<boolean> {
       if (isOk(result)) {
         console.log(
           `[telegram] Уведомление отправлено успешно (попытка ${attempt}/${TELEGRAM_MAX_ATTEMPTS}): ` +
-            `status=${result.response.status}, response="${result.json?.description ?? result.raw}"`
+            `status=${result.response.status}`
         );
         return true;
       }
 
       console.error(
         `[telegram] Ошибка отправки уведомления (попытка ${attempt}/${TELEGRAM_MAX_ATTEMPTS}): ` +
-          `status=${result.response.status}, response="${result.json?.description ?? result.raw}"`
+          `status=${result.response.status}`
       );
     } catch (error) {
       console.error(
         `[telegram] Ошибка отправки уведомления (попытка ${attempt}/${TELEGRAM_MAX_ATTEMPTS}):`,
-        error
+        error instanceof Error ? error.name : "UnknownError"
       );
     }
 

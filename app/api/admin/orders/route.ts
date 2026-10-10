@@ -4,10 +4,20 @@ import { isAdminRequest } from "@/lib/admin-auth";
 import {
   deleteOrder,
   getAllOrders,
-  getUnsavedOrders,
   updateOrderStatus,
 } from "@/lib/models";
 import { orderStatusSchema } from "@/lib/validation";
+
+export const dynamic = "force-dynamic";
+
+const noStoreHeaders = { "Cache-Control": "private, no-store" };
+
+function unavailable() {
+  return NextResponse.json(
+    { error: "Заявки недоступны: проверьте подключение базы данных и права доступа к таблице заявок." },
+    { status: 503, headers: noStoreHeaders }
+  );
+}
 
 function unauthorized() {
   return NextResponse.json({ error: "Не авторизован" }, { status: 401 });
@@ -16,28 +26,22 @@ function unauthorized() {
 export async function GET(request: NextRequest) {
   if (!isAdminRequest(request)) return unauthorized();
   if (!(await isDatabaseAvailable())) {
-    // База недоступна: показываем реальные заявки, подтверждённые пользователям
-    // и удержанные в памяти процесса, а не статические мок-заявки, которые
-    // только путают администратора.
-    return NextResponse.json(getUnsavedOrders());
+    return unavailable();
   }
 
   try {
     const orders = await getAllOrders();
-    return NextResponse.json(orders);
+    return NextResponse.json(orders, { headers: noStoreHeaders });
   } catch (error) {
-    console.error("Ошибка получения заявок:", error);
-    return NextResponse.json(getUnsavedOrders());
+    console.error("Ошибка получения заявок:", error instanceof Error ? error.name : "UnknownError");
+    return unavailable();
   }
 }
 
 export async function PUT(request: NextRequest) {
   if (!isAdminRequest(request)) return unauthorized();
   if (!(await isDatabaseAvailable())) {
-    return NextResponse.json(
-      { error: "База данных недоступна в статическом режиме" },
-      { status: 503 }
-    );
+    return unavailable();
   }
 
   const id = new URL(request.url).searchParams.get("id");
@@ -48,7 +52,7 @@ export async function PUT(request: NextRequest) {
     );
   }
 
-  const parsed = orderStatusSchema.safeParse(await request.json());
+  const parsed = orderStatusSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json(
       { error: "Некорректный статус", details: parsed.error.flatten() },
@@ -60,21 +64,18 @@ export async function PUT(request: NextRequest) {
     const order = await updateOrderStatus(id, parsed.data.orderStatus);
     return NextResponse.json(order);
   } catch (error) {
-    console.error("Ошибка обновления заявки:", error);
-    return NextResponse.json(
-      { error: "Ошибка обновления заявки" },
-      { status: 500 }
-    );
+    if (error instanceof Error && error.name === "ConditionalCheckFailedException") {
+      return NextResponse.json({ error: "Заявка не найдена. Обновите список." }, { status: 404 });
+    }
+    console.error("Ошибка обновления заявки:", error instanceof Error ? error.name : "UnknownError");
+    return unavailable();
   }
 }
 
 export async function DELETE(request: NextRequest) {
   if (!isAdminRequest(request)) return unauthorized();
   if (!(await isDatabaseAvailable())) {
-    return NextResponse.json(
-      { error: "База данных недоступна в статическом режиме" },
-      { status: 503 }
-    );
+    return unavailable();
   }
 
   const id = new URL(request.url).searchParams.get("id");
@@ -89,10 +90,7 @@ export async function DELETE(request: NextRequest) {
     await deleteOrder(id);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Ошибка удаления заявки:", error);
-    return NextResponse.json(
-      { error: "Ошибка удаления заявки" },
-      { status: 500 }
-    );
+    console.error("Ошибка удаления заявки:", error instanceof Error ? error.name : "UnknownError");
+    return unavailable();
   }
 }

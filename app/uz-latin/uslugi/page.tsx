@@ -6,7 +6,7 @@ import { getServicesHubJsonLdDefault } from "@/lib/seo-jsonld";
 export const metadata: Metadata = buildServicesHubMetadata("uzLatin");
 
 export default function UzLatinServicesHubPage() {
-  const jsonLd = getServicesHubJsonLdDefault();
+  const jsonLd = getServicesHubJsonLdDefault("uzLatin");
   return (
     <>
       <script

@@ -7,7 +7,7 @@ declare global {
 }
 
 interface GenerateLeadParams {
-  formName: "order" | "quick";
+  formName: "order" | "quick" | "feedback";
   service?: string;
 }
 

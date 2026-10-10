@@ -10,12 +10,14 @@ import { useLanguage } from "@/lib/i18n/language-provider";
 import { categoryKey, galleryTitleKey } from "@/lib/i18n/content";
 
 export function PortfolioGallery({ items }: { items: GalleryItem[] }) {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [selected, setSelected] = useState<GalleryItem | null>(null);
   const [filter, setFilter] = useState("all");
 
   const filtered =
     filter === "all" ? items : items.filter((item) => item.category === filter);
+  const imageTitle = (item: GalleryItem) =>
+    locale === "ru" ? item.title : t(galleryTitleKey(item.id)) || item.title;
 
   return (
     <>
@@ -46,7 +48,7 @@ export function PortfolioGallery({ items }: { items: GalleryItem[] }) {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((item) => {
-          const title = t(galleryTitleKey(item.id)) || item.title;
+          const title = imageTitle(item);
           return (
             <article
               key={item.id}
@@ -90,30 +92,30 @@ export function PortfolioGallery({ items }: { items: GalleryItem[] }) {
       >
         {selected && (
           <DialogContent
-            className="max-w-3xl p-0 overflow-hidden"
+            className="block w-[calc(100%_-_2rem)] max-w-3xl p-0 overflow-hidden sm:max-w-3xl"
             showCloseButton={false}
           >
-            <div className="relative aspect-[3/4] sm:aspect-auto sm:max-h-[80vh] bg-black">
+            <div className="relative h-[80vh] w-full bg-black">
               {selected.src.startsWith("data:") ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={selected.src}
-                  alt={t(galleryTitleKey(selected.id)) || selected.title}
+                  alt={imageTitle(selected)}
                   loading="lazy"
                   decoding="async"
-                  className="h-full w-full object-contain sm:object-cover"
+                  className="h-full w-full object-contain"
                 />
               ) : (
                 <Image
                   src={selected.src}
-                  alt={t(galleryTitleKey(selected.id)) || selected.title}
+                  alt={imageTitle(selected)}
                   fill
                   sizes="(max-width: 768px) 100vw, 768px"
-                  className="object-contain sm:object-cover"
+                  className="object-contain"
                 />
               )}
               <DialogTitle className="sr-only">
-                {t(galleryTitleKey(selected.id)) || selected.title}
+                {imageTitle(selected)}
               </DialogTitle>
             </div>
             <button

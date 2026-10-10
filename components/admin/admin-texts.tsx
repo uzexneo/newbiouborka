@@ -1,7 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { z } from "zod";
+import { useCallback, useEffect, useState } from "react";
+import {
+  aboutFormSchema,
+  adminContentSaveSchema,
+} from "@/lib/validation/admin-content";
 import { toast } from "sonner";
 import {
   Loader2,
@@ -38,14 +41,10 @@ import {
   type SiteTestimonial,
 } from "@/lib/site-content";
 import { fetchJson } from "@/lib/api-client";
+import { AdminLoadError } from "@/components/admin/admin-load-error";
+import { refreshPublicContent } from "@/lib/site-content-events";
 
 type Tab = "about" | "benefits" | "testimonials";
-
-const aboutSchema = z.object({
-  p1: z.string().min(1, "Заполните текст").max(5000),
-  p2: z.string().max(5000),
-  p3: z.string().max(5000),
-});
 
 const tabs: { id: Tab; label: string; icon: typeof Building2 }[] = [
   { id: "about", label: "О компании", icon: Building2 },
@@ -62,6 +61,7 @@ interface AdminContentResponse {
 export function AdminTexts() {
   const [tab, setTab] = useState<Tab>("about");
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   const [about, setAbout] = useState<SiteAbout>({ ...DEFAULT_ABOUT });
@@ -75,26 +75,31 @@ export function AdminTexts() {
     Partial<Record<keyof SiteAbout, string>>
   >({});
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const data =
-          await fetchJson<AdminContentResponse>("/api/admin/content");
-        if (data.about) setAbout({ ...DEFAULT_ABOUT, ...data.about });
-        if (Array.isArray(data.benefits))
-          setBenefits(data.benefits.map((b) => ({ ...b })));
-        if (Array.isArray(data.testimonials))
-          setTestimonials(data.testimonials.map((r) => ({ ...r })));
-      } catch {
-        toast.error("Не удалось загрузить тексты");
-      } finally {
-        setLoading(false);
-      }
-    })();
+  const load = useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const data = await fetchJson<AdminContentResponse>("/api/admin/content");
+      if (data.about) setAbout({ ...DEFAULT_ABOUT, ...data.about });
+      if (Array.isArray(data.benefits))
+        setBenefits(data.benefits.map((b) => ({ ...b })));
+      if (Array.isArray(data.testimonials))
+        setTestimonials(data.testimonials.map((r) => ({ ...r })));
+    } catch (error) {
+      setLoadError(
+        error instanceof Error ? error.message : "Не удалось загрузить тексты"
+      );
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
+  useEffect(() => {
+    void load();
+  }, [load]);
+
   const saveAbout = async () => {
-    const parsed = aboutSchema.safeParse(about);
+    const parsed = aboutFormSchema.safeParse(about);
     if (!parsed.success) {
       const errors: Partial<Record<keyof SiteAbout, string>> = {};
       for (const issue of parsed.error.issues) {
@@ -108,17 +113,26 @@ export function AdminTexts() {
   };
 
   const save = async (body: unknown) => {
+    const parsed = adminContentSaveSchema.safeParse(body);
+    if (!parsed.success) {
+      toast.error(
+        parsed.error.issues[0]?.message ?? "Заполните обязательные поля"
+      );
+      return;
+    }
     setSaving(true);
     try {
-      const response = await fetch("/api/admin/content", {
+      await fetchJson("/api/admin/content", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify(parsed.data),
       });
-      if (!response.ok) throw new Error("save failed");
+      refreshPublicContent();
       toast.success("Текст сохранён");
-    } catch {
-      toast.error("Не удалось сохранить текст");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Не удалось сохранить текст"
+      );
     } finally {
       setSaving(false);
     }
@@ -132,6 +146,16 @@ export function AdminTexts() {
       </div>
     );
   }
+
+  if (loadError)
+    return (
+      <AdminLoadError
+        message={loadError}
+        onRetry={() => {
+          void load();
+        }}
+      />
+    );
 
   return (
     <div className="space-y-6">

@@ -1,17 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
+import { useEffect, useMemo, useState } from "react";
 import {
+  AlertCircle,
   BarChart3,
   Eye,
   Filter,
-  Loader2,
   MousePointerClick,
+  RefreshCw,
   Users,
   Wrench,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -27,7 +29,7 @@ const PERIOD_OPTIONS = [
   { value: 14, label: "14 дней" },
   { value: 30, label: "30 дней" },
   { value: 90, label: "90 дней" },
-  { value: 365, label: "Всё время" },
+  { value: 365, label: "365 дней" },
 ];
 
 function formatShortDate(date: string): string {
@@ -35,33 +37,37 @@ function formatShortDate(date: string): string {
   return `${Number(d)}.${Number(m)}`;
 }
 
+function formatPeriodDate(date: string): string {
+  const [year, month, day] = date.split("-");
+  return `${Number(day)}.${Number(month)}.${year}`;
+}
+
 function percent(part: number, total: number): string {
-  if (!total) return "0%";
+  if (!total) return "—";
   return `${((part / total) * 100).toFixed(1)}%`;
 }
 
 function ConversionFunnel({ data }: { data: AnalyticsResponse["funnel"] }) {
   const steps = [
     {
-      label: "Посещения",
-      hint: "Визиты сайта за период",
+      label: "Просмотры страниц",
+      hint: "Загрузки страниц и переходы по сайту",
       value: data.visits,
     },
     {
       label: "Заявки",
-      hint: "Оформленные заявки",
+      hint: "Созданы в выбранном периоде",
       value: data.applications,
     },
-    { label: "Заказы", hint: "Заявки, ставшие заказами", value: data.orders },
+    { label: "Заказы", hint: "Из заявок этого периода", value: data.orders },
   ];
-  const max = Math.max(1, data.visits);
+  const max = Math.max(1, ...steps.map((step) => step.value));
 
   return (
     <div className="space-y-4">
       {steps.map((step, i) => {
-        const previous = i === 0 ? null : steps[i - 1].value;
         const conversion =
-          previous !== null ? percent(step.value, previous) : null;
+          i === 2 ? percent(data.orders, data.applications) : null;
         const width = Math.max(
           step.value > 0 ? 6 : 0,
           (step.value / max) * 100
@@ -85,7 +91,7 @@ function ConversionFunnel({ data }: { data: AnalyticsResponse["funnel"] }) {
             </div>
             {conversion !== null && (
               <p className="text-xs text-muted-foreground">
-                Конверсия из «{steps[i - 1].label}»:{" "}
+                Заявок отмечено как заказы:{" "}
                 <span className="font-semibold text-foreground">
                   {conversion}
                 </span>
@@ -167,7 +173,7 @@ function AnalyticsBarChart({ days }: { days: AnalyticsResponse["days"] }) {
         viewBox={`0 0 ${width} ${height}`}
         className="h-auto w-full min-w-[480px]"
         role="img"
-        aria-label="График динамики посещений по дням"
+        aria-label="График просмотров страниц по дням"
       >
         {[0.25, 0.5, 0.75].map((ratio) => {
           const y = paddingTop + chartHeight * ratio;
@@ -208,7 +214,7 @@ function AnalyticsBarChart({ days }: { days: AnalyticsResponse["days"] }) {
                   {formatShortDate(day.date)}
                 </text>
               )}
-              <title>{`${day.date}: ${day.visits} посещений, ${day.visitors} посетителей`}</title>
+              <title>{`${day.date}: ${day.visits} просмотров страниц, ${day.visitors} посетителей`}</title>
             </g>
           );
         })}
@@ -221,54 +227,106 @@ export function AdminAnalytics() {
   const [days, setDays] = useState(30);
   const [data, setData] = useState<AnalyticsResponse | null>(null);
   const [loading, setLoading] = useState(true);
-
-  const load = useCallback(async (period: number) => {
-    try {
-      const result = await fetchJson<AnalyticsResponse>(
-        `/api/admin/analytics?days=${period}`
-      );
-      setData(result);
-    } catch {
-      toast.error("Не удалось загрузить аналитику");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const [error, setError] = useState<string | null>(null);
+  const [reload, setReload] = useState(0);
 
   useEffect(() => {
-    setLoading(true);
-    load(days);
-  }, [days, load]);
+    let active = true;
+    async function load() {
+      try {
+        const result = await fetchJson<AnalyticsResponse>(
+          `/api/admin/analytics?days=${days}`,
+          { cache: "no-store" }
+        );
+        if (active) setData(result);
+      } catch {
+        if (active) {
+          setData(null);
+          setError("Не удалось загрузить статистику. Повторите попытку.");
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+    void load();
+    return () => {
+      active = false;
+    };
+  }, [days, reload]);
 
   const handlePeriodChange = (value: string | null) => {
-    if (value !== null) setDays(Number(value));
+    if (value !== null && Number(value) !== days) {
+      setData(null);
+      setError(null);
+      setLoading(true);
+      setDays(Number(value));
+    }
+  };
+
+  const refresh = () => {
+    setData(null);
+    setError(null);
+    setLoading(true);
+    setReload((value) => value + 1);
   };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <BarChart3 className="h-4 w-4" />
-          Посещаемость сайта в выбранном периоде
+        <div className="space-y-1 text-sm text-muted-foreground">
+          <p className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Собственная статистика сайта · время Ташкента
+          </p>
+          <p className="text-xs">
+            Это отдельный отчёт: данные Google Analytics сюда не загружаются.
+          </p>
+          {data && (
+            <p className="text-xs">
+              {formatPeriodDate(data.period.from)}–{formatPeriodDate(data.period.to)}
+            </p>
+          )}
         </div>
-        <Select value={String(days)} onValueChange={handlePeriodChange}>
-          <SelectTrigger size="sm">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {PERIOD_OPTIONS.map((option) => (
-              <SelectItem key={option.value} value={String(option.value)}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-2">
+          <Select value={String(days)} onValueChange={handlePeriodChange}>
+            <SelectTrigger size="sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {PERIOD_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={String(option.value)}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button variant="outline" size="sm" onClick={refresh} disabled={loading}>
+            <RefreshCw className="h-4 w-4" />
+            Обновить
+          </Button>
+        </div>
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center gap-3 py-16 text-muted-foreground">
-          <Loader2 className="h-5 w-5 animate-spin" />
-          <span className="text-sm">Загрузка аналитики...</span>
+        <div className="space-y-4" role="status" aria-label="Загрузка статистики">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Skeleton className="h-28 rounded-xl" />
+            <Skeleton className="h-28 rounded-xl" />
+          </div>
+          <Skeleton className="h-64 rounded-xl" />
+        </div>
+      ) : error ? (
+        <div
+          className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed py-16 text-center"
+          role="alert"
+        >
+          <div className="rounded-full bg-muted p-3">
+            <AlertCircle className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <p className="text-sm text-muted-foreground">{error}</p>
+          <Button variant="outline" size="sm" onClick={refresh}>
+            Повторить загрузку
+          </Button>
         </div>
       ) : data ? (
         <>
@@ -281,7 +339,7 @@ export function AdminAnalytics() {
                 <div>
                   <p className="text-2xl font-bold">{data.totalVisits}</p>
                   <p className="text-sm text-muted-foreground">
-                    Посещений за период
+                    Просмотров страниц
                   </p>
                 </div>
               </CardContent>
@@ -296,6 +354,9 @@ export function AdminAnalytics() {
                   <p className="text-sm text-muted-foreground">
                     Уникальных посетителей
                   </p>
+                  <p className="text-xs text-muted-foreground">
+                    Посетитель определяется по браузеру
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -305,7 +366,7 @@ export function AdminAnalytics() {
             <Card>
               <CardContent className="pt-6">
                 <h3 className="mb-4 text-sm font-semibold">
-                  Динамика посещений по дням
+                  Просмотры страниц по дням
                 </h3>
                 <AnalyticsBarChart days={data.days} />
               </CardContent>
@@ -316,7 +377,7 @@ export function AdminAnalytics() {
             <CardContent className="pt-6">
               <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold">
                 <MousePointerClick className="h-4 w-4 text-primary" />
-                Воронка конверсии: посещение → заявка → заказ
+                Просмотры, заявки и заказы за период
               </h3>
               <ConversionFunnel data={data.funnel} />
             </CardContent>
@@ -330,10 +391,10 @@ export function AdminAnalytics() {
               emptyText="За выбранный период заявок нет."
             />
             <BreakdownCard
-              title="Источники переходов"
+              title="Источники просмотров"
               icon={Filter}
               items={data.bySource}
-              emptyText="За выбранный период переходов нет."
+              emptyText="За выбранный период просмотров нет."
             />
           </div>
         </>
