@@ -18,7 +18,7 @@ const ru = {
     "BIOUBORKA.UZ — клининг в Ташкенте: профессиональная уборка квартир и домов, химчистка мебели и ковров безопасными био-средствами.",
   "hero.ctaServices": "Наши услуги",
   "hero.ctaContact": "Связаться с нами",
-  "hero.price": "от 25 000 сум",
+  "hero.price": "25 000 сум/м²",
   "benefits.heading": "Почему биоуборка в Ташкенте?",
   "benefits.subheading":
     "Мы используем экологичные средства, которые эффективно очищают и полностью безопасны для здоровья.",
@@ -35,7 +35,7 @@ const ru = {
   "services.subheading":
     "Полный прайс-лист биоуборки по категориям. Прозрачные цены без скрытых доплат.",
   "services.orderButton": "Заказать",
-  "services.minOrder": "Минимальная стоимость заказа — 700 000 сум",
+  "services.minOrder": "Стоимость уборки — 25 000 сум/м²",
   "services.procedureHeading": "Как проходит процедура",
   "services.c0.title": "Уборка",
   "services.c0.note": "от 25 000–35 000 сум/м²",
@@ -282,7 +282,7 @@ const ru = {
   "trust.heading": "Почему нам доверяют",
   "trust.subheading":
     "Прозрачные условия и гарантия качества — уверенно оставляйте заявку",
-  "trust.priceTitle": "Цена от 25 000 сум",
+  "trust.priceTitle": "Цена 25 000 сум/м²",
   "trust.priceDesc": "Прозрачные цены без скрытых доплат",
   "trust.deadlineTitle": "Выезд в день обращения",
   "trust.deadlineDesc": "Уборка в удобное для вас время",
@@ -477,7 +477,7 @@ const uzKrill = {
     "BIOUBORKA.UZ — Тошкентда клининг: квартира ва уйларни профессионал тозалаш, мебел ва гиламларни хавфсиз био-воситалар билан кимёвий тозалаш.",
   "hero.ctaServices": "Бизнинг хизматларимиз",
   "hero.ctaContact": "Биз билан боғланиш",
-  "hero.price": "25 000 сўмдан",
+  "hero.price": "25 000 сўм/м²",
   "benefits.heading": "Нима учун Тошкентда био тозалаш?",
   "benefits.subheading":
     "Биз самарали тозалайдиган ва соғлиқ учун бутунлай хавфсиз экологик воситаларни ишлатамиз.",
@@ -495,7 +495,7 @@ const uzKrill = {
   "services.subheading":
     "Категориялар бўйича био тозалашнинг тўлиқ нарх рўйхати. Яширин қўшимча тўловларсиз шаффоф нархлар.",
   "services.orderButton": "Буюртма бериш",
-  "services.minOrder": "Заказнинг минимал қиймати — 700 000 сўм",
+  "services.minOrder": "Тозалаш нархи — 25 000 сўм/м²",
   "services.procedureHeading": "Жараён қандай ўтади",
   "services.c0.title": "Тозалаш",
   "services.c0.note": "25 000–35 000 сўм/м² дан",
@@ -741,7 +741,7 @@ const uzKrill = {
   "trust.heading": "Нима учун бизга ишонадилар",
   "trust.subheading":
     "Шаффоф шартлар ва сифат кафолати — аризани ишонч билан қолдиринг",
-  "trust.priceTitle": "Нарх 25 000 сўмдан",
+  "trust.priceTitle": "Нарх 25 000 сўм/м²",
   "trust.priceDesc": "Яширин қўшимча тўловларсиз шаффоф нархлар",
   "trust.deadlineTitle": "Мурожаат куни чиқиш",
   "trust.deadlineDesc": "Сиз учун қулай вақтда тозалаш",
@@ -941,7 +941,7 @@ const uzLatin = {
     "BIOUBORKA.UZ — Toshkentda klining: kvartira va uylarni professional tozalash, mebel va gilamlarni xavfsiz bio-vositalar bilan kimyoviy tozalash.",
   "hero.ctaServices": "Bizning xizmatlarimiz",
   "hero.ctaContact": "Biz bilan bog'lanish",
-  "hero.price": "25 000 so'mdan",
+  "hero.price": "25 000 so'm/m²",
   "benefits.heading": "Nima uchun Toshkentda bio tozalash?",
   "benefits.subheading":
     "Biz samarali tozalaydigan va salomatlik uchun butunlay xavfsiz ekologik vositalarni ishlatamiz.",
@@ -959,7 +959,7 @@ const uzLatin = {
   "services.subheading":
     "Kategoriyalar bo'yicha bio tozalashning to'liq narx ro'yxati. Yashirin qo'shimcha to'lovlarsiz shaffof narxlar.",
   "services.orderButton": "Buyurtma berish",
-  "services.minOrder": "Buyurtmaning minimal qiymati — 700 000 so'm",
+  "services.minOrder": "Tozalash narxi — 25 000 so'm/m²",
   "services.procedureHeading": "Jarayon qanday o'tadi",
   "services.c0.title": "Tozalash",
   "services.c0.note": "25 000–35 000 so'm/m² dan",
@@ -1207,7 +1207,7 @@ const uzLatin = {
   "trust.heading": "Nima uchun bizga ishonadilar",
   "trust.subheading":
     "Shaffof shartlar va sifat kafolati — arizani ishonch bilan qoldiring",
-  "trust.priceTitle": "Narx 25 000 so'mdan",
+  "trust.priceTitle": "Narx 25 000 so'm/m²",
   "trust.priceDesc": "Yashirin qo'shimcha to'lovlarsiz shaffof narxlar",
   "trust.deadlineTitle": "Murojaat kunida chiqish",
   "trust.deadlineDesc": "Siz uchun qulay vaqtda tozalash",
