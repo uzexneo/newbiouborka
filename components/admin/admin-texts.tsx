@@ -369,6 +369,10 @@ export function AdminTexts() {
                   <Star className="h-4 w-4 text-amber-400" />
                   <Select
                     value={String(review.rating)}
+                    items={[5, 4, 3, 2, 1].map((rating) => ({
+                      value: String(rating),
+                      label: `${rating} / 5`,
+                    }))}
                     onValueChange={(value) =>
                       setTestimonials((prev) =>
                         prev.map((r, i) =>

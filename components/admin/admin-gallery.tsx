@@ -195,6 +195,7 @@ export function AdminGallery() {
             <Label>Категория</Label>
             <Select
               value={category}
+              items={CATEGORIES}
               onValueChange={(value) => {
                 setCategory(value ?? "");
                 setErrors((prev) => ({ ...prev, category: undefined }));
@@ -274,7 +275,10 @@ export function AdminGallery() {
                   <p className="truncate text-xs font-medium text-white">
                     {photo.title}
                   </p>
-                  <p className="text-[11px] text-white/70">{photo.category}</p>
+                  <p className="text-[11px] text-white/70">
+                    {CATEGORIES.find((item) => item.value === photo.category)
+                      ?.label ?? photo.category}
+                  </p>
                 </div>
                 <Button
                   variant="destructive"

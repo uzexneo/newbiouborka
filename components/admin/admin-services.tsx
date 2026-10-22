@@ -327,6 +327,10 @@ export function AdminServices() {
                 {!isNewCategory ? (
                   <Select
                     value={editing?.data.categoryId ?? ""}
+                    items={categories.map((category) => ({
+                      value: category.id,
+                      label: category.title,
+                    }))}
                     onValueChange={(value) => {
                       updateField("categoryId", value ?? "");
                       const cat = categories.find((c) => c.id === value);

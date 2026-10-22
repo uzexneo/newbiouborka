@@ -288,7 +288,14 @@ export function AdminAnalytics() {
           )}
         </div>
         <div className="flex items-center gap-2">
-          <Select value={String(days)} onValueChange={handlePeriodChange}>
+          <Select
+            value={String(days)}
+            items={PERIOD_OPTIONS.map((option) => ({
+              value: String(option.value),
+              label: option.label,
+            }))}
+            onValueChange={handlePeriodChange}
+          >
             <SelectTrigger size="sm">
               <SelectValue />
             </SelectTrigger>
