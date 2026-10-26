@@ -4,10 +4,17 @@ import {
   DescribeTableCommand,
   waitUntilTableExists,
 } from "@aws-sdk/client-dynamodb";
-import type { DynamoDBClientConfig } from "@aws-sdk/client-dynamodb";
+import type {
+  DynamoDBClientConfig,
+  TableDescription,
+} from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { NodeHttpHandler } from "@smithy/node-http-handler";
 import { TableName, TABLE_SCHEMAS } from "./schema";
+import {
+  DatabaseOperationError,
+  DatabaseSchemaMismatchError,
+} from "./database-diagnostics";
 
 // Таймауты для запросов к DynamoDB/Yandex Document API, чтобы запросы к
 // админ-панели не зависали бесконечно при недоступной или медленной БД.
@@ -67,6 +74,36 @@ function errorName(error: unknown): unknown {
     : undefined;
 }
 
+function validateVisitTable(table: TableDescription | undefined): void {
+  const expected = TABLE_SCHEMAS[TableName.SITE_VISITS];
+  const keys = table?.KeySchema;
+  if (
+    !keys ||
+    keys.length !== expected.keySchema.length ||
+    expected.keySchema.some(
+      (key) =>
+        !keys.some(
+          (actual) =>
+            actual.AttributeName === key.AttributeName &&
+            actual.KeyType === key.KeyType
+        ) ||
+        !table?.AttributeDefinitions?.some(
+          (attribute) =>
+            attribute.AttributeName === key.AttributeName &&
+            attribute.AttributeType ===
+              expected.attributeDefinitions.find(
+                (definition) => definition.AttributeName === key.AttributeName
+              )?.AttributeType
+        )
+    )
+  ) {
+    throw new DatabaseOperationError(
+      "validate-table",
+      new DatabaseSchemaMismatchError()
+    );
+  }
+}
+
 async function prepareTable(tableName: TableName): Promise<void> {
   if (!isDatabaseAvailable()) {
     throw new Error("Подключение к базе данных не настроено");
@@ -79,10 +116,14 @@ async function prepareTable(tableName: TableName): Promise<void> {
         new DescribeTableCommand({ TableName: schema.name })
       );
       if (result.Table?.TableStatus === "ACTIVE") {
+        if (tableName === TableName.SITE_VISITS)
+          validateVisitTable(result.Table);
         return;
       }
     } catch (error: unknown) {
-      if (errorName(error) !== "ResourceNotFoundException") throw error;
+      if (error instanceof DatabaseOperationError) throw error;
+      if (errorName(error) !== "ResourceNotFoundException")
+        throw new DatabaseOperationError("describe-table", error);
       try {
         await client.send(
           new CreateTableCommand({
@@ -93,13 +134,29 @@ async function prepareTable(tableName: TableName): Promise<void> {
           })
         );
       } catch (createError: unknown) {
-        if (errorName(createError) !== "ResourceInUseException") throw createError;
+        if (errorName(createError) !== "ResourceInUseException")
+          throw new DatabaseOperationError("create-table", createError);
       }
     }
-    await waitUntilTableExists(
-      { client, maxWaitTime: 20, minDelay: 1, maxDelay: 2 },
-      { TableName: schema.name }
-    );
+    try {
+      await waitUntilTableExists(
+        { client, maxWaitTime: 20, minDelay: 1, maxDelay: 2 },
+        { TableName: schema.name }
+      );
+    } catch (error: unknown) {
+      throw new DatabaseOperationError("wait-for-table", error);
+    }
+    if (tableName === TableName.SITE_VISITS) {
+      try {
+        const result = await client.send(
+          new DescribeTableCommand({ TableName: schema.name })
+        );
+        validateVisitTable(result.Table);
+      } catch (error: unknown) {
+        if (error instanceof DatabaseOperationError) throw error;
+        throw new DatabaseOperationError("describe-table", error);
+      }
+    }
   } finally {
     client.destroy();
   }

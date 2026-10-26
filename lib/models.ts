@@ -1,4 +1,10 @@
-import { docClient, ensureSiteOrdersTable, ensureSiteContentTable, ensureSiteServicesTable, ensureSiteGalleryTable } from "./db";
+import {
+  docClient,
+  ensureSiteOrdersTable,
+  ensureSiteContentTable,
+  ensureSiteServicesTable,
+  ensureSiteGalleryTable,
+} from "./db";
 import {
   GetCommand,
   PutCommand,
@@ -10,6 +16,7 @@ import {
 import { TableName, IndexName } from "./schema";
 import { PROCEDURE_CATEGORY_IDS } from "./i18n/content";
 import { MAX_DATA_URL_CHARS } from "./media-limits";
+import type { LeadAttribution } from "./validation/lead";
 
 export interface Service {
   id: string;
@@ -162,13 +169,19 @@ export async function getAllSiteServices(): Promise<SiteService[]> {
   const services: SiteService[] = [];
   let lastKey: Record<string, unknown> | undefined;
   do {
-    const result = await docClient.send(new ScanCommand({
-      TableName: TableName.SITE_SERVICES, ConsistentRead: true, ExclusiveStartKey: lastKey,
-    }));
+    const result = await docClient.send(
+      new ScanCommand({
+        TableName: TableName.SITE_SERVICES,
+        ConsistentRead: true,
+        ExclusiveStartKey: lastKey,
+      })
+    );
     services.push(...((result.Items as SiteService[]) ?? []));
     lastKey = result.LastEvaluatedKey;
   } while (lastKey);
-  return services.sort((a, b) => a.sortOrder - b.sortOrder || a.id.localeCompare(b.id));
+  return services.sort(
+    (a, b) => a.sortOrder - b.sortOrder || a.id.localeCompare(b.id)
+  );
 }
 
 export async function createSiteService(
@@ -179,12 +192,22 @@ export async function createSiteService(
   const now = new Date().toISOString();
   const service: SiteService = { ...data, createdAt: now, updatedAt: now };
   try {
-    await docClient.send(new PutCommand({
-      TableName: TableName.SITE_SERVICES, Item: service,
-      ConditionExpression: onlyIfAbsent ? "attribute_not_exists(id)" : undefined,
-    }));
+    await docClient.send(
+      new PutCommand({
+        TableName: TableName.SITE_SERVICES,
+        Item: service,
+        ConditionExpression: onlyIfAbsent
+          ? "attribute_not_exists(id)"
+          : undefined,
+      })
+    );
   } catch (error) {
-    if (!onlyIfAbsent || !(error instanceof Error) || error.name !== "ConditionalCheckFailedException") throw error;
+    if (
+      !onlyIfAbsent ||
+      !(error instanceof Error) ||
+      error.name !== "ConditionalCheckFailedException"
+    )
+      throw error;
   }
   return service;
 }
@@ -300,13 +323,19 @@ export async function getAllGalleryPhotos(): Promise<GalleryPhoto[]> {
   const photos: GalleryPhoto[] = [];
   let lastKey: Record<string, unknown> | undefined;
   do {
-    const result = await docClient.send(new ScanCommand({
-      TableName: TableName.SITE_GALLERY, ConsistentRead: true, ExclusiveStartKey: lastKey,
-    }));
+    const result = await docClient.send(
+      new ScanCommand({
+        TableName: TableName.SITE_GALLERY,
+        ConsistentRead: true,
+        ExclusiveStartKey: lastKey,
+      })
+    );
     photos.push(...((result.Items as GalleryPhoto[]) ?? []));
     lastKey = result.LastEvaluatedKey;
   } while (lastKey);
-  return photos.sort((a, b) => b.createdAt.localeCompare(a.createdAt) || a.id.localeCompare(b.id));
+  return photos.sort(
+    (a, b) => b.createdAt.localeCompare(a.createdAt) || a.id.localeCompare(b.id)
+  );
 }
 
 export async function createGalleryPhoto(
@@ -316,12 +345,22 @@ export async function createGalleryPhoto(
   await ensureSiteGalleryTable();
   const photo: GalleryPhoto = { ...data, createdAt: new Date().toISOString() };
   try {
-    await docClient.send(new PutCommand({
-      TableName: TableName.SITE_GALLERY, Item: photo,
-      ConditionExpression: onlyIfAbsent ? "attribute_not_exists(id)" : undefined,
-    }));
+    await docClient.send(
+      new PutCommand({
+        TableName: TableName.SITE_GALLERY,
+        Item: photo,
+        ConditionExpression: onlyIfAbsent
+          ? "attribute_not_exists(id)"
+          : undefined,
+      })
+    );
   } catch (error) {
-    if (!onlyIfAbsent || !(error instanceof Error) || error.name !== "ConditionalCheckFailedException") throw error;
+    if (
+      !onlyIfAbsent ||
+      !(error instanceof Error) ||
+      error.name !== "ConditionalCheckFailedException"
+    )
+      throw error;
   }
   return photo;
 }
@@ -336,11 +375,17 @@ export async function deleteGalleryPhoto(id: string): Promise<void> {
   );
 }
 
-export async function isSiteCollectionInitialized(collection: "services" | "gallery"): Promise<boolean> {
-  return Boolean((await getSiteContent(`collection:${collection}`))?.payload.initialized);
+export async function isSiteCollectionInitialized(
+  collection: "services" | "gallery"
+): Promise<boolean> {
+  return Boolean(
+    (await getSiteContent(`collection:${collection}`))?.payload.initialized
+  );
 }
 
-export async function markSiteCollectionInitialized(collection: "services" | "gallery"): Promise<void> {
+export async function markSiteCollectionInitialized(
+  collection: "services" | "gallery"
+): Promise<void> {
   await putSiteContent(`collection:${collection}`, { initialized: true });
 }
 
@@ -388,9 +433,10 @@ export async function getAllProcedurePhotos(): Promise<Record<string, string>> {
   );
   const photos: Record<string, string> = {};
   const legacy = docs[0]?.payload?.photos;
-  const old = legacy && typeof legacy === "object" && !Array.isArray(legacy)
-    ? legacy as Record<string, unknown>
-    : {};
+  const old =
+    legacy && typeof legacy === "object" && !Array.isArray(legacy)
+      ? (legacy as Record<string, unknown>)
+      : {};
 
   PROCEDURE_CATEGORY_IDS.forEach((categoryId, index) => {
     const doc = docs[index + 1];
@@ -406,6 +452,7 @@ export async function getAllProcedurePhotos(): Promise<Record<string, string>> {
 // --- Заявки клиентов ---
 
 export type OrderStatus = "application" | "order";
+export type LeadQuality = "unreviewed" | "real" | "test" | "spam";
 
 export interface Order {
   id: string;
@@ -417,12 +464,21 @@ export interface Order {
   address: string;
   comment?: string;
   orderStatus?: OrderStatus;
+  attribution?: LeadAttribution;
+  leadQuality?: LeadQuality;
   createdAt: string;
 }
 
 export type OrderInput = Omit<
   Order,
-  "id" | "createdAt" | "orderStatus" | "date" | "time" | "address" | "comment"
+  | "id"
+  | "createdAt"
+  | "orderStatus"
+  | "leadQuality"
+  | "date"
+  | "time"
+  | "address"
+  | "comment"
 > & {
   date?: string;
   time?: string;
@@ -446,6 +502,7 @@ export async function createOrder(
     address: data.address ?? "",
     comment: data.comment ?? "",
     orderStatus: "application",
+    leadQuality: "unreviewed",
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
   };
@@ -504,11 +561,31 @@ export async function deleteOrder(id: string): Promise<void> {
   );
 }
 
+export async function updateOrderLeadQuality(
+  id: string,
+  leadQuality: LeadQuality
+): Promise<Order> {
+  await ensureSiteOrdersTable();
+  const result = await docClient.send(
+    new UpdateCommand({
+      TableName: TableName.SITE_ORDERS,
+      Key: { id },
+      ConditionExpression: "attribute_exists(id)",
+      UpdateExpression: "set #quality = :quality",
+      ExpressionAttributeNames: { "#quality": "leadQuality" },
+      ExpressionAttributeValues: { ":quality": leadQuality },
+      ReturnValues: "ALL_NEW",
+    })
+  );
+  return result.Attributes as Order;
+}
+
 // --- Посещения (аналитика) ---
 
 export interface Visit {
   id: string;
   visitorId: string;
+  sessionId?: string;
   path: string;
   referrer?: string;
   isNewVisitor: boolean;
@@ -516,18 +593,71 @@ export interface Visit {
   createdAt: string;
 }
 
-export type VisitInput = Omit<Visit, "id" | "createdAt">;
+export type VisitInput = Omit<Visit, "id" | "createdAt"> & { visitId?: string };
 
-export async function createVisit(data: VisitInput): Promise<Visit> {
+export class VisitConflictError extends Error {
+  constructor() {
+    super("Visit identifier is already used for a different visit");
+    this.name = "VisitConflictError";
+  }
+}
+
+export async function createVisit(
+  data: VisitInput
+): Promise<{ visit: Visit; created: boolean }> {
+  const { visitId, ...fields } = data;
   const visit: Visit = {
-    ...data,
-    id: crypto.randomUUID(),
+    ...fields,
+    id: visitId ?? crypto.randomUUID(),
     createdAt: new Date().toISOString(),
   };
-  await docClient.send(
-    new PutCommand({ TableName: TableName.SITE_VISITS, Item: visit })
+  try {
+    await docClient.send(
+      new PutCommand({
+        TableName: TableName.SITE_VISITS,
+        Item: visit,
+        ConditionExpression: "attribute_not_exists(id)",
+      })
+    );
+    return { visit, created: true };
+  } catch (error) {
+    if (
+      !visitId ||
+      !(error instanceof Error) ||
+      error.name !== "ConditionalCheckFailedException"
+    )
+      throw error;
+    const existing = await getVisitById(visit.id);
+    if (!existing) throw error;
+    // Preserve the server date on retry, even if the first response was lost
+    // across midnight. Client fields must match before acknowledging a retry.
+    const fieldsToCompare = [
+      "visitorId",
+      "sessionId",
+      "path",
+      "referrer",
+      "isNewVisitor",
+    ] as const;
+    if (
+      fieldsToCompare.some(
+        (field) => (existing[field] ?? "") !== (visit[field] ?? "")
+      )
+    ) {
+      throw new VisitConflictError();
+    }
+    return { visit: existing, created: false };
+  }
+}
+
+export async function getVisitById(id: string): Promise<Visit | null> {
+  const result = await docClient.send(
+    new GetCommand({
+      TableName: TableName.SITE_VISITS,
+      Key: { id },
+      ConsistentRead: true,
+    })
   );
-  return visit;
+  return (result.Item as Visit | undefined) ?? null;
 }
 
 export async function getAllVisits(): Promise<Visit[]> {

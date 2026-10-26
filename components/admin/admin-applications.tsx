@@ -17,9 +17,26 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { z } from "zod";
 import { useLanguage } from "@/lib/i18n/language-provider";
 import { SERVICE_CATEGORIES } from "@/lib/i18n/content";
 import { useSiteContent } from "@/lib/site-content-provider";
+import type { LeadAttribution } from "@/lib/validation/lead";
+import {
+  LEAD_QUALITY_OPTIONS,
+  leadQuality,
+  leadSource,
+  summarizeLeadQuality,
+  type LeadQuality,
+  type LeadVisitMatch,
+} from "@/lib/lead-reporting";
 
 type OrderStatus = "application" | "order";
 
@@ -33,8 +50,13 @@ interface Order {
   address: string;
   comment?: string;
   orderStatus?: OrderStatus;
+  leadQuality?: LeadQuality;
+  attribution?: LeadAttribution;
+  visitMatch?: LeadVisitMatch;
   createdAt: string;
 }
+
+const qualitySchema = z.enum(["unreviewed", "real", "test", "spam"]);
 
 function formatDate(iso: string): string {
   if (!iso) return "";
@@ -58,6 +80,15 @@ export function AdminApplications() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const requestInFlight = useRef(false);
   const ordersRevision = useRef(0);
+  const savingIds = useRef(new Set<string>());
+  const [savingOrderIds, setSavingOrderIds] = useState(new Set<string>());
+  const qualitySummary = summarizeLeadQuality(orders);
+
+  const setSaving = (id: string, saving: boolean) => {
+    if (saving) savingIds.current.add(id);
+    else savingIds.current.delete(id);
+    setSavingOrderIds(new Set(savingIds.current));
+  };
 
   const serviceNameById = useMemo(() => {
     const map = new Map<string, string>();
@@ -89,7 +120,9 @@ export function AdminApplications() {
       });
       if (!response.ok) {
         const problem = await response.json().catch(() => null);
-        throw new Error(problem?.error ?? "Не удалось загрузить заявки. Обновите список.");
+        throw new Error(
+          problem?.error ?? "Не удалось загрузить заявки. Обновите список."
+        );
       }
       const data = (await response.json()) as Order[];
       const sorted = [...data].sort(
@@ -133,6 +166,8 @@ export function AdminApplications() {
       action: {
         label: "Удалить",
         onClick: async () => {
+          if (savingIds.current.has(order.id)) return;
+          setSaving(order.id, true);
           try {
             const response = await fetch(
               `/api/admin/orders?id=${encodeURIComponent(order.id)}`,
@@ -146,7 +181,13 @@ export function AdminApplications() {
             toast.success("Заявка удалена");
             setOrders((prev) => prev.filter((o) => o.id !== order.id));
           } catch (error) {
-            toast.error(error instanceof Error ? error.message : "Не удалось удалить заявку");
+            toast.error(
+              error instanceof Error
+                ? error.message
+                : "Не удалось удалить заявку"
+            );
+          } finally {
+            setSaving(order.id, false);
           }
         },
       },
@@ -155,6 +196,8 @@ export function AdminApplications() {
   };
 
   const handleStatusToggle = async (order: Order) => {
+    if (savingIds.current.has(order.id)) return;
+    setSaving(order.id, true);
     const next: OrderStatus =
       order.orderStatus === "order" ? "application" : "order";
     try {
@@ -178,7 +221,53 @@ export function AdminApplications() {
         next === "order" ? "Заявка переведена в заказ" : "Статус снят"
       );
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Не удалось изменить статус");
+      toast.error(
+        error instanceof Error ? error.message : "Не удалось изменить статус"
+      );
+    } finally {
+      setSaving(order.id, false);
+    }
+  };
+
+  const handleQualityChange = async (order: Order, value: string | null) => {
+    const parsed = qualitySchema.safeParse(value);
+    if (
+      !parsed.success ||
+      parsed.data === leadQuality(order) ||
+      savingIds.current.has(order.id)
+    )
+      return;
+    setSaving(order.id, true);
+    try {
+      const response = await fetch(
+        `/api/admin/orders?id=${encodeURIComponent(order.id)}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ leadQuality: parsed.data }),
+        }
+      );
+      const result = await response.json().catch(() => null);
+      if (!response.ok || result?.leadQuality !== parsed.data) {
+        throw new Error(
+          result?.error ?? "Не удалось сохранить качество заявки"
+        );
+      }
+      ordersRevision.current += 1;
+      setOrders((previous) =>
+        previous.map((item) =>
+          item.id === order.id ? { ...item, leadQuality: parsed.data } : item
+        )
+      );
+      toast.success("Качество заявки сохранено");
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Не удалось сохранить качество заявки"
+      );
+    } finally {
+      setSaving(order.id, false);
     }
   };
 
@@ -196,11 +285,20 @@ export function AdminApplications() {
 
   if (loadError && orders.length === 0) {
     return (
-      <div role="alert" className="flex flex-col items-center gap-3 rounded-xl border border-destructive/30 p-8 text-center">
+      <div
+        role="alert"
+        className="flex flex-col items-center gap-3 rounded-xl border border-destructive/30 p-8 text-center"
+      >
         <AlertTriangle className="h-8 w-8 text-destructive" />
         <p className="text-sm">{loadError}</p>
-        <Button variant="outline" onClick={() => void load()} disabled={refreshing}>
-          <RefreshCw className={refreshing ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
+        <Button
+          variant="outline"
+          onClick={() => void load()}
+          disabled={refreshing}
+        >
+          <RefreshCw
+            className={refreshing ? "h-4 w-4 animate-spin" : "h-4 w-4"}
+          />
           Повторить загрузку
         </Button>
       </div>
@@ -214,8 +312,14 @@ export function AdminApplications() {
         <p className="text-sm text-muted-foreground">
           Заявок пока нет. Когда клиент оставит заявку, она появится здесь.
         </p>
-        <Button variant="outline" onClick={() => void load()} disabled={refreshing}>
-          <RefreshCw className={refreshing ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
+        <Button
+          variant="outline"
+          onClick={() => void load()}
+          disabled={refreshing}
+        >
+          <RefreshCw
+            className={refreshing ? "h-4 w-4 animate-spin" : "h-4 w-4"}
+          />
           Обновить
         </Button>
       </div>
@@ -226,13 +330,32 @@ export function AdminApplications() {
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">{orders.length} заявок</p>
-        <Button variant="outline" size="sm" onClick={() => void load()} disabled={refreshing}>
-          <RefreshCw className={refreshing ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => void load()}
+          disabled={refreshing}
+        >
+          <RefreshCw
+            className={refreshing ? "h-4 w-4 animate-spin" : "h-4 w-4"}
+          />
           Обновить
         </Button>
       </div>
+      <p className="text-xs text-muted-foreground">
+        Реальных клиентов: {qualitySummary.real} · Не проверено:{" "}
+        {qualitySummary.unreviewed} · Тестовых: {qualitySummary.test} · Спам:{" "}
+        {qualitySummary.spam}
+      </p>
+      <p className="text-xs text-muted-foreground">
+        Качество отмечается вручную после связи с клиентом. Метки источника не
+        подтверждают оплату рекламы или заказа.
+      </p>
       {loadError && (
-        <div role="alert" className="rounded-lg border border-destructive/30 p-3 text-sm">
+        <div
+          role="alert"
+          className="rounded-lg border border-destructive/30 p-3 text-sm"
+        >
           {loadError} Ниже показаны заявки из последней успешной загрузки.
         </div>
       )}
@@ -244,7 +367,9 @@ export function AdminApplications() {
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="font-semibold">{order.name || "Заявка без имени"}</p>
+                <p className="font-semibold">
+                  {order.name || "Заявка без имени"}
+                </p>
                 <p className="text-xs text-muted-foreground">
                   {formatDate(order.createdAt) || "Дата неизвестна"}
                 </p>
@@ -254,6 +379,7 @@ export function AdminApplications() {
                 size="icon"
                 className="h-8 w-8 text-muted-foreground hover:text-destructive"
                 onClick={() => handleDelete(order)}
+                disabled={savingOrderIds.has(order.id)}
                 aria-label="Удалить заявку"
               >
                 <Trash2 className="h-4 w-4" />
@@ -266,7 +392,9 @@ export function AdminApplications() {
                 className="inline-flex items-center gap-1"
               >
                 <Wrench className="h-3 w-3" />
-                {order.service ? displayServiceName(order.service) : "Услуга не указана"}
+                {order.service
+                  ? displayServiceName(order.service)
+                  : "Услуга не указана"}
               </Badge>
               <Badge
                 variant={order.orderStatus === "order" ? "default" : "outline"}
@@ -275,8 +403,14 @@ export function AdminApplications() {
                 <PackageCheck className="h-3 w-3" />
                 {order.orderStatus === "order" ? "Заказ" : "Заявка"}
               </Badge>
-              {(!order.name || !order.phone || !order.service || !formatDate(order.createdAt)) && (
-                <Badge variant="destructive" className="inline-flex items-center gap-1">
+              {(!order.name ||
+                !order.phone ||
+                !order.service ||
+                !formatDate(order.createdAt)) && (
+                <Badge
+                  variant="destructive"
+                  className="inline-flex items-center gap-1"
+                >
                   <AlertTriangle className="h-3 w-3" />
                   Неполная запись
                 </Badge>
@@ -286,11 +420,59 @@ export function AdminApplications() {
                 size="sm"
                 className="h-6 px-2 text-xs"
                 onClick={() => handleStatusToggle(order)}
+                disabled={savingOrderIds.has(order.id)}
               >
                 {order.orderStatus === "order"
                   ? "Вернуть в заявки"
                   : "Отметить заказом"}
               </Button>
+            </div>
+
+            <div className="space-y-2 rounded-lg bg-muted/40 p-3 text-sm">
+              <p>
+                <span className="text-muted-foreground">Источник: </span>
+                {leadSource(order)}
+              </p>
+              {order.attribution?.utm_campaign && (
+                <p className="break-words">
+                  <span className="text-muted-foreground">Кампания: </span>
+                  {order.attribution.utm_campaign}
+                </p>
+              )}
+              <p className="text-xs text-muted-foreground">
+                {order.visitMatch?.status === "matched"
+                  ? `Посещение найдено: ${order.visitMatch.path} · ${formatDate(order.visitMatch.createdAt)}`
+                  : order.visitMatch?.status === "unavailable"
+                    ? "Связь с посещением временно не удалось проверить"
+                    : "Сохранённое посещение не найдено; для старых заявок связь могла не записываться"}
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs text-muted-foreground">
+                  Качество заявки
+                </span>
+                <Select
+                  value={leadQuality(order)}
+                  items={LEAD_QUALITY_OPTIONS.map((option) => ({ ...option }))}
+                  onValueChange={(value) =>
+                    void handleQualityChange(order, value)
+                  }
+                  disabled={savingOrderIds.has(order.id)}
+                >
+                  <SelectTrigger
+                    size="sm"
+                    aria-label={`Качество заявки ${order.name || "без имени"}`}
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LEAD_QUALITY_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="flex flex-col gap-1.5 text-sm">

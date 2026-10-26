@@ -7,7 +7,9 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
-  const parsed = feedbackSchema.safeParse(await request.json().catch(() => null));
+  const parsed = feedbackSchema.safeParse(
+    await request.json().catch(() => null)
+  );
 
   if (!parsed.success) {
     return NextResponse.json(
@@ -17,7 +19,10 @@ export async function POST(request: NextRequest) {
   }
 
   if (!isDatabaseAvailable()) {
-    return NextResponse.json({ error: "Не удалось сохранить обращение", saved: false }, { status: 503 });
+    return NextResponse.json(
+      { error: "Не удалось сохранить обращение", saved: false },
+      { status: 503 }
+    );
   }
   try {
     const { order } = await createOrder({
@@ -25,10 +30,20 @@ export async function POST(request: NextRequest) {
       phone: parsed.data.phone,
       service: "Обратная связь",
       comment: parsed.data.message,
+      attribution: parsed.data.attribution,
     });
-    return NextResponse.json({ success: true, saved: true, id: order.id }, { status: 201 });
+    return NextResponse.json(
+      { success: true, saved: true, id: order.id },
+      { status: 201 }
+    );
   } catch (error) {
-    console.error("[feedback] Обращение не сохранено:", error instanceof Error ? error.name : "UnknownError");
-    return NextResponse.json({ error: "Не удалось сохранить обращение", saved: false }, { status: 503 });
+    console.error(
+      "[feedback] Обращение не сохранено:",
+      error instanceof Error ? error.name : "UnknownError"
+    );
+    return NextResponse.json(
+      { error: "Не удалось сохранить обращение", saved: false },
+      { status: 503 }
+    );
   }
 }

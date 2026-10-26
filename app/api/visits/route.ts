@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isDatabaseAvailable, ensureSiteVisitsTable } from "@/lib/db";
-import { createVisit } from "@/lib/models";
+import { createVisit, VisitConflictError } from "@/lib/models";
 import { visitSchema } from "@/lib/validation";
 import { isPublicAnalyticsPath } from "@/lib/analytics-paths";
 import { analyticsDate } from "@/lib/analytics-dates";
+import { databaseErrorDetails } from "@/lib/database-diagnostics";
 
 export const runtime = "nodejs";
 
@@ -29,15 +30,24 @@ export async function POST(request: NextRequest) {
 
   try {
     await ensureSiteVisitsTable();
-    await createVisit({
+    const { visit, created } = await createVisit({
       ...parsed.data,
       date: analyticsDate(new Date())!,
     });
-    return NextResponse.json({ ok: true, saved: true }, { status: 201 });
+    return NextResponse.json(
+      { ok: true, saved: true, id: visit.id, duplicate: !created },
+      { status: created ? 201 : 200 }
+    );
   } catch (error) {
+    if (error instanceof VisitConflictError) {
+      return NextResponse.json(
+        { error: "Идентификатор посещения уже использован", saved: false },
+        { status: 409 }
+      );
+    }
     console.error(
       "[visits] Ошибка сохранения посещения:",
-      error instanceof Error ? error.name : "UnknownError"
+      databaseErrorDetails(error, "put-visit")
     );
     return NextResponse.json(
       { error: "Не удалось сохранить посещение", saved: false },

@@ -5,6 +5,14 @@ import { isAdminRequest } from "@/lib/admin-auth";
 import { getAllOrders, getAllVisits } from "@/lib/models";
 import { isPublicAnalyticsPath } from "@/lib/analytics-paths";
 import {
+  leadQuality,
+  leadSource,
+  matchLeadVisit,
+  summarizeLeadQuality,
+  type ReportableLead,
+  type ReportableVisit,
+} from "@/lib/lead-reporting";
+import {
   ANALYTICS_TIME_ZONE,
   analyticsDate,
   analyticsDateRange,
@@ -24,14 +32,16 @@ function unauthorized() {
 }
 
 interface VisitLite {
+  id?: string;
   visitorId: string;
+  sessionId?: string;
   path: string;
   date: string;
   createdAt?: string;
   referrer?: string;
 }
 
-interface OrderLite {
+interface OrderLite extends ReportableLead {
   service: string;
   orderStatus?: "application" | "order";
   createdAt: string;
@@ -61,6 +71,11 @@ export interface AnalyticsResponse {
   funnel: FunnelData;
   byService: BreakdownItem[];
   bySource: BreakdownItem[];
+  byLeadSource: BreakdownItem[];
+  byRealLeadSource: BreakdownItem[];
+  leadQuality: ReturnType<typeof summarizeLeadQuality>;
+  linkedApplications: number;
+  realLinkedApplications: number;
   period: {
     from: string;
     to: string;
@@ -140,6 +155,22 @@ function aggregate(
     return date !== null && date >= fromDate && date <= toDate;
   });
   const applications = inRangeOrders.length;
+  const quality = summarizeLeadQuality(inRangeOrders);
+  const visitsById = new Map<string, ReportableVisit>();
+  for (const visit of visits) {
+    if (visit.id && visit.createdAt) {
+      visitsById.set(visit.id, {
+        ...visit,
+        id: visit.id,
+        createdAt: visit.createdAt,
+      });
+    }
+  }
+  const linked = inRangeOrders.filter(
+    (order) =>
+      matchLeadVisit(order, visitsById.get(order.attribution?.visitId ?? ""))
+        .status === "matched"
+  );
   const ordersCount = inRangeOrders.filter(
     (o) => o.orderStatus === "order"
   ).length;
@@ -161,6 +192,17 @@ function aggregate(
     .map(([label, count]) => ({ label, count }))
     .sort((a, b) => b.count - a.count);
 
+  const leadBreakdown = (leads: OrderLite[]): BreakdownItem[] => {
+    const sources = new Map<string, number>();
+    for (const lead of leads) {
+      const source = leadSource(lead);
+      sources.set(source, (sources.get(source) ?? 0) + 1);
+    }
+    return [...sources.entries()]
+      .map(([label, count]) => ({ label, count }))
+      .sort((a, b) => b.count - a.count);
+  };
+
   return {
     totalVisits: inRangeVisits.length,
     uniqueVisitors,
@@ -172,6 +214,15 @@ function aggregate(
     },
     byService,
     bySource,
+    byLeadSource: leadBreakdown(inRangeOrders),
+    byRealLeadSource: leadBreakdown(
+      inRangeOrders.filter((order) => leadQuality(order) === "real")
+    ),
+    leadQuality: quality,
+    linkedApplications: linked.length,
+    realLinkedApplications: linked.filter(
+      (order) => leadQuality(order) === "real"
+    ).length,
     period: { from: fromDate, to: toDate, timeZone: ANALYTICS_TIME_ZONE },
   };
 }
@@ -196,7 +247,10 @@ export async function GET(request: NextRequest) {
 
   try {
     await ensureSiteVisitsTable();
-    const [visits, orders] = await Promise.all([getAllVisits(), getAllOrders()]);
+    const [visits, orders] = await Promise.all([
+      getAllVisits(),
+      getAllOrders(),
+    ]);
     const toDate = analyticsDate(new Date())!;
     const start = new Date(toDate + "T00:00:00Z");
     start.setUTCDate(start.getUTCDate() - (parsed.data - 1));

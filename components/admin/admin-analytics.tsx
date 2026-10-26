@@ -55,11 +55,15 @@ function ConversionFunnel({ data }: { data: AnalyticsResponse["funnel"] }) {
       value: data.visits,
     },
     {
-      label: "Заявки",
-      hint: "Созданы в выбранном периоде",
+      label: "Все обращения",
+      hint: "Включая непроверенные, тестовые и спам",
       value: data.applications,
     },
-    { label: "Заказы", hint: "Из заявок этого периода", value: data.orders },
+    {
+      label: "Отмечено заказами",
+      hint: "Статус в панели, не подтверждение оплаты",
+      value: data.orders,
+    },
   ];
   const max = Math.max(1, ...steps.map((step) => step.value));
 
@@ -283,7 +287,8 @@ export function AdminAnalytics() {
           </p>
           {data && (
             <p className="text-xs">
-              {formatPeriodDate(data.period.from)}–{formatPeriodDate(data.period.to)}
+              {formatPeriodDate(data.period.from)}–
+              {formatPeriodDate(data.period.to)}
             </p>
           )}
         </div>
@@ -307,7 +312,12 @@ export function AdminAnalytics() {
               ))}
             </SelectContent>
           </Select>
-          <Button variant="outline" size="sm" onClick={refresh} disabled={loading}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={refresh}
+            disabled={loading}
+          >
             <RefreshCw className="h-4 w-4" />
             Обновить
           </Button>
@@ -315,7 +325,11 @@ export function AdminAnalytics() {
       </div>
 
       {loading ? (
-        <div className="space-y-4" role="status" aria-label="Загрузка статистики">
+        <div
+          className="space-y-4"
+          role="status"
+          aria-label="Загрузка статистики"
+        >
           <div className="grid gap-4 sm:grid-cols-2">
             <Skeleton className="h-28 rounded-xl" />
             <Skeleton className="h-28 rounded-xl" />
@@ -369,6 +383,40 @@ export function AdminAnalytics() {
             </Card>
           </div>
 
+          <Card>
+            <CardContent className="space-y-4 pt-6">
+              <h3 className="text-sm font-semibold">Качество обращений</h3>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {[
+                  { label: "Реальные клиенты", value: data.leadQuality.real },
+                  { label: "Не проверены", value: data.leadQuality.unreviewed },
+                  { label: "Тестовые", value: data.leadQuality.test },
+                  { label: "Спам", value: data.leadQuality.spam },
+                  {
+                    label: "Обращения с найденным посещением",
+                    value: data.linkedApplications,
+                  },
+                  {
+                    label: "Реальные клиенты с найденным посещением",
+                    value: data.realLinkedApplications,
+                  },
+                ].map((item) => (
+                  <div key={item.label}>
+                    <p className="text-2xl font-bold">{item.value}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {item.label}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Отметьте качество во вкладке заявок после общения с клиентом.
+                Старые и новые обращения остаются непроверенными, пока вы не
+                выберете качество.
+              </p>
+            </CardContent>
+          </Card>
+
           {data.days.length > 0 && (
             <Card>
               <CardContent className="pt-6">
@@ -384,7 +432,7 @@ export function AdminAnalytics() {
             <CardContent className="pt-6">
               <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold">
                 <MousePointerClick className="h-4 w-4 text-primary" />
-                Просмотры, заявки и заказы за период
+                Просмотры и обращения за период
               </h3>
               <ConversionFunnel data={data.funnel} />
             </CardContent>
@@ -392,7 +440,7 @@ export function AdminAnalytics() {
 
           <div className="grid gap-4 lg:grid-cols-2">
             <BreakdownCard
-              title="Заявки по услугам"
+              title="Все обращения по услугам"
               icon={Wrench}
               items={data.byService}
               emptyText="За выбранный период заявок нет."
@@ -404,6 +452,25 @@ export function AdminAnalytics() {
               emptyText="За выбранный период просмотров нет."
             />
           </div>
+          <div className="grid gap-4 lg:grid-cols-2">
+            <BreakdownCard
+              title="Источники всех обращений"
+              icon={Filter}
+              items={data.byLeadSource}
+              emptyText="За выбранный период обращений нет."
+            />
+            <BreakdownCard
+              title="Источники реальных клиентов"
+              icon={Users}
+              items={data.byRealLeadSource}
+              emptyText="В выбранном периоде пока нет обращений, отмеченных реальными."
+            />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Источник определяется по сохранённым меткам перехода. Это не отчёт о
+            конверсиях Google Ads; стоимость заявки здесь не рассчитывается без
+            расходов рекламы.
+          </p>
         </>
       ) : (
         <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed py-16 text-center">

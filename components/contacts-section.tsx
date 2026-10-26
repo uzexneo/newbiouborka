@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/field";
 import { useLanguage } from "@/lib/i18n/language-provider";
 import { useSiteContent } from "@/lib/site-content-provider";
-import { trackGenerateLead } from "@/lib/analytics";
+import { captureLeadAttribution, trackGenerateLead } from "@/lib/analytics";
 
 interface ValidationMessages {
   name: string;
@@ -26,11 +26,22 @@ interface ValidationMessages {
 function buildSchema(messages: ValidationMessages) {
   return z.object({
     name: z.string().trim().min(1, messages.name).max(100, messages.name),
-    phone: z.string().trim().max(30, messages.phone).refine(
-      (value) => /^\+?[\d\s().-]+$/.test(value) && value.replace(/\D/g, "").length >= 7 && value.replace(/\D/g, "").length <= 15,
-      messages.phone
-    ),
-    message: z.string().trim().min(1, messages.message).max(2000, messages.message),
+    phone: z
+      .string()
+      .trim()
+      .max(30, messages.phone)
+      .refine(
+        (value) =>
+          /^\+?[\d\s().-]+$/.test(value) &&
+          value.replace(/\D/g, "").length >= 7 &&
+          value.replace(/\D/g, "").length <= 15,
+        messages.phone
+      ),
+    message: z
+      .string()
+      .trim()
+      .min(1, messages.message)
+      .max(2000, messages.message),
   });
 }
 
@@ -84,7 +95,10 @@ export function ContactsSection() {
       const response = await fetch("/api/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(result.data),
+        body: JSON.stringify({
+          ...result.data,
+          attribution: captureLeadAttribution(),
+        }),
         signal: AbortSignal.timeout(45_000),
       });
 
@@ -212,7 +226,9 @@ export function ContactsSection() {
                 <form onSubmit={handleSubmit}>
                   <FieldGroup>
                     <Field>
-                      <FieldLabel htmlFor="feedback-name">{t("field.name")}</FieldLabel>
+                      <FieldLabel htmlFor="feedback-name">
+                        {t("field.name")}
+                      </FieldLabel>
                       <Input
                         id="feedback-name"
                         autoComplete="name"
@@ -225,7 +241,9 @@ export function ContactsSection() {
                     </Field>
 
                     <Field>
-                      <FieldLabel htmlFor="feedback-phone">{t("field.phone")}</FieldLabel>
+                      <FieldLabel htmlFor="feedback-phone">
+                        {t("field.phone")}
+                      </FieldLabel>
                       <Input
                         id="feedback-phone"
                         type="tel"
@@ -239,7 +257,9 @@ export function ContactsSection() {
                     </Field>
 
                     <Field>
-                      <FieldLabel htmlFor="feedback-message">{t("field.message")}</FieldLabel>
+                      <FieldLabel htmlFor="feedback-message">
+                        {t("field.message")}
+                      </FieldLabel>
                       <Textarea
                         id="feedback-message"
                         placeholder={t("field.messagePlaceholder")}

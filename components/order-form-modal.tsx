@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/field";
 import { useLanguage } from "@/lib/i18n/language-provider";
 import { useSiteContent } from "@/lib/site-content-provider";
-import { trackGenerateLead } from "@/lib/analytics";
+import { captureLeadAttribution, trackGenerateLead } from "@/lib/analytics";
 
 interface ValidationMessages {
   name: string;
@@ -42,14 +42,29 @@ interface ValidationMessages {
 function buildSchema(messages: ValidationMessages) {
   return z.object({
     name: z.string().trim().min(1, messages.name).max(100, messages.name),
-    phone: z.string().trim().max(30, messages.phone).refine(
-      (value) => /^\+?[\d\s().-]+$/.test(value) && value.replace(/\D/g, "").length >= 7 && value.replace(/\D/g, "").length <= 15,
-      messages.phone
-    ),
-    service: z.string().trim().min(1, messages.service).max(200, messages.service),
+    phone: z
+      .string()
+      .trim()
+      .max(30, messages.phone)
+      .refine(
+        (value) =>
+          /^\+?[\d\s().-]+$/.test(value) &&
+          value.replace(/\D/g, "").length >= 7 &&
+          value.replace(/\D/g, "").length <= 15,
+        messages.phone
+      ),
+    service: z
+      .string()
+      .trim()
+      .min(1, messages.service)
+      .max(200, messages.service),
     date: z.string().min(1, messages.date).max(20, messages.date),
     time: z.string().min(1, messages.time).max(20, messages.time),
-    address: z.string().trim().min(1, messages.address).max(500, messages.address),
+    address: z
+      .string()
+      .trim()
+      .min(1, messages.address)
+      .max(500, messages.address),
     comment: z.string().max(2000).optional(),
   });
 }
@@ -63,7 +78,9 @@ interface OrderFormModalProps {
 }
 
 export function OrderFormModal(props: OrderFormModalProps) {
-  return <OrderFormContent key={props.preselectedService ?? "default"} {...props} />;
+  return (
+    <OrderFormContent key={props.preselectedService ?? "default"} {...props} />
+  );
 }
 
 function OrderFormContent({
@@ -130,7 +147,10 @@ function OrderFormContent({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...result.data,
-          service: allServices.find((service) => service.id === result.data.service)?.name ?? result.data.service,
+          attribution: captureLeadAttribution(),
+          service:
+            allServices.find((service) => service.id === result.data.service)
+              ?.name ?? result.data.service,
         }),
         signal: AbortSignal.timeout(45_000),
       });
@@ -198,7 +218,9 @@ function OrderFormContent({
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="order-service">{t("order.fieldService")}</FieldLabel>
+              <FieldLabel htmlFor="order-service">
+                {t("order.fieldService")}
+              </FieldLabel>
               <Select
                 value={formData.service}
                 onValueChange={(value) => handleChange("service", value ?? "")}
@@ -225,7 +247,9 @@ function OrderFormContent({
 
             <div className="flex gap-3">
               <Field className="flex-1">
-                <FieldLabel htmlFor="order-date">{t("order.fieldDate")}</FieldLabel>
+                <FieldLabel htmlFor="order-date">
+                  {t("order.fieldDate")}
+                </FieldLabel>
                 <Input
                   id="order-date"
                   type="date"
@@ -237,7 +261,9 @@ function OrderFormContent({
               </Field>
 
               <Field className="flex-1">
-                <FieldLabel htmlFor="order-time">{t("order.fieldTime")}</FieldLabel>
+                <FieldLabel htmlFor="order-time">
+                  {t("order.fieldTime")}
+                </FieldLabel>
                 <Input
                   id="order-time"
                   type="time"
@@ -250,7 +276,9 @@ function OrderFormContent({
             </div>
 
             <Field>
-              <FieldLabel htmlFor="order-address">{t("order.fieldAddress")}</FieldLabel>
+              <FieldLabel htmlFor="order-address">
+                {t("order.fieldAddress")}
+              </FieldLabel>
               <Input
                 id="order-address"
                 autoComplete="street-address"
@@ -263,7 +291,9 @@ function OrderFormContent({
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="order-comment">{t("order.fieldComment")}</FieldLabel>
+              <FieldLabel htmlFor="order-comment">
+                {t("order.fieldComment")}
+              </FieldLabel>
               <Textarea
                 id="order-comment"
                 placeholder={t("order.fieldCommentPlaceholder")}

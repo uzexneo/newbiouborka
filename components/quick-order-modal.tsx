@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/field";
 import { useLanguage } from "@/lib/i18n/language-provider";
 import { useSiteContent } from "@/lib/site-content-provider";
-import { trackGenerateLead } from "@/lib/analytics";
+import { captureLeadAttribution, trackGenerateLead } from "@/lib/analytics";
 
 interface ValidationMessages {
   name: string;
@@ -38,11 +38,22 @@ interface ValidationMessages {
 function buildSchema(messages: ValidationMessages) {
   return z.object({
     name: z.string().trim().min(1, messages.name).max(100, messages.name),
-    phone: z.string().trim().max(30, messages.phone).refine(
-      (value) => /^\+?[\d\s().-]+$/.test(value) && value.replace(/\D/g, "").length >= 7 && value.replace(/\D/g, "").length <= 15,
-      messages.phone
-    ),
-    service: z.string().trim().min(1, messages.service).max(200, messages.service),
+    phone: z
+      .string()
+      .trim()
+      .max(30, messages.phone)
+      .refine(
+        (value) =>
+          /^\+?[\d\s().-]+$/.test(value) &&
+          value.replace(/\D/g, "").length >= 7 &&
+          value.replace(/\D/g, "").length <= 15,
+        messages.phone
+      ),
+    service: z
+      .string()
+      .trim()
+      .min(1, messages.service)
+      .max(200, messages.service),
   });
 }
 
@@ -106,7 +117,10 @@ export function QuickOrderModal({ open, onOpenChange }: QuickOrderModalProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...result.data,
-          service: allServices.find((service) => service.id === result.data.service)?.name ?? result.data.service,
+          attribution: captureLeadAttribution(),
+          service:
+            allServices.find((service) => service.id === result.data.service)
+              ?.name ?? result.data.service,
         }),
         signal: AbortSignal.timeout(45_000),
       });
@@ -166,7 +180,9 @@ export function QuickOrderModal({ open, onOpenChange }: QuickOrderModalProps) {
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="quick-service">{t("order.fieldService")}</FieldLabel>
+              <FieldLabel htmlFor="quick-service">
+                {t("order.fieldService")}
+              </FieldLabel>
               <Select
                 value={formData.service}
                 onValueChange={(value) => handleChange("service", value ?? "")}

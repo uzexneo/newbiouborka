@@ -1,83 +1,68 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { usePathname } from "next/navigation";
-import { isPublicAnalyticsPath } from "@/lib/analytics-paths";
+import { Suspense, useEffect, useRef } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { captureLeadAttribution } from "@/lib/analytics";
 import { visitSchema } from "@/lib/validation";
+import {
+  confirmBrowserVisit,
+  getBrowserVisit,
+  isNewBrowserVisitor,
+} from "@/lib/visit-context";
+import { submitVisitWithRetry } from "@/lib/visit-tracking";
 
-const VISITOR_KEY = "biouborka.visitorId";
-
-function createId(): string {
-  if (
-    typeof crypto !== "undefined" &&
-    typeof crypto.randomUUID === "function"
-  ) {
-    return crypto.randomUUID();
-  }
-  return `v-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
-}
-
-function getOrCreateVisitorId(): { id: string; isNew: boolean } {
-  if (typeof window === "undefined") return { id: "", isNew: false };
-  try {
-    const existing = window.localStorage.getItem(VISITOR_KEY);
-    if (existing) return { id: existing, isNew: false };
-    const id = createId();
-    window.localStorage.setItem(VISITOR_KEY, id);
-    return { id, isNew: true };
-  } catch {
-    return { id: createId(), isNew: true };
-  }
-}
-
-export function VisitTracker() {
+function PublicVisitTracker() {
   const pathname = usePathname();
-  const visitorIdRef = useRef<string>("");
-  const isNewRef = useRef(false);
-  const lastTrackedPathRef = useRef<string | null>(null);
+  const search = useSearchParams().toString();
+  const pending = useRef(new Set<string>());
+  const confirmed = useRef(new Set<string>());
+  const queue = useRef<Promise<void>>(Promise.resolve());
 
   useEffect(() => {
-    if (!isPublicAnalyticsPath(pathname)) {
-      lastTrackedPathRef.current = null;
+    const visit = getBrowserVisit();
+    if (
+      !visit ||
+      pending.current.has(visit.visitId) ||
+      confirmed.current.has(visit.visitId)
+    )
       return;
-    }
-    if (lastTrackedPathRef.current === pathname) return;
-
-    if (visitorIdRef.current === "") {
-      const result = getOrCreateVisitorId();
-      visitorIdRef.current = result.id;
-      isNewRef.current = result.isNew;
-    }
-
+    captureLeadAttribution();
+    pending.current.add(visit.visitId);
+    // Serial saves prevent rapid navigation from counting one visitor as new
+    // on several pages. A failed save leaves the identity unconfirmed.
     const send = async () => {
-      const parsed = visitSchema.safeParse({
-        visitorId: visitorIdRef.current,
-        path: (window.location.pathname + window.location.search).slice(0, 500),
-        referrer: document.referrer.slice(0, 1000) || undefined,
-        isNewVisitor: isNewRef.current,
-      });
-      if (!parsed.success) return;
-
       try {
-        const response = await fetch("/api/visits", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(parsed.data),
-          keepalive: true,
-          signal: AbortSignal.timeout(25_000),
+        const parsed = visitSchema.safeParse({
+          ...visit,
+          isNewVisitor: isNewBrowserVisitor(visit.visitorId),
         });
-        if (!response.ok) {
-          console.warn("[visits] Посещение не сохранено:", response.status);
+        if (!parsed.success) return;
+        if (await submitVisitWithRetry(parsed.data)) {
+          confirmBrowserVisit(visit);
+          confirmed.current.add(visit.visitId);
+          if (confirmed.current.size > 100) {
+            const oldest = confirmed.current.values().next().value;
+            if (oldest) confirmed.current.delete(oldest);
+          }
+        } else {
+          console.warn("[visits] Посещение не сохранено");
         }
       } catch {
         console.warn("[visits] Посещение не сохранено: запрос не завершён");
+      } finally {
+        pending.current.delete(visit.visitId);
       }
     };
-
-    lastTrackedPathRef.current = pathname;
-    void send();
-    isNewRef.current = false;
-  }, [pathname]);
+    queue.current = queue.current.then(send, send);
+  }, [pathname, search]);
 
   return null;
+}
+
+export function VisitTracker() {
+  return (
+    <Suspense fallback={null}>
+      <PublicVisitTracker />
+    </Suspense>
+  );
 }
