@@ -8,6 +8,7 @@ import { SERVICE_PAGES } from "@/lib/i18n/content";
 import { ServicesBreadcrumbs } from "@/components/services-breadcrumbs";
 import { ServiceCategoryCard } from "@/components/service-category-card";
 import { QuickOrderModal } from "@/components/quick-order-modal";
+import { trackPhoneClick } from "@/lib/analytics";
 
 export function ServicesHubContent() {
   const { t } = useLanguage();
@@ -50,6 +51,7 @@ export function ServicesHubContent() {
               <h2 className="text-lg font-semibold">{t("uslugi.quickCta")}</h2>
               <a
                 href={telHref}
+                onClick={() => trackPhoneClick({ location: "services_hub" })}
                 className="mt-1 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
               >
                 <Phone className="h-4 w-4" />

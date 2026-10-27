@@ -15,7 +15,11 @@ import {
 } from "@/components/ui/field";
 import { useLanguage } from "@/lib/i18n/language-provider";
 import { useSiteContent } from "@/lib/site-content-provider";
-import { captureLeadAttribution, trackGenerateLead } from "@/lib/analytics";
+import {
+  captureLeadAttribution,
+  trackGenerateLead,
+  trackPhoneClick,
+} from "@/lib/analytics";
 
 interface ValidationMessages {
   name: string;
@@ -140,6 +144,7 @@ export function ContactsSection() {
                 <div className="space-y-4">
                   <a
                     href={telHref}
+                    onClick={() => trackPhoneClick({ location: "contacts" })}
                     className="flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors"
                   >
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">

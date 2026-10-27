@@ -129,4 +129,51 @@ export function trackGenerateLead({
   }
 }
 
+const PHONE_CLICK_LOCATIONS = [
+  "home_hero",
+  "service_category",
+  "floating_call",
+  "contacts",
+  "footer",
+  "services_hub",
+] as const;
+
+const PHONE_SERVICE_CATEGORIES = new Set([
+  "cleaning",
+  "windows",
+  "carpets",
+  "furniture",
+  "mattresses",
+  "leather",
+  "floors",
+  "kitchen",
+  "other",
+]);
+
+interface PhoneClickParams {
+  location: (typeof PHONE_CLICK_LOCATIONS)[number];
+  service?: string;
+}
+
+// This records an attempt to open the dialler, not a call or a saved lead.
+export function trackPhoneClick({ location, service }: PhoneClickParams): void {
+  if (typeof window === "undefined" || typeof window.gtag !== "function") {
+    return;
+  }
+  if (
+    !isPublicAnalyticsPath(window.location.pathname) ||
+    !PHONE_CLICK_LOCATIONS.includes(location)
+  ) {
+    return;
+  }
+  try {
+    window.gtag("event", "phone_click", {
+      link_location: location,
+      ...(service && PHONE_SERVICE_CATEGORIES.has(service) ? { service } : {}),
+    });
+  } catch {
+    // Optional analytics must never stop the phone link from opening.
+  }
+}
+
 export {};

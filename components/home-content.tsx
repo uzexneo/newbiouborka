@@ -24,6 +24,9 @@ import { PortfolioGallery } from "@/components/portfolio-gallery";
 import { ContactsSection } from "@/components/contacts-section";
 import { FaqSection } from "@/components/faq-section";
 import { QuickOrderModal } from "@/components/quick-order-modal";
+import { CleaningOffer } from "@/components/cleaning-offer";
+import { CleaningScope } from "@/components/cleaning-scope";
+import { trackPhoneClick } from "@/lib/analytics";
 
 interface TrustCardMeta {
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
@@ -48,8 +51,18 @@ const TRUST_CARDS: TrustCardMeta[] = [
 
 export function HomeContent() {
   const { t } = useLanguage();
-  const { gallery, background, contacts, about, benefits, testimonials } =
-    useSiteContent();
+  const {
+    gallery,
+    background,
+    contacts,
+    about,
+    benefits,
+    testimonials,
+    services,
+  } = useSiteContent();
+  const generalService = services
+    .flatMap((category) => category.services)
+    .find((service) => service.id === "cleaning-general")?.id;
   const [quickOpen, setQuickOpen] = useState(false);
   const telHref = `tel:+${contacts.phone.replace(/[^\d]/g, "")}`;
   const isLocalBackground =
@@ -110,6 +123,7 @@ export function HomeContent() {
               </button>
               <a
                 href={telHref}
+                onClick={() => trackPhoneClick({ location: "home_hero" })}
                 className="inline-flex items-center gap-1.5 rounded-lg border border-white/40 bg-white/10 px-6 py-2.5 text-sm font-medium text-white transition-all hover:bg-white/20"
               >
                 <Phone className="h-4 w-4" />
@@ -132,6 +146,12 @@ export function HomeContent() {
           </div>
         </div>
       </section>
+
+      <div className="container mx-auto px-4 pt-8">
+        <div className="mx-auto max-w-5xl">
+          <CleaningOffer />
+        </div>
+      </div>
 
       <section className="container mx-auto px-4 py-16 sm:py-20">
         <div className="max-w-5xl mx-auto">
@@ -212,6 +232,12 @@ export function HomeContent() {
       </section>
 
       <ServiceCardsSection />
+
+      <div className="container mx-auto px-4 pb-16 sm:pb-20">
+        <div className="mx-auto max-w-5xl">
+          <CleaningScope />
+        </div>
+      </div>
 
       <section
         id="about"
@@ -337,7 +363,11 @@ export function HomeContent() {
 
       <ContactsSection />
 
-      <QuickOrderModal open={quickOpen} onOpenChange={setQuickOpen} />
+      <QuickOrderModal
+        open={quickOpen}
+        onOpenChange={setQuickOpen}
+        preselectedService={generalService}
+      />
     </>
   );
 }

@@ -3,6 +3,7 @@
 import { Phone } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/language-provider";
 import { useSiteContent } from "@/lib/site-content-provider";
+import { trackPhoneClick } from "@/lib/analytics";
 
 export function FloatingCallButton() {
   const { t } = useLanguage();
@@ -12,6 +13,7 @@ export function FloatingCallButton() {
   return (
     <a
       href={telHref}
+      onClick={() => trackPhoneClick({ location: "floating_call" })}
       aria-label={`${t("call.title")}: ${contacts.phone}`}
       className="fixed bottom-4 right-4 z-50 flex items-center gap-2.5 rounded-full bg-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition-transform hover:scale-105 active:scale-95 sm:bottom-6 sm:right-6"
     >

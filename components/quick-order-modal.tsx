@@ -28,50 +28,34 @@ import {
 import { useLanguage } from "@/lib/i18n/language-provider";
 import { useSiteContent } from "@/lib/site-content-provider";
 import { captureLeadAttribution, trackGenerateLead } from "@/lib/analytics";
+import { buildQuickOrderSchema } from "@/lib/validation/order-form";
 
-interface ValidationMessages {
-  name: string;
-  phone: string;
-  service: string;
-}
-
-function buildSchema(messages: ValidationMessages) {
-  return z.object({
-    name: z.string().trim().min(1, messages.name).max(100, messages.name),
-    phone: z
-      .string()
-      .trim()
-      .max(30, messages.phone)
-      .refine(
-        (value) =>
-          /^\+?[\d\s().-]+$/.test(value) &&
-          value.replace(/\D/g, "").length >= 7 &&
-          value.replace(/\D/g, "").length <= 15,
-        messages.phone
-      ),
-    service: z
-      .string()
-      .trim()
-      .min(1, messages.service)
-      .max(200, messages.service),
-  });
-}
-
-type QuickOrderData = z.infer<ReturnType<typeof buildSchema>>;
+type QuickOrderData = z.infer<ReturnType<typeof buildQuickOrderSchema>>;
 
 interface QuickOrderModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  preselectedService?: string;
 }
 
-export function QuickOrderModal({ open, onOpenChange }: QuickOrderModalProps) {
+export function QuickOrderModal(props: QuickOrderModalProps) {
+  return (
+    <QuickOrderContent key={props.preselectedService ?? "default"} {...props} />
+  );
+}
+
+function QuickOrderContent({
+  open,
+  onOpenChange,
+  preselectedService,
+}: QuickOrderModalProps) {
   const { t } = useLanguage();
   const { services } = useSiteContent();
   const allServices = services.flatMap((category) => category.services);
   const [formData, setFormData] = useState<QuickOrderData>({
     name: "",
     phone: "",
-    service: "",
+    service: preselectedService ?? "",
   });
   const [errors, setErrors] = useState<
     Partial<Record<keyof QuickOrderData, string>>
@@ -91,7 +75,7 @@ export function QuickOrderModal({ open, onOpenChange }: QuickOrderModalProps) {
     if (isSubmitting) return;
     setIsSubmitting(true);
 
-    const schema = buildSchema({
+    const schema = buildQuickOrderSchema({
       name: t("validate.name"),
       phone: t("validate.phone"),
       service: t("order.validate.service"),
@@ -132,7 +116,7 @@ export function QuickOrderModal({ open, onOpenChange }: QuickOrderModalProps) {
 
       trackGenerateLead({ formName: "quick", service: result.data.service });
 
-      setFormData({ name: "", phone: "", service: "" });
+      setFormData({ name: "", phone: "", service: preselectedService ?? "" });
       setErrors({});
       onOpenChange(false);
       toast.success(t("order.success"));

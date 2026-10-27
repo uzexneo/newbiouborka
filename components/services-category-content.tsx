@@ -14,6 +14,9 @@ import { QuickOrderModal } from "@/components/quick-order-modal";
 import { ServicesBreadcrumbs } from "@/components/services-breadcrumbs";
 import { ServiceCategoryCard } from "@/components/service-category-card";
 import { ProcedurePhoto } from "@/components/procedure-photo";
+import { CleaningOffer } from "@/components/cleaning-offer";
+import { CleaningScope } from "@/components/cleaning-scope";
+import { trackPhoneClick } from "@/lib/analytics";
 import {
   SERVICE_CATEGORY_ICONS,
   Sparkles,
@@ -37,6 +40,11 @@ export function ServicesCategoryContent({ slug }: { slug: string }) {
 
   const Icon = SERVICE_CATEGORY_ICONS[category.icon] ?? Sparkles;
   const currentCategory = services.find((item) => item.id === category.id);
+  const isCleaning = category.id === "cleaning";
+  const quickService =
+    currentCategory?.services.find(
+      (service) => service.id === "cleaning-general"
+    )?.id ?? currentCategory?.services[0]?.id;
   const showPriceNote =
     !!currentCategory?.services.length &&
     currentCategory.services.every((service) => {
@@ -71,6 +79,20 @@ export function ServicesCategoryContent({ slug }: { slug: string }) {
               {t(page.introKey)}
             </p>
           </div>
+
+          {isCleaning && (
+            <div className="space-y-5">
+              <CleaningOffer />
+              <button
+                type="button"
+                onClick={() => setQuickOpen(true)}
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground hover:bg-primary/90"
+              >
+                <Zap className="h-4 w-4" aria-hidden="true" />
+                {t("quick.title")}
+              </button>
+            </div>
+          )}
 
           <section
             aria-labelledby="services-heading"
@@ -145,6 +167,8 @@ export function ServicesCategoryContent({ slug }: { slug: string }) {
             </div>
           </section>
 
+          {isCleaning && <CleaningScope />}
+
           <section
             aria-labelledby="faq-heading"
             className="scroll-mt-24 animate-in fade-in slide-in-from-bottom-4 duration-500"
@@ -183,6 +207,12 @@ export function ServicesCategoryContent({ slug }: { slug: string }) {
               <h2 className="text-lg font-semibold">{t("uslugi.quickCta")}</h2>
               <a
                 href={telHref}
+                onClick={() =>
+                  trackPhoneClick({
+                    location: "service_category",
+                    service: category.id,
+                  })
+                }
                 className="mt-1 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
               >
                 <Phone className="h-4 w-4" />
@@ -225,7 +255,11 @@ export function ServicesCategoryContent({ slug }: { slug: string }) {
           preselectedService={selectedService}
         />
       )}
-      <QuickOrderModal open={quickOpen} onOpenChange={setQuickOpen} />
+      <QuickOrderModal
+        open={quickOpen}
+        onOpenChange={setQuickOpen}
+        preselectedService={quickService}
+      />
     </>
   );
 }

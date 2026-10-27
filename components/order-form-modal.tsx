@@ -29,47 +29,9 @@ import {
 import { useLanguage } from "@/lib/i18n/language-provider";
 import { useSiteContent } from "@/lib/site-content-provider";
 import { captureLeadAttribution, trackGenerateLead } from "@/lib/analytics";
+import { buildOrderFormSchema } from "@/lib/validation/order-form";
 
-interface ValidationMessages {
-  name: string;
-  phone: string;
-  service: string;
-  date: string;
-  time: string;
-  address: string;
-}
-
-function buildSchema(messages: ValidationMessages) {
-  return z.object({
-    name: z.string().trim().min(1, messages.name).max(100, messages.name),
-    phone: z
-      .string()
-      .trim()
-      .max(30, messages.phone)
-      .refine(
-        (value) =>
-          /^\+?[\d\s().-]+$/.test(value) &&
-          value.replace(/\D/g, "").length >= 7 &&
-          value.replace(/\D/g, "").length <= 15,
-        messages.phone
-      ),
-    service: z
-      .string()
-      .trim()
-      .min(1, messages.service)
-      .max(200, messages.service),
-    date: z.string().min(1, messages.date).max(20, messages.date),
-    time: z.string().min(1, messages.time).max(20, messages.time),
-    address: z
-      .string()
-      .trim()
-      .min(1, messages.address)
-      .max(500, messages.address),
-    comment: z.string().max(2000).optional(),
-  });
-}
-
-type OrderFormData = z.infer<ReturnType<typeof buildSchema>>;
+type OrderFormData = z.infer<ReturnType<typeof buildOrderFormSchema>>;
 
 interface OrderFormModalProps {
   open: boolean;
@@ -118,7 +80,7 @@ function OrderFormContent({
     if (isSubmitting) return;
     setIsSubmitting(true);
 
-    const schema = buildSchema({
+    const schema = buildOrderFormSchema({
       name: t("validate.name"),
       phone: t("validate.phone"),
       service: t("order.validate.service"),
@@ -245,62 +207,72 @@ function OrderFormContent({
               {errors.service && <FieldError>{errors.service}</FieldError>}
             </Field>
 
-            <div className="flex gap-3">
-              <Field className="flex-1">
-                <FieldLabel htmlFor="order-date">
-                  {t("order.fieldDate")}
-                </FieldLabel>
-                <Input
-                  id="order-date"
-                  type="date"
-                  value={formData.date}
-                  onChange={(e) => handleChange("date", e.target.value)}
-                  aria-invalid={!!errors.date}
-                />
-                {errors.date && <FieldError>{errors.date}</FieldError>}
-              </Field>
+            <details className="rounded-lg border p-3">
+              <summary className="cursor-pointer text-sm font-medium">
+                {t("order.optionalDetails")}
+              </summary>
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                {t("order.optionalDetailsHint")}
+              </p>
+              <div className="mt-4 space-y-4">
+                <div className="flex gap-3">
+                  <Field className="flex-1">
+                    <FieldLabel htmlFor="order-date">
+                      {t("order.fieldDate")}
+                    </FieldLabel>
+                    <Input
+                      id="order-date"
+                      type="date"
+                      value={formData.date}
+                      onChange={(e) => handleChange("date", e.target.value)}
+                      aria-invalid={!!errors.date}
+                    />
+                    {errors.date && <FieldError>{errors.date}</FieldError>}
+                  </Field>
 
-              <Field className="flex-1">
-                <FieldLabel htmlFor="order-time">
-                  {t("order.fieldTime")}
-                </FieldLabel>
-                <Input
-                  id="order-time"
-                  type="time"
-                  value={formData.time}
-                  onChange={(e) => handleChange("time", e.target.value)}
-                  aria-invalid={!!errors.time}
-                />
-                {errors.time && <FieldError>{errors.time}</FieldError>}
-              </Field>
-            </div>
+                  <Field className="flex-1">
+                    <FieldLabel htmlFor="order-time">
+                      {t("order.fieldTime")}
+                    </FieldLabel>
+                    <Input
+                      id="order-time"
+                      type="time"
+                      value={formData.time}
+                      onChange={(e) => handleChange("time", e.target.value)}
+                      aria-invalid={!!errors.time}
+                    />
+                    {errors.time && <FieldError>{errors.time}</FieldError>}
+                  </Field>
+                </div>
 
-            <Field>
-              <FieldLabel htmlFor="order-address">
-                {t("order.fieldAddress")}
-              </FieldLabel>
-              <Input
-                id="order-address"
-                autoComplete="street-address"
-                placeholder={t("order.fieldAddressPlaceholder")}
-                value={formData.address}
-                onChange={(e) => handleChange("address", e.target.value)}
-                aria-invalid={!!errors.address}
-              />
-              {errors.address && <FieldError>{errors.address}</FieldError>}
-            </Field>
+                <Field>
+                  <FieldLabel htmlFor="order-address">
+                    {t("order.fieldAddress")}
+                  </FieldLabel>
+                  <Input
+                    id="order-address"
+                    autoComplete="street-address"
+                    placeholder={t("order.fieldAddressPlaceholder")}
+                    value={formData.address}
+                    onChange={(e) => handleChange("address", e.target.value)}
+                    aria-invalid={!!errors.address}
+                  />
+                  {errors.address && <FieldError>{errors.address}</FieldError>}
+                </Field>
 
-            <Field>
-              <FieldLabel htmlFor="order-comment">
-                {t("order.fieldComment")}
-              </FieldLabel>
-              <Textarea
-                id="order-comment"
-                placeholder={t("order.fieldCommentPlaceholder")}
-                value={formData.comment}
-                onChange={(e) => handleChange("comment", e.target.value)}
-              />
-            </Field>
+                <Field>
+                  <FieldLabel htmlFor="order-comment">
+                    {t("order.fieldComment")}
+                  </FieldLabel>
+                  <Textarea
+                    id="order-comment"
+                    placeholder={t("order.fieldCommentPlaceholder")}
+                    value={formData.comment}
+                    onChange={(e) => handleChange("comment", e.target.value)}
+                  />
+                </Field>
+              </div>
+            </details>
 
             <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? t("order.submitting") : t("order.submit")}
