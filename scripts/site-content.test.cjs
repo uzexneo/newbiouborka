@@ -41,10 +41,12 @@ function providerValue(dynamic, locale = "ru") {
       throw new Error("Unexpected useContext in selection test");
     },
     useEffect: () => {},
+    useRef: (value) => ({ current: value }),
     useState: () => [stateIndex++ === 0 ? dynamic : true, () => {}],
   };
   const modules = {
     react,
+    "next/navigation": { usePathname: () => "/" },
     "react/jsx-runtime": require("react/jsx-runtime"),
     "@/lib/i18n/language-provider": {
       useLanguage: () => ({ locale, t: (key) => dictionaries[locale][key] }),

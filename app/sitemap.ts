@@ -1,5 +1,10 @@
 import type { MetadataRoute } from "next";
 import { SERVICE_PAGES } from "@/lib/i18n/content";
+import {
+  CLEANING_SERVICE_SLUGS,
+  cleaningServicePath,
+} from "@/lib/cleaning-service-pages";
+import { locales } from "@/lib/i18n/config";
 
 const baseUrl = "https://biouborka.uz";
 
@@ -50,5 +55,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     items.push(entry(`${baseUrl}/uz-latin/uslugi/${page.slug}`, 0.8, "weekly"));
   });
 
+  for (const slug of CLEANING_SERVICE_SLUGS) {
+    for (const locale of locales) {
+      items.push(
+        entry(`${baseUrl}${cleaningServicePath(slug, locale)}`, 0.8, "weekly")
+      );
+    }
+  }
   return items;
 }

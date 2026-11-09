@@ -18,28 +18,28 @@ export const seoByLocale: Record<Locale, SeoMeta> = {
   ru: {
     htmlLang: "ru",
     hreflang: "ru",
-    ogLocale: "ru_RU",
-    title: "Клининг Ташкент, уборка квартир от 25 000 сум | Биоуборка",
+    ogLocale: "ru_UZ",
+    title: "Клининг в Ташкенте — уборка квартир и домов | Биоуборка",
     description:
-      "Уборка квартир Ташкент: клининг от 25 000 сум/м², биоуборка, химчистка мебели и ковров безопасными средствами. Выезд по всему городу. +998 93 375 27 02.",
+      "Генеральная уборка квартир и уборка после ремонта в Ташкенте. Работаем 10 лет. Бесплатный выезд. Посмотрите состав работ и цены, закажите расчёт.",
     url: siteUrl,
   },
   uzKrill: {
     htmlLang: "uz-Cyrl",
     hreflang: "uz-Cyrl",
-    ogLocale: "uz_Cyrl",
-    title: "Клининг Тошкент — квартираларни тозалаш 25 000 сўмдан",
+    ogLocale: "uz_UZ",
+    title: "Тошкентда клининг — квартира ва уйларни тозалаш | Биоуборка",
     description:
-      "Тошкентда квартира тозалаш ва клининг: био тозалаш 25 000 сўм/м²дан, мебел ва гиламларни кимёвий тозалаш. Хавфсиз воситалар. Қўнғироқ қилинг: +998 93 375 27 02.",
+      "Тошкентда квартираларни умумий ва таъмирдан кейин тозалаш. 10 йиллик тажриба. Чиқиш бепул. Ишлар таркиби ва нархларни кўринг, ҳисоб-китоб буюртма қилинг.",
     url: `${siteUrl}/uz-krill`,
   },
   uzLatin: {
     htmlLang: "uz-Latn",
     hreflang: "uz-Latn",
-    ogLocale: "uz_Latn",
-    title: "Klining Toshkent — kvartiralarni tozalash 25 000 so'mdan",
+    ogLocale: "uz_UZ",
+    title: "Toshkentda klining — kvartira va uylarni tozalash | Biouborka",
     description:
-      "Toshkentda kvartira tozalash va klining: bio tozalash 25 000 so'm/m²dan, mebel va gilamlarni kimyoviy tozalash. Xavfsiz vositalar. Tel: +998 93 375 27 02.",
+      "Toshkentda kvartiralarni umumiy va ta'mirdan keyin tozalash. 10 yillik tajriba. Chiqish bepul. Ishlar tarkibi va narxlarni ko'ring, hisob-kitob buyurtma qiling.",
     url: `${siteUrl}/uz-latin`,
   },
 };

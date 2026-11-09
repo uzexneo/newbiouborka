@@ -4,9 +4,11 @@ import {
   createContext,
   useContext,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
+import { usePathname } from "next/navigation";
 import { useLanguage } from "@/lib/i18n/language-provider";
 import { localizeSiteServices } from "@/lib/i18n/site-content";
 import { BENEFITS, SERVICE_CATEGORIES, TESTIMONIALS } from "@/lib/i18n/content";
@@ -63,6 +65,20 @@ const contentKeys: (keyof PublicContent)[] = [
 
 const SiteContentContext = createContext<SiteContentValue | null>(null);
 
+function mergeContent(
+  previous: PublicContent | null,
+  incoming: ContentResponse
+): PublicContent {
+  if (!previous || !Array.isArray(incoming.unavailableSections))
+    return incoming;
+  const preserved = Object.fromEntries(
+    incoming.unavailableSections
+      .filter((key) => contentKeys.includes(key))
+      .map((key) => [key, previous[key]])
+  ) as Partial<PublicContent>;
+  return { ...incoming, ...preserved };
+}
+
 export function useSiteContent(): SiteContentValue {
   const value = useContext(SiteContentContext);
   if (!value) {
@@ -90,11 +106,33 @@ function buildStaticServices(
   return services;
 }
 
-export function SiteContentProvider({ children }: { children: ReactNode }) {
+export function SiteContentProvider({
+  children,
+  initialContent = null,
+}: {
+  children: ReactNode;
+  initialContent?: ContentResponse | null;
+}) {
   const { t, locale } = useLanguage();
+  const pathname = usePathname();
 
-  const [dynamic, setDynamic] = useState<PublicContent | null>(null);
-  const [loaded, setLoaded] = useState(false);
+  const [dynamic, setDynamic] = useState<PublicContent | null>(initialContent);
+  const [loaded, setLoaded] = useState(initialContent !== null);
+  const [lastInitialContent, setLastInitialContent] = useState(initialContent);
+  const lastPath = useRef(pathname);
+  const refreshOnMount =
+    initialContent === null ||
+    Boolean(initialContent.unavailableSections?.length);
+
+  // React refreshes a persisted layout without remounting its providers. Apply
+  // the new snapshot before rendering children, retaining sections that failed.
+  if (lastInitialContent !== initialContent) {
+    setLastInitialContent(initialContent);
+    if (initialContent) {
+      setDynamic((previous) => mergeContent(previous, initialContent));
+      setLoaded(true);
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -116,16 +154,7 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
         if (!response.ok) throw new Error("content unavailable");
         const data = (await response.json()) as ContentResponse;
         if (!cancelled && currentId === requestId) {
-          setDynamic((previous) => {
-            if (!previous || !Array.isArray(data.unavailableSections))
-              return data;
-            const preserved = Object.fromEntries(
-              data.unavailableSections
-                .filter((key) => contentKeys.includes(key))
-                .map((key) => [key, previous[key]])
-            ) as Partial<PublicContent>;
-            return { ...data, ...preserved };
-          });
+          setDynamic((previous) => mergeContent(previous, data));
         }
       } catch {
         // Keep the most recent content when a refresh fails.
@@ -140,7 +169,11 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
     const refreshVisible = () => {
       if (document.visibilityState === "visible") refresh();
     };
-    refresh();
+    // A complete SSR snapshot is already fresh. Retry missing sections, but
+    // avoid downloading the entire gallery again immediately after hydration.
+    const pathChanged = lastPath.current !== pathname;
+    lastPath.current = pathname;
+    if (refreshOnMount || pathChanged) refresh();
     window.addEventListener("biouborka:content-updated", refresh);
     window.addEventListener("focus", refreshVisible);
     window.addEventListener("pageshow", refreshVisible);
@@ -153,7 +186,7 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
       window.removeEventListener("pageshow", refreshVisible);
       document.removeEventListener("visibilitychange", refreshVisible);
     };
-  }, []);
+  }, [refreshOnMount, pathname]);
 
   const staticServices = buildStaticServices(t);
   const staticCategories = groupServicesByCategory(staticServices);

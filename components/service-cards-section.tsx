@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { OrderFormModal } from "@/components/order-form-modal";
 import { ProcedurePhoto } from "@/components/procedure-photo";
 import {
@@ -17,7 +18,9 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/language-provider";
 import { useSiteContent } from "@/lib/site-content-provider";
-import { SERVICE_CATEGORIES } from "@/lib/i18n/content";
+import { SERVICE_CATEGORIES, SERVICE_PAGES } from "@/lib/i18n/content";
+import { serviceCategoryPath } from "@/lib/i18n/service-pages";
+import { cleaningServicePath } from "@/lib/cleaning-service-pages";
 
 const iconMap: Record<
   string,
@@ -37,7 +40,7 @@ const iconMap: Record<
 const categoryMeta = new Map(SERVICE_CATEGORIES.map((c) => [c.id, c]));
 
 export function ServiceCardsSection() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const { procedurePhotos, services } = useSiteContent();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<string | undefined>(
@@ -68,6 +71,9 @@ export function ServiceCardsSection() {
           <div className="space-y-12">
             {services.map((category) => {
               const meta = categoryMeta.get(category.id);
+              const categoryPage = SERVICE_PAGES.find(
+                (page) => page.categoryId === category.id
+              );
               const Icon = iconMap[meta?.icon ?? ""] ?? Sparkles;
               const note =
                 meta &&
@@ -91,7 +97,19 @@ export function ServiceCardsSection() {
                     </div>
                     <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                       <h3 className="text-xl font-semibold tracking-tight sm:text-2xl">
-                        {category.title}
+                        {categoryPage ? (
+                          <Link
+                            href={serviceCategoryPath(
+                              categoryPage.slug,
+                              locale
+                            )}
+                            className="hover:text-primary hover:underline"
+                          >
+                            {category.title}
+                          </Link>
+                        ) : (
+                          category.title
+                        )}
                       </h3>
                       {note && (
                         <span className="text-sm font-medium text-primary">
@@ -133,7 +151,22 @@ export function ServiceCardsSection() {
                         style={{ animationDelay: `${i * 60}ms` }}
                       >
                         <h4 className="font-medium leading-snug flex-1">
-                          {service.name}
+                          {service.id === "cleaning-general" ||
+                          service.id === "cleaning-renovation" ? (
+                            <Link
+                              href={cleaningServicePath(
+                                service.id === "cleaning-general"
+                                  ? "generalnaya"
+                                  : "posle-remonta",
+                                locale
+                              )}
+                              className="hover:text-primary hover:underline"
+                            >
+                              {service.name}
+                            </Link>
+                          ) : (
+                            service.name
+                          )}
                         </h4>
                         <div className="text-base font-bold text-primary">
                           {service.price}

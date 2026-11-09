@@ -15,6 +15,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteLogo } from "@/components/site-logo";
 import { FloatingCallButton } from "@/components/floating-call-button";
 import { Toaster } from "@/components/ui/sonner";
+import { getServerPublicContent } from "@/lib/server-public-content";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -76,11 +77,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const initialContent = await getServerPublicContent();
   return (
     <LocaleDocument className={cn("font-sans", geist.variable)}>
       <body className="antialiased min-h-screen bg-background flex flex-col">
@@ -88,7 +90,7 @@ export default function RootLayout({
         <BridgeProvider />
         <VisitTracker />
         <LanguageProvider>
-          <SiteContentProvider>
+          <SiteContentProvider initialContent={initialContent}>
             <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
               <div className="container mx-auto px-4 min-h-14 py-2 flex items-center justify-between gap-4">
                 <LocalizedHomeLink>

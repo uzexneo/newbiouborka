@@ -324,11 +324,11 @@ const ru = {
   "uslugi.otherHeading": "Другие категории услуг",
   "uslugi.servicesHeading": "Услуги и цены",
   "uslugi.quickCta": "Нужна помощь с выбором? Закажите быструю консультацию",
-  "uslugi.uborka.h1": "Уборка квартир в Ташкенте — 25 000 сум/м²",
+  "uslugi.uborka.h1": "Уборка квартир в Ташкенте",
   "uslugi.uborka.seoTitle":
-    "Уборка квартир в Ташкенте от 25 000 сум | Биоуборка",
+    "Уборка квартир в Ташкенте — услуги и цены | Биоуборка",
   "uslugi.uborka.seoDesc":
-    "Уборка квартир и офисов в Ташкенте: генеральная, после ремонта и пожара. Цены от 25 000 сум/м². Био-средства. Телефон: +998 93 375 27 02.",
+    "Уборка квартир и домов в Ташкенте: генеральная и после ремонта. Сравните состав работ и цены. Бесплатный выезд, 10 лет опыта. Закажите расчёт стоимости.",
   "uslugi.uborka.intro":
     "Уже 10 лет выполняем уборку квартир, домов и офисов в Ташкенте: генеральную, после ремонта, дезинфекции и пожара. Выезд бесплатный — выезжаем за час после согласования заявки.",
   "uslugi.uborka.faq1q": "Сколько стоит уборка квартиры в Ташкенте?",
@@ -804,11 +804,11 @@ const uzKrill = {
   "uslugi.otherHeading": "Бошқа хизмат категориялари",
   "uslugi.servicesHeading": "Хизматлар ва нархлар",
   "uslugi.quickCta": "Танлашда ёрдам керакми? Тез маслаҳатга буюртма беринг",
-  "uslugi.uborka.h1": "Тошкентда квартираларни тозалаш — 25 000 сўм/м²",
+  "uslugi.uborka.h1": "Тошкентда квартираларни тозалаш",
   "uslugi.uborka.seoTitle":
-    "Тошкентда квартира тозалаш 25 000 сўмдан | Био тозалаш",
+    "Тошкентда квартира тозалаш — хизматлар ва нархлар | Биоуборка",
   "uslugi.uborka.seoDesc":
-    "Тошкентда квартира ва офисларни тозалаш: умумий, таъмир ва ёнғиндан кейин. 25 000 сўм/м² дан. Био-воситалар. Телефон: +998 93 375 27 02.",
+    "Тошкентда квартира ва уйларни умумий ва таъмирдан кейин тозалаш. Ишлар таркиби ва нархларни солиштиринг. Чиқиш бепул, 10 йиллик тажриба. Ҳисоб-китоб буюртма қилинг.",
   "uslugi.uborka.intro":
     "10 йилдан бери Тошкентда квартира, уй ва офисларни умумий, таъмир, дезинфекция ва ёнғиндан кейин тозалаймиз. Ариза келишилгандан сўнг бир соат ичида йўлга чиқамиз — чиқиш бепул.",
   "uslugi.uborka.faq1q": "Тошкентда квартира тозалаш қанча туради?",
@@ -1293,11 +1293,11 @@ const uzLatin = {
   "uslugi.otherHeading": "Boshqa xizmat kategoriyalari",
   "uslugi.servicesHeading": "Xizmatlar va narxlar",
   "uslugi.quickCta": "Tanlashda yordam kerakmi? Tez maslahatga buyurtma bering",
-  "uslugi.uborka.h1": "Toshkentda kvartiralarni tozalash — 25 000 so'm/m²",
+  "uslugi.uborka.h1": "Toshkentda kvartiralarni tozalash",
   "uslugi.uborka.seoTitle":
-    "Toshkentda kvartira tozalash 25 000 so'mdan | Bio tozalash",
+    "Toshkentda kvartira tozalash — xizmatlar va narxlar | Biouborka",
   "uslugi.uborka.seoDesc":
-    "Toshkentda kvartira va ofislarni tozalash: umumiy, ta'mir va yong'indan keyin. 25 000 so'm/m² dan. Bio-vositalar. Telefon: +998 93 375 27 02.",
+    "Toshkentda kvartira va uylarni umumiy va ta'mirdan keyin tozalash. Ishlar tarkibi va narxlarni solishtiring. Chiqish bepul, 10 yillik tajriba. Hisob-kitob buyurtma qiling.",
   "uslugi.uborka.intro":
     "10 yildan beri Toshkentda kvartira, uy va ofislarni umumiy, ta'mir, dezinfeksiya va yong'indan keyin tozalaymiz. Ariza kelishilgandan so'ng bir soat ichida yo'lga chiqamiz — chiqish bepul.",
   "uslugi.uborka.faq1q": "Toshkentda kvartira tozalash qancha turadi?",

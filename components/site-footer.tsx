@@ -3,7 +3,12 @@
 import Link from "next/link";
 import { Leaf, Phone, Mail, Camera, Send, MapPin } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/language-provider";
-import { localeToPath } from "@/lib/i18n/config";
+import { localeToPath, localizePathname } from "@/lib/i18n/config";
+import {
+  CLEANING_SERVICE_SLUGS,
+  getCleaningServicePage,
+  cleaningServicePath,
+} from "@/lib/cleaning-service-pages";
 import { useSiteContent } from "@/lib/site-content-provider";
 import { trackPhoneClick } from "@/lib/analytics";
 
@@ -30,6 +35,26 @@ export function SiteFooter() {
             <br />
             {t("footer.subtagline")}
           </p>
+          <nav
+            aria-label={t("nav.services")}
+            className="flex flex-col items-start gap-2 pt-3 text-sm"
+          >
+            <Link
+              href={localizePathname("/uslugi", locale)}
+              className="text-muted-foreground hover:text-primary hover:underline"
+            >
+              {t("nav.services")}
+            </Link>
+            {CLEANING_SERVICE_SLUGS.map((slug) => (
+              <Link
+                key={slug}
+                href={cleaningServicePath(slug, locale)}
+                className="text-muted-foreground hover:text-primary hover:underline"
+              >
+                {getCleaningServicePage(slug, locale)?.heading}
+              </Link>
+            ))}
+          </nav>
         </div>
         <div className="space-y-2">
           <h3 className="text-sm font-medium">{t("footer.contacts")}</h3>

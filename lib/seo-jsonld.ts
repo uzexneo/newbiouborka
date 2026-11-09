@@ -1,11 +1,12 @@
 import {
   DEFAULT_CONTACTS,
-  DEFAULT_TESTIMONIALS,
-  getDefaultServices,
+  groupServicesByCategory,
+  type PublicContent,
 } from "./site-content";
 import { dictionaries } from "./i18n/translations";
 import type { Locale } from "./i18n/config";
 import { localeToPath } from "./i18n/config";
+import { localizeSiteServices } from "./i18n/site-content";
 import { serviceCategoryPath, servicesHubPath } from "./i18n/service-pages";
 import {
   SERVICE_PAGES,
@@ -16,190 +17,76 @@ import {
 
 export const SCHEMA_APP_NAME = "BIOUBORKA.UZ";
 export const SCHEMA_APP_URL = "https://biouborka.uz";
-const SCHEMA_IMAGE = `${SCHEMA_APP_URL}/assets/hero-cleaning.png`;
-const SCHEMA_GEO = { latitude: 41.2995, longitude: 69.2401 };
-
-function toE164(phone: string): string {
-  return `+${phone.replace(/\D/g, "")}`;
-}
-
-function extractNumericPrice(price: string): number | null {
-  if (!price || /по\s*договору/i.test(price)) return null;
-  const match = price.match(/\d[\d\s]*/);
-  if (!match) return null;
-  return Number(match[0].replace(/\s/g, ""));
-}
-
-interface FaqItem {
-  question: string;
-  answer: string;
-}
-
-const DEFAULT_FAQ: FaqItem[] = [
-  {
-    question: "Что такое биоуборка и чем она отличается от обычной уборки?",
-    answer:
-      "Биоуборка — это профессиональная уборка с использованием экологичных, сертифицированных и полностью биоразлагаемых средств. Мы не используем хлор, агрессивные щёлочи и синтетические отдушки, поэтому уборка безопасна для здоровья людей и домашних питомцев.",
-  },
-  {
-    question: "Сколько стоит уборка квартиры в Ташкенте?",
-    answer:
-      "Генеральная уборка — от 25 000 сум за квадратный метр. Итоговая стоимость зависит от площади, степени загрязнения и набора услуг. Точную цену менеджер назовёт после короткого описания ваших задач.",
-  },
-  {
-    question: "Какие услуги вы предоставляете?",
-    answer:
-      "Мы выполняем уборку квартир и офисов, уборку после ремонта, мойку окон и фасадов, химчистку ковров, мягкой и кожаной мебели, матрацев, уход за полами, а также дезинфекцию, устранение запахов и плесени.",
-  },
-  {
-    question: "Безопасна ли уборка для детей и аллергиков?",
-    answer:
-      "Да. Мы используем только био-средства без агрессивной химии, поэтому уборка безопасна для детей, аллергиков и домашних животных.",
-  },
-  {
-    question: "Как быстро вы приедете?",
-    answer:
-      "В большинстве случаев мы можем приехать в день обращения или на следующий день. Позвоните нам или оставьте заявку, и мы подберём удобное время.",
-  },
-  {
-    question: "Как записаться на уборку?",
-    answer:
-      "Оставьте заявку через форму на сайте, позвоните по телефону +998 93 375 27 02 или напишите нам в Instagram или Telegram. Мы свяжемся с вами для уточнения деталей и удобного времени визита.",
-  },
-  {
-    question: "Как заказать уборку в Ташкенте?",
-    answer:
-      "Позвоните нам по телефону +998 93 375 27 02 или оставьте заявку через форму «Быстрый заказ» на сайте. Мы перезвоним, назовём точную цену и подберём удобное время выезда — работаем по всему Ташкенту с 9:00 до 21:00.",
-  },
-  {
-    question: "Какая цена генеральной уборки в Ташкенте?",
-    answer:
-      "Генеральная уборка квартиры — от 25 000 сум за квадратный метр. Итоговая цена зависит от площади и степени загрязнения, точную стоимость назовём после короткого описания задач. Звоните: +998 93 375 27 02.",
-  },
-  {
-    question: "Безопасно ли использовать био-средства?",
-    answer:
-      "Да, полностью безопасно. Мы используем сертифицированные биоразлагаемые средства без хлора и агрессивной химии — они подходят для детей, аллергиков и домашних животных. Уточнить детали можно по телефону +998 93 375 27 02.",
-  },
-];
+const SCHEMA_IMAGE = `${SCHEMA_APP_URL}/assets/hero-cleaning.webp`;
 
 export interface SchemaOrgJsonLd {
   "@context": string;
   "@graph": unknown[];
 }
 
-function buildReviews() {
-  return DEFAULT_TESTIMONIALS.map((t) => ({
-    "@type": "Review",
-    author: { "@type": "Person", name: t.name },
-    reviewRating: {
-      "@type": "Rating",
-      ratingValue: t.rating,
-      bestRating: 5,
-    },
-    reviewBody: t.text,
-  }));
+// Editable text may contain HTML-looking content. Escaping '<' keeps it inside
+// the JSON script element while preserving its value for structured-data readers.
+export function serializeJsonLd(value: unknown): string {
+  return (JSON.stringify(value) ?? "null").replace(/</g, "\\u003c");
 }
 
-function buildAggregateRating() {
-  if (DEFAULT_TESTIMONIALS.length === 0) return undefined;
-  const average =
-    DEFAULT_TESTIMONIALS.reduce((sum, t) => sum + t.rating, 0) /
-    DEFAULT_TESTIMONIALS.length;
-  return {
-    "@type": "AggregateRating",
-    ratingValue: Number(average.toFixed(1)),
-    bestRating: 5,
-    reviewCount: DEFAULT_TESTIMONIALS.length,
-  };
+function publicAssetUrl(src: string): string | undefined {
+  try {
+    const url = new URL(src, SCHEMA_APP_URL);
+    return /^https?:$/.test(url.protocol) ? url.href : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
-function buildOffers() {
-  return getDefaultServices().flatMap((service) => {
-    const price = extractNumericPrice(service.price);
-    if (price === null) return [];
-    return [
-      {
-        "@type": "Offer",
-        itemOffered: {
-          "@type": "Service",
-          name: service.name,
-          category: service.categoryTitle,
-          url: `${SCHEMA_APP_URL}/#${service.id}`,
-          areaServed: "Ташкент",
-        },
-        priceSpecification: {
-          "@type": "PriceSpecification",
-          price,
-          priceCurrency: "UZS",
-        },
-      },
-    ];
-  });
-}
-
-function buildLocalBusiness() {
+function buildLocalBusiness(content?: PublicContent | null) {
+  const contacts = content?.contacts ?? DEFAULT_CONTACTS;
+  const phone = contacts.phone.replace(/\D/g, "");
+  const address = contacts.address.trim();
+  const logo = publicAssetUrl(content?.logo ?? "/assets/logo.webp");
   return {
     "@type": "LocalBusiness",
     "@id": `${SCHEMA_APP_URL}/#organization`,
     name: SCHEMA_APP_NAME,
     url: SCHEMA_APP_URL,
     image: SCHEMA_IMAGE,
-    logo: `${SCHEMA_APP_URL}/assets/logo.png`,
-    telephone: toE164(DEFAULT_CONTACTS.phone),
-    email: DEFAULT_CONTACTS.email,
-    geo: {
-      "@type": "GeoCoordinates",
-      latitude: SCHEMA_GEO.latitude,
-      longitude: SCHEMA_GEO.longitude,
-    },
-    priceRange: "от 25 000 сум",
-    description:
-      "Профессиональная экологичная уборка квартир и домов в Ташкенте. Био-средства, химчистка мебели и ковров, уборка после ремонта. Безопасно для здоровья.",
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: DEFAULT_CONTACTS.address,
-      addressLocality: "Ташкент",
-      addressRegion: "Ташкент",
-      addressCountry: "UZ",
-    },
-    areaServed: "Ташкент",
+    ...(logo ? { logo } : {}),
+    ...(phone ? { telephone: `+${phone}` } : {}),
+    ...(contacts.email.trim() ? { email: contacts.email.trim() } : {}),
+    ...(address
+      ? {
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: address,
+            addressLocality: "Ташкент",
+            addressCountry: "UZ",
+          },
+        }
+      : {}),
+    areaServed: { "@type": "City", name: "Ташкент" },
     openingHours: "Mo-Su 09:00-21:00",
-    sameAs: [DEFAULT_CONTACTS.instagram, DEFAULT_CONTACTS.telegram],
-    makesOffer: buildOffers(),
-    aggregateRating: buildAggregateRating(),
-    review: buildReviews(),
+    sameAs: [contacts.instagram, contacts.telegram].filter(Boolean),
   };
 }
 
 function buildFaq(locale: Locale) {
   const dict = dictionaries[locale];
-  const items =
-    locale === "ru"
-      ? DEFAULT_FAQ
-      : FAQ_ITEMS.map((item) => ({
-          question: dict[item.questionKey],
-          answer: dict[item.answerKey],
-        }));
-  return items.map((item) => ({
+  return FAQ_ITEMS.map((item) => ({
     "@type": "Question",
-    name: item.question,
-    acceptedAnswer: {
-      "@type": "Answer",
-      text: item.answer,
-    },
+    name: dict[item.questionKey],
+    acceptedAnswer: { "@type": "Answer", text: dict[item.answerKey] },
   }));
 }
 
-export function getSchemaOrgJsonLd(locale: Locale = "ru"): SchemaOrgJsonLd {
+export function getSchemaOrgJsonLd(
+  locale: Locale = "ru",
+  content?: PublicContent | null
+): SchemaOrgJsonLd {
   return {
     "@context": "https://schema.org",
     "@graph": [
-      buildLocalBusiness(),
-      {
-        "@type": "FAQPage",
-        mainEntity: buildFaq(locale),
-      },
+      buildLocalBusiness(content),
+      { "@type": "FAQPage", mainEntity: buildFaq(locale) },
     ],
   };
 }
@@ -209,19 +96,23 @@ export interface ServiceOfferInput {
   price: string;
 }
 
+function homeUrl(locale: Locale) {
+  return localeToPath[locale] === "/"
+    ? SCHEMA_APP_URL
+    : `${SCHEMA_APP_URL}${localeToPath[locale]}`;
+}
+
 export function getServicesHubJsonLd(
   url: string,
   categories: { name: string; url: string }[],
-  locale: Locale = "ru"
+  locale: Locale = "ru",
+  content?: PublicContent | null
 ): SchemaOrgJsonLd {
   const dict = dictionaries[locale];
-  const home =
-    localeToPath[locale] === "/"
-      ? SCHEMA_APP_URL
-      : `${SCHEMA_APP_URL}${localeToPath[locale]}`;
   return {
     "@context": "https://schema.org",
     "@graph": [
+      buildLocalBusiness(content),
       {
         "@type": "BreadcrumbList",
         itemListElement: [
@@ -229,7 +120,7 @@ export function getServicesHubJsonLd(
             "@type": "ListItem",
             position: 1,
             name: dict["nav.home"],
-            item: home,
+            item: homeUrl(locale),
           },
           {
             "@type": "ListItem",
@@ -259,59 +150,31 @@ export function getServiceCategoryJsonLd(
   url: string,
   services: ServiceOfferInput[],
   faq: { question: string; answer: string }[],
-  locale: Locale = "ru"
+  locale: Locale = "ru",
+  content?: PublicContent | null
 ): SchemaOrgJsonLd {
+  // Retain the API for existing callers. A formatted range or per-m² price
+  // cannot safely be converted into one fixed Offer price.
+  void services;
   const dict = dictionaries[locale];
-  const home =
-    localeToPath[locale] === "/"
-      ? SCHEMA_APP_URL
-      : `${SCHEMA_APP_URL}${localeToPath[locale]}`;
-  const offers = services.flatMap((service) => {
-    const price = extractNumericPrice(service.price);
-    if (price === null) return [];
-    return [
-      {
-        "@type": "Offer",
-        itemOffered: {
-          "@type": "Service",
-          name: service.name,
-          url: `${url}#service`,
-          areaServed: "Ташкент",
-        },
-        priceSpecification: {
-          "@type": "PriceSpecification",
-          price,
-          priceCurrency: "UZS",
-        },
-      },
-    ];
-  });
-
-  const serviceNode: Record<string, unknown> = {
-    "@type": "Service",
-    "@id": `${url}#service`,
-    name: categoryName,
-    url,
-    provider: { "@id": `${SCHEMA_APP_URL}/#organization` },
-    areaServed: "Ташкент",
-  };
-  if (offers.length > 0) {
-    serviceNode.offers = offers;
-  }
-
   return {
     "@context": "https://schema.org",
     "@graph": [
-      serviceNode,
+      buildLocalBusiness(content),
+      {
+        "@type": "Service",
+        "@id": `${url}#service`,
+        name: categoryName,
+        url,
+        provider: { "@id": `${SCHEMA_APP_URL}/#organization` },
+        areaServed: { "@type": "City", name: "Ташкент" },
+      },
       {
         "@type": "FAQPage",
         mainEntity: faq.map((item) => ({
           "@type": "Question",
           name: item.question,
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: item.answer,
-          },
+          acceptedAnswer: { "@type": "Answer", text: item.answer },
         })),
       },
       {
@@ -321,7 +184,7 @@ export function getServiceCategoryJsonLd(
             "@type": "ListItem",
             position: 1,
             name: dict["nav.home"],
-            item: home,
+            item: homeUrl(locale),
           },
           {
             "@type": "ListItem",
@@ -329,58 +192,66 @@ export function getServiceCategoryJsonLd(
             name: dict["nav.services"],
             item: `${SCHEMA_APP_URL}${servicesHubPath(locale)}`,
           },
-          {
-            "@type": "ListItem",
-            position: 3,
-            name: categoryName,
-            item: url,
-          },
+          { "@type": "ListItem", position: 3, name: categoryName, item: url },
         ],
       },
     ],
   };
 }
 
+function currentCategories(
+  content: PublicContent | null | undefined,
+  locale: Locale
+) {
+  return content?.services
+    ? groupServicesByCategory(localizeSiteServices(content.services, locale))
+    : [];
+}
+
 export function getServicesHubJsonLdDefault(
-  locale: Locale = "ru"
+  locale: Locale = "ru",
+  content?: PublicContent | null
 ): SchemaOrgJsonLd {
   const dict = dictionaries[locale];
   const url = `${SCHEMA_APP_URL}${servicesHubPath(locale)}`;
+  const categories = currentCategories(content, locale);
   return getServicesHubJsonLd(
     url,
     SERVICE_PAGES.map((page) => {
       const category = getServiceCategoryById(page.categoryId);
+      const current = categories.find((item) => item.id === page.categoryId);
       return {
-        name: category ? dict[category.titleKey] : page.slug,
+        name:
+          current?.title ?? (category ? dict[category.titleKey] : page.slug),
         url: `${url}/${page.slug}`,
       };
     }),
-    locale
+    locale,
+    content
   );
 }
 
 export function getServiceCategoryJsonLdBySlug(
   slug: string,
-  locale: Locale = "ru"
+  locale: Locale = "ru",
+  content?: PublicContent | null
 ): SchemaOrgJsonLd | null {
   const page = getServicePageBySlug(slug);
   const category = page ? getServiceCategoryById(page.categoryId) : undefined;
-  if (!page || !category) {
-    return null;
-  }
+  if (!page || !category) return null;
   const dict = dictionaries[locale];
-  const url = `${SCHEMA_APP_URL}${serviceCategoryPath(page.slug, locale)}`;
+  const current = currentCategories(content, locale).find(
+    (item) => item.id === category.id
+  );
   return getServiceCategoryJsonLd(
-    dict[category.titleKey],
-    url,
-    category.services.map((service) => ({
-      name: dict[service.titleKey],
-      price: dict[service.priceKey],
-    })),
+    current?.title ?? dict[category.titleKey],
+    `${SCHEMA_APP_URL}${serviceCategoryPath(page.slug, locale)}`,
+    [],
     page.faq.map((item) => ({
       question: dict[item.qKey],
       answer: dict[item.aKey],
     })),
-    locale
+    locale,
+    content
   );
 }

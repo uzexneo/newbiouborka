@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Info, Zap, Phone, HelpCircle, ChevronDown, Check } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/language-provider";
 import { useSiteContent } from "@/lib/site-content-provider";
@@ -18,12 +19,17 @@ import { CleaningOffer } from "@/components/cleaning-offer";
 import { CleaningScope } from "@/components/cleaning-scope";
 import { trackPhoneClick } from "@/lib/analytics";
 import {
+  CLEANING_SERVICE_SLUGS,
+  getCleaningServicePage,
+  cleaningServicePath,
+} from "@/lib/cleaning-service-pages";
+import {
   SERVICE_CATEGORY_ICONS,
   Sparkles,
 } from "@/components/service-category-icon";
 
 export function ServicesCategoryContent({ slug }: { slug: string }) {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const { procedurePhotos, contacts, services } = useSiteContent();
   const [orderOpen, setOrderOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<string | undefined>(
@@ -83,6 +89,25 @@ export function ServicesCategoryContent({ slug }: { slug: string }) {
           {isCleaning && (
             <div className="space-y-5">
               <CleaningOffer />
+              <div className="grid gap-4 sm:grid-cols-2">
+                {CLEANING_SERVICE_SLUGS.map((serviceSlug) => {
+                  const detail = getCleaningServicePage(serviceSlug, locale);
+                  return detail ? (
+                    <Link
+                      key={serviceSlug}
+                      href={cleaningServicePath(serviceSlug, locale)}
+                      className="rounded-xl border bg-card p-5 transition-colors hover:border-primary focus-visible:outline-primary"
+                    >
+                      <h2 className="font-semibold text-primary">
+                        {detail.heading}
+                      </h2>
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                        {detail.summary}
+                      </p>
+                    </Link>
+                  ) : null;
+                })}
+              </div>
               <button
                 type="button"
                 onClick={() => setQuickOpen(true)}
@@ -112,7 +137,23 @@ export function ServicesCategoryContent({ slug }: { slug: string }) {
                   style={{ animationDelay: `${i * 60}ms` }}
                 >
                   <h3 className="flex-1 font-medium leading-snug">
-                    {service.name}
+                    {isCleaning &&
+                    (service.id === "cleaning-general" ||
+                      service.id === "cleaning-renovation") ? (
+                      <Link
+                        href={cleaningServicePath(
+                          service.id === "cleaning-general"
+                            ? "generalnaya"
+                            : "posle-remonta",
+                          locale
+                        )}
+                        className="hover:text-primary hover:underline"
+                      >
+                        {service.name}
+                      </Link>
+                    ) : (
+                      service.name
+                    )}
                   </h3>
                   <div className="text-base font-bold text-primary">
                     {service.price}

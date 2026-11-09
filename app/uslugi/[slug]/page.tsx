@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ServicesCategoryContent } from "@/components/services-category-content";
 import { buildServiceCategoryMetadata } from "@/lib/i18n/service-pages";
-import { getServiceCategoryJsonLdBySlug } from "@/lib/seo-jsonld";
+import {
+  getServiceCategoryJsonLdBySlug,
+  serializeJsonLd,
+} from "@/lib/seo-jsonld";
+import { getServerPublicContent } from "@/lib/server-public-content";
 import { SERVICE_PAGES } from "@/lib/i18n/content";
 
 interface PageProps {
@@ -26,13 +30,14 @@ export default async function ServiceCategoryPage({ params }: PageProps) {
   if (!page) {
     notFound();
   }
-  const jsonLd = getServiceCategoryJsonLdBySlug(slug);
+  const content = await getServerPublicContent();
+  const jsonLd = getServiceCategoryJsonLdBySlug(slug, "ru", content);
   return (
     <>
       {jsonLd && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
         />
       )}
       <ServicesCategoryContent slug={slug} />

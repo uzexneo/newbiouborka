@@ -68,8 +68,8 @@ export const DEFAULT_CONTACTS: SiteContacts = {
   phone: "+998 93 375 27 02",
   instagram: "https://www.instagram.com/biouborka.uz",
   telegram: "https://t.me/biouborka_uz",
-  email: "info@biouborka.uz",
-  address: "Ташкент, Узбекистан",
+  email: "buborka@bk.ru",
+  address: "Ташкент, улица Авлиё Ота, 37",
 };
 
 export const DEFAULT_ABOUT: SiteAbout = {
