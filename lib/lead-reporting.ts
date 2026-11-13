@@ -1,5 +1,6 @@
 import type { LeadAttribution } from "@/lib/validation/lead";
 import { isPublicAnalyticsPath } from "@/lib/analytics-paths";
+import { trafficSource } from "@/lib/traffic-source";
 
 export const LEAD_QUALITY_OPTIONS = [
   { value: "unreviewed", label: "Не проверена" },
@@ -38,26 +39,9 @@ export function leadQuality(lead: ReportableLead): LeadQuality {
 
 // Tags indicate a recorded traffic source, not an Ads-confirmed conversion.
 export function leadSource(lead: Pick<ReportableLead, "attribution">): string {
-  const attribution = lead.attribution;
-  if (!attribution) return "Источник не записан";
-  if (attribution.gclid || attribution.gbraid || attribution.wbraid)
-    return "Google Реклама";
-  if (attribution.utm_source) {
-    return attribution.utm_medium
-      ? `${attribution.utm_source} / ${attribution.utm_medium}`
-      : attribution.utm_source;
-  }
-  if (!attribution.referrer) return "Прямой / источник не определён";
-  try {
-    const hostname = new URL(attribution.referrer).hostname.toLowerCase();
-    if (hostname === "biouborka.uz" || hostname.endsWith(".biouborka.uz"))
-      return "Источник не определён";
-    if (/^(?:.+\.)?google\.[a-z.]+$/.test(hostname)) return "Google";
-    if (/^(?:.+\.)?yandex\.[a-z.]+$/.test(hostname)) return "Яндекс";
-    return hostname || "Источник не определён";
-  } catch {
-    return "Источник не определён";
-  }
+  return lead.attribution
+    ? trafficSource(lead.attribution)
+    : "Источник не записан";
 }
 
 export function matchLeadVisit(

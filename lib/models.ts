@@ -17,6 +17,7 @@ import { TableName, IndexName } from "./schema";
 import { PROCEDURE_CATEGORY_IDS } from "./i18n/content";
 import { MAX_DATA_URL_CHARS } from "./media-limits";
 import type { LeadAttribution } from "./validation/lead";
+import type { OrderStatus } from "./order-status";
 
 export interface Service {
   id: string;
@@ -451,7 +452,7 @@ export async function getAllProcedurePhotos(): Promise<Record<string, string>> {
 
 // --- Заявки клиентов ---
 
-export type OrderStatus = "application" | "order";
+export type { OrderStatus } from "./order-status";
 export type LeadQuality = "unreviewed" | "real" | "test" | "spam";
 
 export interface Order {

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { leadRequestFields } from "./validation/lead";
 import { sanitizeVisitPath, sanitizeVisitReferrer } from "./visit-tracking";
+import { ORDER_STATUS_VALUES } from "./order-status";
 
 export const orderSchema = z.object({
   ...leadRequestFields,
@@ -50,5 +51,5 @@ export const visitSchema = z.object({
 });
 
 export const orderStatusSchema = z.object({
-  orderStatus: z.enum(["application", "order"]),
+  orderStatus: z.enum(ORDER_STATUS_VALUES),
 });
