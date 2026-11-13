@@ -80,10 +80,13 @@ function harness() {
           assert.equal(input.ConditionExpression, "attribute_exists(id)");
           if (!records.has(key))
             throw sdkError("ConditionalCheckFailedException");
+          const attribute = input.ExpressionAttributeNames["#quality"]
+            ? { key: "#quality", value: ":quality" }
+            : { key: "#orderStatus", value: ":orderStatus" };
           const updated = {
             ...records.get(key),
-            [input.ExpressionAttributeNames["#quality"]]:
-              input.ExpressionAttributeValues[":quality"],
+            [input.ExpressionAttributeNames[attribute.key]]:
+              input.ExpressionAttributeValues[attribute.value],
           };
           records.set(key, updated);
           return { Attributes: plain(updated) };
@@ -351,4 +354,27 @@ test("quality updates require an existing lead and preserve all other saved fiel
     h.records.get(`site_orders:${result.order.id}`).leadQuality,
     "real"
   );
+});
+
+test("completing a saved order persists only work status, preserving quality, source and customer fields", async () => {
+  const h = harness();
+  const { order } = await h.models.createOrder({
+    name: "Synthetic lead",
+    phone: "+998000000000",
+    service: "cleaning",
+    attribution: { utm_source: "google", utm_medium: "cpc" },
+  });
+  const original = plain(order);
+  for (const status of ["order", "completed", "order", "application"]) {
+    const updated = await h.models.updateOrderStatus(order.id, status);
+    assert.deepEqual(plain(updated), { ...original, orderStatus: status });
+    assert.deepEqual(h.records.get(`site_orders:${order.id}`), {
+      ...original,
+      orderStatus: status,
+    });
+  }
+  await assert.rejects(h.models.updateOrderStatus(randomUUID(), "completed"), {
+    name: "ConditionalCheckFailedException",
+  });
+  assert.equal(h.records.size, 1);
 });

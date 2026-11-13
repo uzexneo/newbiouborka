@@ -30,6 +30,12 @@ import { SERVICE_CATEGORIES } from "@/lib/i18n/content";
 import { useSiteContent } from "@/lib/site-content-provider";
 import type { LeadAttribution } from "@/lib/validation/lead";
 import {
+  ORDER_STATUS_OPTIONS,
+  ORDER_STATUS_VALUES,
+  orderStatusLabel,
+  type OrderStatus,
+} from "@/lib/order-status";
+import {
   LEAD_QUALITY_OPTIONS,
   leadQuality,
   leadSource,
@@ -37,8 +43,6 @@ import {
   type LeadQuality,
   type LeadVisitMatch,
 } from "@/lib/lead-reporting";
-
-type OrderStatus = "application" | "order";
 
 interface Order {
   id: string;
@@ -57,6 +61,7 @@ interface Order {
 }
 
 const qualitySchema = z.enum(["unreviewed", "real", "test", "spam"]);
+const statusSchema = z.enum(ORDER_STATUS_VALUES);
 
 function formatDate(iso: string): string {
   if (!iso) return "";
@@ -195,11 +200,16 @@ export function AdminApplications() {
     });
   };
 
-  const handleStatusToggle = async (order: Order) => {
-    if (savingIds.current.has(order.id)) return;
+  const handleStatusChange = async (order: Order, value: string | null) => {
+    const parsed = statusSchema.safeParse(value);
+    if (
+      !parsed.success ||
+      parsed.data === (order.orderStatus ?? "application") ||
+      savingIds.current.has(order.id)
+    )
+      return;
     setSaving(order.id, true);
-    const next: OrderStatus =
-      order.orderStatus === "order" ? "application" : "order";
+    const next = parsed.data;
     try {
       const response = await fetch(
         `/api/admin/orders?id=${encodeURIComponent(order.id)}`,
@@ -209,17 +219,15 @@ export function AdminApplications() {
           body: JSON.stringify({ orderStatus: next }),
         }
       );
-      if (!response.ok) {
-        const problem = await response.json().catch(() => null);
-        throw new Error(problem?.error ?? "Не удалось изменить статус");
+      const result = await response.json().catch(() => null);
+      if (!response.ok || result?.orderStatus !== next) {
+        throw new Error(result?.error ?? "Не удалось сохранить статус");
       }
       ordersRevision.current += 1;
       setOrders((prev) =>
         prev.map((o) => (o.id === order.id ? { ...o, orderStatus: next } : o))
       );
-      toast.success(
-        next === "order" ? "Заявка переведена в заказ" : "Статус снят"
-      );
+      toast.success(`Статус сохранён: ${orderStatusLabel(next)}`);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Не удалось изменить статус"
@@ -343,13 +351,14 @@ export function AdminApplications() {
         </Button>
       </div>
       <p className="text-xs text-muted-foreground">
-        Реальных клиентов: {qualitySummary.real} · Не проверено:{" "}
+        Реальных обращений: {qualitySummary.real} · Не проверено:{" "}
         {qualitySummary.unreviewed} · Тестовых: {qualitySummary.test} · Спам:{" "}
         {qualitySummary.spam}
       </p>
       <p className="text-xs text-muted-foreground">
-        Качество отмечается вручную после связи с клиентом. Метки источника не
-        подтверждают оплату рекламы или заказа.
+        Качество отмечается после связи с клиентом, статус «Выполнен» — после
+        уборки. Считаются обращения, а не уникальные клиенты. Статус работы не
+        подтверждает оплату заказа.
       </p>
       {loadError && (
         <div
@@ -397,11 +406,17 @@ export function AdminApplications() {
                   : "Услуга не указана"}
               </Badge>
               <Badge
-                variant={order.orderStatus === "order" ? "default" : "outline"}
+                variant={
+                  order.orderStatus === "completed"
+                    ? "default"
+                    : order.orderStatus === "order"
+                      ? "secondary"
+                      : "outline"
+                }
                 className="inline-flex items-center gap-1"
               >
                 <PackageCheck className="h-3 w-3" />
-                {order.orderStatus === "order" ? "Заказ" : "Заявка"}
+                {orderStatusLabel(order.orderStatus)}
               </Badge>
               {(!order.name ||
                 !order.phone ||
@@ -415,17 +430,26 @@ export function AdminApplications() {
                   Неполная запись
                 </Badge>
               )}
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-6 px-2 text-xs"
-                onClick={() => handleStatusToggle(order)}
+              <Select
+                value={order.orderStatus ?? "application"}
+                items={ORDER_STATUS_OPTIONS}
+                onValueChange={(value) => void handleStatusChange(order, value)}
                 disabled={savingOrderIds.has(order.id)}
               >
-                {order.orderStatus === "order"
-                  ? "Вернуть в заявки"
-                  : "Отметить заказом"}
-              </Button>
+                <SelectTrigger
+                  size="sm"
+                  aria-label={`Статус заявки ${order.name || "без имени"}`}
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {ORDER_STATUS_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2 rounded-lg bg-muted/40 p-3 text-sm">

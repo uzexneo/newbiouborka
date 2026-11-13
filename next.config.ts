@@ -5,7 +5,7 @@ const basePath =
 
 const nextConfig: NextConfig = {
   ...(process.env.SEO_VERIFICATION_THREAD_WORKERS === "1" && {
-    experimental: { workerThreads: true, cpus: 2 },
+    experimental: { workerThreads: true, webpackBuildWorker: false, cpus: 2 },
   }),
   output: process.env.OUTPUT_MODE === "export" ? "export" : undefined,
 

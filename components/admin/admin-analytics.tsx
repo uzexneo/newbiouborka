@@ -23,6 +23,8 @@ import {
 } from "@/components/ui/select";
 import type { AnalyticsResponse } from "@/app/api/admin/analytics/route";
 import { fetchJson } from "@/lib/api-client";
+import { AdminLeadCost } from "@/components/admin/admin-lead-cost";
+import { realGoogleAdsInquiries } from "@/lib/lead-cost";
 
 const PERIOD_OPTIONS = [
   { value: 7, label: "7 дней" },
@@ -64,6 +66,11 @@ function ConversionFunnel({ data }: { data: AnalyticsResponse["funnel"] }) {
       hint: "Статус в панели, не подтверждение оплаты",
       value: data.orders,
     },
+    {
+      label: "Отмечено выполненными",
+      hint: "Заказы со статусом «Выполнен»",
+      value: data.completed,
+    },
   ];
   const max = Math.max(1, ...steps.map((step) => step.value));
 
@@ -104,6 +111,10 @@ function ConversionFunnel({ data }: { data: AnalyticsResponse["funnel"] }) {
           </div>
         );
       })}
+      <p className="text-xs text-muted-foreground">
+        Статусы показаны для обращений выбранного периода, а не по дате
+        выполнения. Выполнение заказа не подтверждает его оплату.
+      </p>
     </div>
   );
 }
@@ -388,7 +399,7 @@ export function AdminAnalytics() {
               <h3 className="text-sm font-semibold">Качество обращений</h3>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {[
-                  { label: "Реальные клиенты", value: data.leadQuality.real },
+                  { label: "Реальные обращения", value: data.leadQuality.real },
                   { label: "Не проверены", value: data.leadQuality.unreviewed },
                   { label: "Тестовые", value: data.leadQuality.test },
                   { label: "Спам", value: data.leadQuality.spam },
@@ -397,8 +408,12 @@ export function AdminAnalytics() {
                     value: data.linkedApplications,
                   },
                   {
-                    label: "Реальные клиенты с найденным посещением",
+                    label: "Реальные обращения с найденным посещением",
                     value: data.realLinkedApplications,
+                  },
+                  {
+                    label: "Выполненные заказы реальных клиентов",
+                    value: data.realCompletedOrders,
                   },
                 ].map((item) => (
                   <div key={item.label}>
@@ -412,10 +427,17 @@ export function AdminAnalytics() {
               <p className="text-xs text-muted-foreground">
                 Отметьте качество во вкладке заявок после общения с клиентом.
                 Старые и новые обращения остаются непроверенными, пока вы не
-                выберете качество.
+                выберете качество. Здесь считаются обращения, а не уникальные
+                клиенты.
               </p>
             </CardContent>
           </Card>
+
+          <AdminLeadCost
+            key={`${data.period.from}:${data.period.to}`}
+            periodLabel={`${formatPeriodDate(data.period.from)}–${formatPeriodDate(data.period.to)}`}
+            realInquiries={realGoogleAdsInquiries(data.byRealLeadSource)}
+          />
 
           {data.days.length > 0 && (
             <Card>
@@ -460,7 +482,7 @@ export function AdminAnalytics() {
               emptyText="За выбранный период обращений нет."
             />
             <BreakdownCard
-              title="Источники реальных клиентов"
+              title="Источники реальных обращений"
               icon={Users}
               items={data.byRealLeadSource}
               emptyText="В выбранном периоде пока нет обращений, отмеченных реальными."
@@ -468,8 +490,8 @@ export function AdminAnalytics() {
           </div>
           <p className="text-xs text-muted-foreground">
             Источник определяется по сохранённым меткам перехода. Это не отчёт о
-            конверсиях Google Ads; стоимость заявки здесь не рассчитывается без
-            расходов рекламы.
+            конверсиях Google Ads. Для ориентировочного расчёта расходов на
+            реальное обращение используйте калькулятор выше.
           </p>
         </>
       ) : (

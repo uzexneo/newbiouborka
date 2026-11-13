@@ -4,6 +4,8 @@ import { isDatabaseAvailable, ensureSiteVisitsTable } from "@/lib/db";
 import { isAdminRequest } from "@/lib/admin-auth";
 import { getAllOrders, getAllVisits } from "@/lib/models";
 import { isPublicAnalyticsPath } from "@/lib/analytics-paths";
+import type { OrderStatus } from "@/lib/order-status";
+import { trafficSource } from "@/lib/traffic-source";
 import {
   leadQuality,
   leadSource,
@@ -43,7 +45,7 @@ interface VisitLite {
 
 interface OrderLite extends ReportableLead {
   service: string;
-  orderStatus?: "application" | "order";
+  orderStatus?: OrderStatus;
   createdAt: string;
 }
 
@@ -57,6 +59,7 @@ export interface FunnelData {
   visits: number;
   applications: number;
   orders: number;
+  completed: number;
 }
 
 export interface BreakdownItem {
@@ -76,6 +79,7 @@ export interface AnalyticsResponse {
   leadQuality: ReturnType<typeof summarizeLeadQuality>;
   linkedApplications: number;
   realLinkedApplications: number;
+  realCompletedOrders: number;
   period: {
     from: string;
     to: string;
@@ -85,30 +89,14 @@ export interface AnalyticsResponse {
 
 function categorizeSource(visit: VisitLite): string {
   const params = new URL(visit.path, "https://biouborka.uz").searchParams;
-  const source = params.get("utm_source")?.trim();
-  if (source) {
-    const medium = params.get("utm_medium")?.trim();
-    return medium ? `${source} / ${medium}` : source;
-  }
-  if (["gclid", "gbraid", "wbraid"].some((key) => params.has(key))) {
-    return "Google Реклама";
-  }
-  if (!visit.referrer) return "Прямые заходы / источник не определён";
-  try {
-    const host = new URL(visit.referrer).hostname.toLowerCase();
-    const matchesHost = (domain: string) =>
-      host === domain || host.endsWith(`.${domain}`);
-    if (matchesHost("biouborka.uz")) return "Переходы внутри сайта";
-    if (matchesHost("instagram.com")) return "Instagram";
-    if (matchesHost("t.me") || matchesHost("telegram.org")) return "Telegram";
-    if (/^(?:.+\.)?google\.[a-z.]+$/.test(host)) return "Google";
-    if (/^(?:.+\.)?yandex\.[a-z.]+$/.test(host)) return "Яндекс";
-    if (matchesHost("bing.com")) return "Bing";
-    if (matchesHost("chatgpt.com")) return "ChatGPT";
-    return host || "Другие сайты";
-  } catch {
-    return "Источник не определён";
-  }
+  return trafficSource({
+    gclid: params.get("gclid") ?? undefined,
+    gbraid: params.get("gbraid") ?? undefined,
+    wbraid: params.get("wbraid") ?? undefined,
+    utm_source: params.get("utm_source") ?? undefined,
+    utm_medium: params.get("utm_medium") ?? undefined,
+    referrer: visit.referrer,
+  });
 }
 
 function aggregate(
@@ -172,8 +160,11 @@ function aggregate(
         .status === "matched"
   );
   const ordersCount = inRangeOrders.filter(
-    (o) => o.orderStatus === "order"
+    (o) => o.orderStatus === "order" || o.orderStatus === "completed"
   ).length;
+  const completedOrders = inRangeOrders.filter(
+    (order) => order.orderStatus === "completed"
+  );
 
   const serviceMap = new Map<string, number>();
   for (const o of inRangeOrders) {
@@ -211,6 +202,7 @@ function aggregate(
       visits: inRangeVisits.length,
       applications,
       orders: ordersCount,
+      completed: completedOrders.length,
     },
     byService,
     bySource,
@@ -221,6 +213,9 @@ function aggregate(
     leadQuality: quality,
     linkedApplications: linked.length,
     realLinkedApplications: linked.filter(
+      (order) => leadQuality(order) === "real"
+    ).length,
+    realCompletedOrders: completedOrders.filter(
       (order) => leadQuality(order) === "real"
     ).length,
     period: { from: fromDate, to: toDate, timeZone: ANALYTICS_TIME_ZONE },

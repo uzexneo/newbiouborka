@@ -124,7 +124,7 @@ test("sources use recorded tags while missing historical attribution stays unkno
     helpers.leadSource({
       attribution: { utm_source: "google", utm_medium: "cpc" },
     }),
-    "google / cpc"
+    "Google Реклама"
   );
   assert.equal(
     helpers.leadSource({ attribution: undefined }),
@@ -134,8 +134,37 @@ test("sources use recorded tags while missing historical attribution stays unkno
     helpers.leadSource({
       attribution: { referrer: "https://biouborka.uz/uslugi" },
     }),
-    "Источник не определён"
+    "Переходы внутри сайта"
   );
+});
+
+test("paid Google tags share one channel without treating organic, empty tags or lookalike hosts as Ads", () => {
+  const { trafficSource } = loader()("lib/traffic-source.ts");
+  for (const attribution of [
+    { utm_source: " Google ", utm_medium: " CPC " },
+    { utm_source: "google", utm_medium: "ppc" },
+    { gbraid: "synthetic-click", utm_source: "another-source" },
+    { wbraid: "synthetic-click" },
+  ])
+    assert.equal(trafficSource(attribution), "Google Реклама");
+  assert.equal(
+    trafficSource({ gclid: "", referrer: "https://google.com/" }),
+    "Google"
+  );
+  assert.equal(
+    trafficSource({ utm_source: "google", utm_medium: "organic" }),
+    "google / organic"
+  );
+  assert.equal(
+    trafficSource({ utm_source: "bing", utm_medium: "cpc" }),
+    "bing / cpc"
+  );
+  assert.equal(
+    trafficSource({ referrer: "https://notgoogle.com/" }),
+    "notgoogle.com"
+  );
+  assert.equal(trafficSource({ referrer: "invalid" }), "Источник не определён");
+  assert.equal(trafficSource({}), "Прямые заходы / источник не определён");
 });
 
 function apiHarness({
@@ -171,7 +200,13 @@ function apiHarness({
         updates.push({ id, quality });
         return { ...lead, leadQuality: quality };
       },
-      updateOrderStatus: async () => assert.fail("Unexpected status update"),
+      updateOrderStatus: async (id, status) => {
+        updates.push({ id, status });
+        return {
+          ...(orders.find((order) => order.id === id) ?? lead),
+          orderStatus: status,
+        };
+      },
     },
   });
   return {
@@ -224,6 +259,30 @@ test("quality update is explicit, validated and cannot also change status or unk
   assert.equal(h.updates.length, 1);
 });
 
+test("completed status is an explicit work outcome, not a quality or payment change", async () => {
+  const fixture = { ...lead, leadQuality: "unreviewed", orderStatus: "order" };
+  const h = apiHarness({ orders: [fixture] });
+  const request = (body) => ({
+    url: `https://example.test/api/admin/orders?id=${fixture.id}`,
+    json: async () => body,
+  });
+  for (const body of [
+    { orderStatus: "paid" },
+    { orderStatus: "completed", leadQuality: "real" },
+    { orderStatus: "completed", paid: true },
+  ])
+    assert.equal((await h.ordersApi.PUT(request(body))).status, 400);
+  assert.equal(h.updates.length, 0);
+  for (const status of ["completed", "order", "application"]) {
+    const result = await h.ordersApi.PUT(request({ orderStatus: status }));
+    assert.equal(result.status, 200);
+    assert.equal(result.body.orderStatus, status);
+    assert.equal(result.body.leadQuality, "unreviewed");
+    assert.equal(Object.hasOwn(result.body, "paid"), false);
+  }
+  assert.equal(h.updates.length, 3);
+});
+
 test("analytics keeps real, unreviewed, tests and spam distinct, matching across visit boundary", async () => {
   const today = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Tashkent",
@@ -258,4 +317,143 @@ test("analytics keeps real, unreviewed, tests and spam distinct, matching across
   assert.equal(result.body.byRealLeadSource.length, 1);
   assert.equal(result.body.byRealLeadSource[0].label, "Google Реклама");
   assert.equal(result.body.byRealLeadSource[0].count, 1);
+});
+
+function currentFixture() {
+  const today = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Tashkent",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+  return {
+    lead: { ...lead, createdAt: today + "T06:01:00.000Z" },
+    visit: { ...visit, date: today, createdAt: today + "T06:00:00.000Z" },
+  };
+}
+
+test("analytics keeps booked orders including legacy data separate from completed and real completed", async () => {
+  const fixture = currentFixture().lead;
+  const orders = [
+    {
+      ...fixture,
+      id: "real-completed",
+      orderStatus: "completed",
+      leadQuality: "real",
+    },
+    { ...fixture, id: "unreviewed-completed", orderStatus: "completed" },
+    {
+      ...fixture,
+      id: "test-completed",
+      orderStatus: "completed",
+      leadQuality: "test",
+    },
+    {
+      ...fixture,
+      id: "spam-completed",
+      orderStatus: "completed",
+      leadQuality: "spam",
+    },
+    {
+      ...fixture,
+      id: "real-booked",
+      orderStatus: "order",
+      leadQuality: "real",
+    },
+    {
+      ...fixture,
+      id: "legacy-booked",
+      orderStatus: "order",
+      attribution: undefined,
+    },
+    { ...fixture, id: "legacy-application", attribution: undefined },
+  ];
+  const h = apiHarness({ orders, visits: [] });
+  const result = await h.analyticsApi.GET({
+    url: "https://example.test/api/admin/analytics?days=7",
+  });
+  assert.equal(result.status, 200);
+  assert.equal(result.body.funnel.applications, 7);
+  assert.equal(result.body.funnel.orders, 6);
+  assert.equal(result.body.funnel.completed, 4);
+  assert.equal(result.body.realCompletedOrders, 1);
+  assert.equal(result.body.leadQuality.real, 2);
+  assert.equal(result.body.leadQuality.unreviewed, 3);
+  assert.equal(result.body.leadQuality.test, 1);
+  assert.equal(result.body.leadQuality.spam, 1);
+});
+
+test("views and real leads group Google Ads with either click IDs or google/cpc identically", async () => {
+  const fixture = currentFixture();
+  const tags = [
+    { utm_source: "google", utm_medium: "cpc" },
+    { gclid: "synthetic", utm_source: "another", utm_medium: "cpc" },
+    { utm_source: "bing", utm_medium: "cpc" },
+  ];
+  const h = apiHarness({
+    orders: tags.map((attribution, i) => ({
+      ...fixture.lead,
+      id: `lead-${i}`,
+      leadQuality: "real",
+      attribution,
+    })),
+    visits: tags.map((attribution, i) => ({
+      ...fixture.visit,
+      id: `visit-${i}`,
+      path: `/uslugi/uborka?${new URLSearchParams(attribution)}`,
+    })),
+  });
+  const result = await h.analyticsApi.GET({
+    url: "https://example.test/api/admin/analytics?days=7",
+  });
+  assert.equal(result.status, 200);
+  const expected = [
+    { label: "Google Реклама", count: 2 },
+    { label: "bing / cpc", count: 1 },
+  ];
+  for (const key of ["bySource", "byLeadSource", "byRealLeadSource"])
+    assert.deepEqual(JSON.parse(JSON.stringify(result.body[key])), expected);
+});
+
+test("manual cost uses only qualified Google Ads inquiries and never produces a cost without them", () => {
+  const { realGoogleAdsInquiries, costPerRealInquiry, manualAdSpendSchema } =
+    loader()("lib/lead-cost.ts");
+  const count = realGoogleAdsInquiries([
+    { label: "Google Реклама", count: 2 },
+    { label: "Google", count: 100 },
+    { label: "google / organic", count: 100 },
+    { label: "Источник не записан", count: 100 },
+    { label: "bing / cpc", count: 100 },
+    { label: "Google Реклама", count: -1 },
+    { label: "Google Реклама", count: NaN },
+  ]);
+  assert.equal(count, 2);
+  assert.equal(costPerRealInquiry(12, count), 6);
+  assert.equal(costPerRealInquiry(0, count), 0);
+  for (const [spend, leads] of [
+    [12, 0],
+    [0, 0],
+    [-1, 1],
+    [Infinity, 1],
+    [NaN, 1],
+    [12, -1],
+    [12, NaN],
+    [12, Infinity],
+    [12, 1.5],
+  ])
+    assert.equal(costPerRealInquiry(spend, leads), null);
+  assert.equal(manualAdSpendSchema.parse("12,50"), 12.5);
+  assert.equal(manualAdSpendSchema.parse("12.123456"), 12.123456);
+  assert.equal(manualAdSpendSchema.parse("0"), 0);
+  for (const value of [
+    "",
+    " ",
+    "NaN",
+    "Infinity",
+    "-1",
+    "12,5,0",
+    "1e5",
+    "1000000001",
+  ])
+    assert.equal(manualAdSpendSchema.safeParse(value).success, false);
 });
